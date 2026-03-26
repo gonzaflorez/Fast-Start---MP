@@ -943,57 +943,43 @@ function openFicha(usuario){
 
 
 // ── LOG — robusto con y sin Apps Script ───────────────────────────
+const LOG_KEY = 'mercadito_dash_log';
+
 function saveLog(entrada){
-  if(!enAppsScript)return; // sin Apps Script, no hace nada (no rompe)
-  google.script.run
-    .withSuccessHandler(res=>{
-      if(res&&res.email){const hm=document.getElementById('header-meta');if(!hm.innerHTML.includes('@'))hm.innerHTML+=` &nbsp;|&nbsp; <span style="color:#8a99ab">${res.email}</span>`}
-      renderLog();
-    })
-    .withFailureHandler(()=>{}) // silencioso
-    .guardarLog(entrada);
+  try{
+    const logs = JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+    logs.unshift(entrada); // más reciente primero
+    localStorage.setItem(LOG_KEY, JSON.stringify(logs));
+  }catch(e){}
+  renderLog();
 }
 
 function renderLog(){
   const tbody=document.getElementById('log-body');
-  if(!enAppsScript){
-    tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">
-      El log centralizado está disponible solo cuando el tablero está publicado en Google Apps Script.<br>
-      <span style="font-size:11px;opacity:.7">Seguí los pasos de instalación para activarlo.</span>
-    </td></tr>`;
-    document.getElementById('ls-usos').textContent='—';
-    document.getElementById('ls-lideres').textContent='—';
+  let logs=[];
+  try{ logs=JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){}
+
+  if(logs.length===0){
+    tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros aún. Cargá un archivo para generar el primer registro.</td></tr>`;
+    document.getElementById('ls-usos').textContent='0';
+    document.getElementById('ls-lideres').textContent='0';
     document.getElementById('ls-ultimo').textContent='—';
     return;
   }
-  tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;font-family:var(--font)">Cargando registros…</td></tr>`;
-  google.script.run
-    .withSuccessHandler(logs=>{
-      if(!logs||logs.length===0){
-        tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;font-family:var(--font)">Sin registros aún.</td></tr>`;
-        document.getElementById('ls-usos').textContent='0';
-        document.getElementById('ls-lideres').textContent='0';
-        document.getElementById('ls-ultimo').textContent='—';
-        return;
-      }
-      const lideres=new Set(logs.map(e=>e.email||e.lider));
-      document.getElementById('ls-usos').textContent=logs.length;
-      document.getElementById('ls-lideres').textContent=lideres.size;
-      document.getElementById('ls-ultimo').textContent=`${logs[0].fecha} ${logs[0].hora}`;
-      tbody.innerHTML=logs.map((e,i)=>`<tr>
-        <td style="color:var(--text-muted)">${i+1}</td>
-        <td><strong>${e.lider}</strong></td>
-        <td style="color:var(--text-muted)">${e.email||'—'}</td>
-        <td>${e.fecha}</td>
-        <td style="font-family:var(--mono)">${e.hora}</td>
-        <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
-        <td>${e.periodo}</td>
-      </tr>`).join('');
-    })
-    .withFailureHandler(()=>{
-      tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;font-family:var(--font)">No se pudieron cargar los registros.</td></tr>`;
-    })
-    .obtenerLogs();
+
+  const lideres=new Set(logs.map(e=>e.lider));
+  document.getElementById('ls-usos').textContent=logs.length;
+  document.getElementById('ls-lideres').textContent=lideres.size;
+  document.getElementById('ls-ultimo').textContent=`${logs[0].fecha} ${logs[0].hora}`;
+  tbody.innerHTML=logs.map((e,i)=>`<tr>
+    <td style="color:var(--text-muted)">${i+1}</td>
+    <td><strong>${e.lider}</strong></td>
+    <td style="color:var(--text-muted)">—</td>
+    <td>${e.fecha}</td>
+    <td style="font-family:var(--mono)">${e.hora}</td>
+    <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
+    <td>${e.periodo}</td>
+  </tr>`).join('');
 }
 
 // ── Render general ─────────────────────────────────────────────────
