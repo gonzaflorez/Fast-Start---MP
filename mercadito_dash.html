@@ -943,43 +943,57 @@ function openFicha(usuario){
 
 
 // ── LOG — robusto con y sin Apps Script ───────────────────────────
-const LOG_KEY = 'mercadito_dash_log';
+const JBIN_ID  = '69c57f81c3097a1dd56326e6';
+const JBIN_KEY = '$2a$10$wzK.Zh3LOZw0dK2./KvJmuCNJKaH.206v9Xsb5EmO/QEYujiRBUbm';
+const JBIN_URL = `https://api.jsonbin.io/v3/b/${JBIN_ID}`;
 
 function saveLog(entrada){
-  try{
-    const logs = JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
-    logs.unshift(entrada); // más reciente primero
-    localStorage.setItem(LOG_KEY, JSON.stringify(logs));
-  }catch(e){}
-  renderLog();
+  fetch(JBIN_URL, {headers:{'X-Master-Key':JBIN_KEY}})
+    .then(r=>r.json())
+    .then(data=>{
+      const logs = Array.isArray(data.record?.logs) ? data.record.logs : [];
+      logs.unshift(entrada);
+      return fetch(JBIN_URL, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JBIN_KEY},
+        body: JSON.stringify({logs})
+      });
+    })
+    .then(()=>renderLog())
+    .catch(()=>{}); // silencioso si falla
 }
 
 function renderLog(){
   const tbody=document.getElementById('log-body');
-  let logs=[];
-  try{ logs=JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){}
-
-  if(logs.length===0){
-    tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros aún. Cargá un archivo para generar el primer registro.</td></tr>`;
-    document.getElementById('ls-usos').textContent='0';
-    document.getElementById('ls-lideres').textContent='0';
-    document.getElementById('ls-ultimo').textContent='—';
-    return;
-  }
-
-  const lideres=new Set(logs.map(e=>e.lider));
-  document.getElementById('ls-usos').textContent=logs.length;
-  document.getElementById('ls-lideres').textContent=lideres.size;
-  document.getElementById('ls-ultimo').textContent=`${logs[0].fecha} ${logs[0].hora}`;
-  tbody.innerHTML=logs.map((e,i)=>`<tr>
-    <td style="color:var(--text-muted)">${i+1}</td>
-    <td><strong>${e.lider}</strong></td>
-    <td style="color:var(--text-muted)">—</td>
-    <td>${e.fecha}</td>
-    <td style="font-family:var(--mono)">${e.hora}</td>
-    <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
-    <td>${e.periodo}</td>
-  </tr>`).join('');
+  tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;text-align:center;font-family:var(--font)">Cargando…</td></tr>`;
+  fetch(JBIN_URL, {headers:{'X-Master-Key':JBIN_KEY}})
+    .then(r=>r.json())
+    .then(data=>{
+      const logs = Array.isArray(data.record?.logs) ? data.record.logs : [];
+      if(logs.length===0){
+        tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros aún. Cargá un archivo para generar el primer registro.</td></tr>`;
+        document.getElementById('ls-usos').textContent='0';
+        document.getElementById('ls-lideres').textContent='0';
+        document.getElementById('ls-ultimo').textContent='—';
+        return;
+      }
+      const lideres=new Set(logs.map(e=>e.lider));
+      document.getElementById('ls-usos').textContent=logs.length;
+      document.getElementById('ls-lideres').textContent=lideres.size;
+      document.getElementById('ls-ultimo').textContent=`${logs[0].fecha} ${logs[0].hora}`;
+      tbody.innerHTML=logs.map((e,i)=>`<tr>
+        <td style="color:var(--text-muted)">${i+1}</td>
+        <td><strong>${e.lider}</strong></td>
+        <td style="color:var(--text-muted)">—</td>
+        <td>${e.fecha}</td>
+        <td style="font-family:var(--mono)">${e.hora}</td>
+        <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
+        <td>${e.periodo}</td>
+      </tr>`).join('');
+    })
+    .catch(()=>{
+      tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;text-align:center;font-family:var(--font)">No se pudo conectar con el log centralizado.</td></tr>`;
+    });
 }
 
 // ── Render general ─────────────────────────────────────────────────
