@@ -677,11 +677,15 @@ function parseDate(val){
   return null;
 }
 
-function detectSep(line){
-  // Detecta si el CSV usa coma o punto y coma
-  let commas=0,semis=0;let inQ=false;
-  for(const c of line){if(c==='"'){inQ=!inQ}else if(!inQ){if(c===',')commas++;else if(c===';')semis++;}}
-  return semis>=commas?';':',';
+function detectSep(lines){
+  // Cuenta separadores en varias líneas para mayor precisión
+  const countSep=(line,sep)=>{let n=0,inQ=false;for(const c of line){if(c==='"'){inQ=!inQ}else if(!inQ&&c===sep)n++;}return n;};
+  const sample=lines.slice(0,6).filter(l=>l.trim());
+  const commas=sample.reduce((s,l)=>s+countSep(l,','),0);
+  const semis =sample.reduce((s,l)=>s+countSep(l,';'),0);
+  const tabs  =sample.reduce((s,l)=>s+countSep(l,'\t'),0);
+  if(tabs>commas&&tabs>semis)return '\t';
+  return commas>=semis?',':';';
 }
 
 function splitCSVLine(line,sep){
@@ -701,7 +705,7 @@ function processCSV(text){
   if(lines.length < 2) throw new Error('El archivo parece estar vacío.');
 
   // ── Auto-detectar separador ───────────────────────────────────
-  const sep = detectSep(lines[0]);
+  const sep = detectSep(lines);
 
   // ── Detectar columnas por header ──────────────────────────────
   const headers = splitCSVLine(lines[0],sep).map(h=>h.toLowerCase().replace(/^"|"$/g,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim());
