@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Mercadito Dash · Mercado Pago</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -249,11 +250,11 @@ tr:hover td{background:#f5fbff}
         <input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/>
       </div>
       <div class="field">
-        <label>📂 CSV Invas — Semana actual</label>
+        <label>📂 Excel Invas — Semana actual</label>
         <div class="upload-zone" id="drop-zone">
-          <input type="file" id="file-input" accept=".csv"/>
+          <input type="file" id="file-input" accept=".xlsx,.xls"/>
           <div class="upload-icon">📊</div>
-          <div class="upload-text" id="upload-text-main"><strong>Hacé clic o arrastrá</strong> el CSV exportado de Invas (separado por ;)</div>
+          <div class="upload-text" id="upload-text-main"><strong>Hacé clic o arrastrá</strong> el Excel exportado de Invas</div>
         </div>
       </div>
       <div><button class="btn-primary" id="btn-process" disabled>▶ Analizar</button></div>
@@ -278,9 +279,9 @@ tr:hover td{background:#f5fbff}
   <div class="setup-panel" style="opacity:.75">
     <div class="setup-grid" style="grid-template-columns:1fr 1fr">
       <div class="field">
-        <label>🗃 CSV Invas — Semana anterior (opcional)</label>
+        <label>🗃 Excel Invas — Semana anterior (opcional)</label>
         <div class="upload-zone" id="drop-zone-prev">
-          <input type="file" id="file-input-prev" accept=".csv"/>
+          <input type="file" id="file-input-prev" accept=".xlsx,.xls"/>
           <div class="upload-icon">🗃</div>
           <div class="upload-text" id="upload-text-prev"><strong>Hacé clic o arrastrá</strong> para habilitar la comparación de semanas</div>
         </div>
@@ -677,38 +678,16 @@ function parseDate(val){
   return null;
 }
 
-function detectSep(lines){
-  // Cuenta separadores en varias líneas para mayor precisión
-  const countSep=(line,sep)=>{let n=0,inQ=false;for(const c of line){if(c==='"'){inQ=!inQ}else if(!inQ&&c===sep)n++;}return n;};
-  const sample=lines.slice(0,6).filter(l=>l.trim());
-  const commas=sample.reduce((s,l)=>s+countSep(l,','),0);
-  const semis =sample.reduce((s,l)=>s+countSep(l,';'),0);
-  const tabs  =sample.reduce((s,l)=>s+countSep(l,'\t'),0);
-  if(tabs>commas&&tabs>semis)return '\t';
-  return commas>=semis?',':';';
-}
+function processXLSX(wb){
+  const sheet = wb.Sheets[wb.SheetNames[0]];
 
-function splitCSVLine(line,sep){
-  const cols=[];let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(c==='"'){inQ=!inQ}
-    else if(c===sep&&!inQ){cols.push(cur.trim());cur=''}
-    else{cur+=c}
-  }
-  cols.push(cur.trim());
-  return cols;
-}
+  // Leer todo como array de arrays para detectar headers
+  const rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
+  if(rows.length < 2) throw new Error('El archivo parece estar vacío.');
 
-function processCSV(text){
-  const lines = text.split(/\r?\n/).filter(l=>l.trim());
-  if(lines.length < 2) throw new Error('El archivo parece estar vacío.');
-
-  // ── Auto-detectar separador ───────────────────────────────────
-  const sep = detectSep(lines);
-
-  // ── Detectar columnas por header ──────────────────────────────
-  const headers = splitCSVLine(lines[0],sep).map(h=>h.toLowerCase().replace(/^"|"$/g,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim());
+  // ── Detectar columnas por nombre de header ────────────────────
+  const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const headers = rows[0].map(norm);
 
   const findCol = (...keywords) => {
     for(const kw of keywords){
@@ -718,32 +697,28 @@ function processCSV(text){
     return -1;
   };
 
-  // Columnas específicas de Invas/MercadoPago (orden de salida)
-  const iUsuario = findCol('usuario ult mod','usuario_ult_mod','operador','usuario creacion','usuario','user','operator','login');
-  const iFecha   = findCol('fecha inicio picking','fecha_inicio_picking','fecha despacho','fecha_despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
-  const iRuta    = findCol('nombre ruta','nombre_ruta','ruta','route','os');
+  const iUsuario = findCol('usuario ult mod','operador','usuario creacion','usuario','user','operator');
+  const iFecha   = findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
+  const iRuta    = findCol('nombre ruta','ruta','route');
 
   if(iUsuario<0 || iFecha<0){
     throw new Error(
       `No se encontraron las columnas de usuario/fecha.\n` +
-      `Separador detectado: "${sep}" | Headers: ${headers.slice(0,30).join(' | ')}`
+      `Headers detectados: ${headers.slice(0,30).join(' | ')}`
     );
   }
 
-  const nRows = lines.length - 1;
+  const nRows = rows.length - 1;
   setProgress(70, 'Procesando registros…', `${nRows.toLocaleString()} filas a analizar`);
 
   const byUserDay = new Map();
   const CHUNK = 3000;
 
-  for(let i = 1; i < lines.length; i++){
-    const line = lines[i];
-    if(!line.trim()) continue;
-
-    const cols = splitCSVLine(line);
-    const ruta    = iRuta>=0 ? (cols[iRuta]    || '') : '';
-    const usuario = (cols[iUsuario] || '').trim();
-    const fechaRaw = (cols[iFecha]  || '').trim();
+  for(let i = 1; i < rows.length; i++){
+    const row = rows[i];
+    const ruta    = iRuta>=0 ? String(row[iRuta]||'').trim() : '';
+    const usuario = String(row[iUsuario]||'').trim();
+    const fechaRaw = row[iFecha];
 
     if(!usuario || !fechaRaw) continue;
 
@@ -762,15 +737,15 @@ function processCSV(text){
     if(ruta) entry.ruta = ruta;
 
     if(i % CHUNK === 0){
-      const pct = 70 + Math.round((i / lines.length) * 22);
+      const pct = 70 + Math.round((i / rows.length) * 22);
       setProgress(pct, 'Procesando registros…', `${i.toLocaleString()} de ${nRows.toLocaleString()} filas`);
     }
   }
 
   if(byUserDay.size === 0) throw new Error(
     `No se encontraron registros dentro del horario de turnos.\n` +
-    `Columnas usadas → Usuario: "${headers[iUsuario]}" (col ${iUsuario+1}), ` +
-    `Fecha: "${headers[iFecha]}" (col ${iFecha+1})${iRuta>=0?`, Ruta: "${headers[iRuta]}" (col ${iRuta+1})`:''}.`
+    `Columnas usadas → Usuario: "${rows[0][iUsuario]}" (col ${iUsuario+1}), ` +
+    `Fecha: "${rows[0][iFecha]}" (col ${iFecha+1})${iRuta>=0?`, Ruta: "${rows[0][iRuta]}" (col ${iRuta+1})`:''}.`
   );
 
   setProgress(93, 'Calculando Fast Start…', 'Evaluando controles por usuario');
@@ -1060,26 +1035,21 @@ function setProgress(pct, texto, sub='') {
   document.getElementById('loader-sub').textContent = sub;
 }
 
-// ── Leer CSV separado por ; ────────────────────────────────────────
+// ── Leer Excel ────────────────────────────────────────────────────
 function readCSV(file) {
   return new Promise((resolve, reject) => {
     const mb = file.size / 1024 / 1024;
     if (mb > MAX_MB) {
-      reject(new Error(`El archivo pesa ${mb.toFixed(1)} MB. El máximo soportado es ${MAX_MB} MB. Exportá un rango de fechas más acotado desde Invas.`));
+      reject(new Error(`El archivo pesa ${mb.toFixed(1)} MB. El máximo soportado es ${MAX_MB} MB.`));
       return;
     }
     setProgress(10, `Leyendo archivo… (${mb.toFixed(1)} MB)`, 'Cargando datos a memoria');
     const reader = new FileReader();
     reader.onload = e => {
       try {
-        setProgress(60, 'Parseando CSV…', 'Detectando encoding');
-        const buf = e.target.result;
-        const bytes = new Uint8Array(buf);
-        let encoding = 'UTF-8';
-        if(bytes[0]===0xFF && bytes[1]===0xFE) encoding='UTF-16LE';
-        else if(bytes[0]===0xFE && bytes[1]===0xFF) encoding='UTF-16BE';
-        const text = new TextDecoder(encoding).decode(buf);
-        resolve(text);
+        setProgress(30, 'Parseando Excel…', 'Leyendo columnas');
+        const wb = XLSX.read(e.target.result, {type:'array', cellDates:false, cellNF:false, cellStyles:false});
+        resolve(wb);
       } catch(err) {
         reject(err);
       }
@@ -1127,9 +1097,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('btn-process').disabled=true;
     Promise.all([readCSV(currentFile),prevFile?readCSV(prevFile):Promise.resolve(null)])
       .then(([csvMain,csvPrev])=>{
-        const results=processCSV(csvMain);
+        const results=processXLSX(csvMain);
         allResults=results;
-        if(csvPrev){try{prevResults=processCSV(csvPrev)}catch(e){prevResults=[]}}
+        if(csvPrev){try{prevResults=processXLSX(csvPrev)}catch(e){prevResults=[]}}
         const fechas=[...new Set(results.map(r=>r.fecha))].sort();
         const periodo=fechas.length>1?`${fechas[0]} – ${fechas[fechas.length-1]}`:fechas[0];
         const now=new Date();
