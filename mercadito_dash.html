@@ -250,6 +250,10 @@ tr:hover td{background:#f5fbff}
         <input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/>
       </div>
       <div class="field">
+        <label>🏭 Site</label>
+        <input type="text" id="leader-site" placeholder="Ej: ARBA01"/>
+      </div>
+      <div class="field">
         <label>📂 Excel Invas — Semana actual</label>
         <div class="upload-zone" id="drop-zone">
           <input type="file" id="file-input" accept=".xlsx,.xls"/>
@@ -485,6 +489,14 @@ tr:hover td{background:#f5fbff}
     <div class="log-stat"><div class="log-stat-val" id="ls-lideres">—</div><div class="log-stat-lbl">Líderes distintos</div></div>
     <div class="log-stat"><div class="log-stat-val" id="ls-ultimo">—</div><div class="log-stat-lbl">Último uso</div></div>
   </div>
+  <div class="filters-bar" style="margin-bottom:14px">
+    <span style="font-family:var(--font);font-weight:700;font-size:13px;margin-right:8px">🔍 Filtrar</span>
+    <div class="filter-group"><label>Site</label>
+      <select id="log-filter-site"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Líder</label>
+      <select id="log-filter-lider"><option value="">Todos</option></select></div>
+    <button class="btn-secondary" onclick="renderLog()" style="font-size:12px;padding:6px 14px">Limpiar</button>
+  </div>
   <div class="table-wrap">
     <div class="table-header">
       <div class="table-title">Historial de usos</div>
@@ -492,7 +504,7 @@ tr:hover td{background:#f5fbff}
     </div>
     <div class="table-scroll">
       <table><thead><tr>
-        <th>#</th><th>Líder</th><th>Email</th><th>Fecha</th><th>Hora</th><th>Archivo cargado</th><th>Período analizado</th>
+        <th>#</th><th>Líder</th><th>Site</th><th>Fecha</th><th>Hora</th><th>Archivo cargado</th><th>Período analizado</th>
       </tr></thead><tbody id="log-body"></tbody></table>
     </div>
   </div>
@@ -969,22 +981,34 @@ function renderLog(){
   fetch(JBIN_URL, {headers:{'X-Master-Key':JBIN_KEY}})
     .then(r=>r.json())
     .then(data=>{
-      const logs = Array.isArray(data.record?.logs) ? data.record.logs : [];
+      const allLogs = Array.isArray(data.record?.logs) ? data.record.logs : [];
+
+      // Poblar filtros
+      const fSite=document.getElementById('log-filter-site');
+      const fLider=document.getElementById('log-filter-lider');
+      const selSite=fSite.value, selLider=fLider.value;
+      const sites=[...new Set(allLogs.map(e=>e.site||'—'))].sort();
+      const lideres=[...new Set(allLogs.map(e=>e.lider))].sort();
+      fSite.innerHTML='<option value="">Todos</option>'+sites.map(s=>`<option${s===selSite?' selected':''}>${s}</option>`).join('');
+      fLider.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===selLider?' selected':''}>${l}</option>`).join('');
+
+      // Aplicar filtros
+      let logs=allLogs;
+      if(selSite) logs=logs.filter(e=>(e.site||'—')===selSite);
+      if(selLider) logs=logs.filter(e=>e.lider===selLider);
+
+      document.getElementById('ls-usos').textContent=allLogs.length;
+      document.getElementById('ls-lideres').textContent=new Set(allLogs.map(e=>e.lider)).size;
+      document.getElementById('ls-ultimo').textContent=allLogs.length?`${allLogs[0].fecha} ${allLogs[0].hora}`:'—';
+
       if(logs.length===0){
-        tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros aún. Cargá un archivo para generar el primer registro.</td></tr>`;
-        document.getElementById('ls-usos').textContent='0';
-        document.getElementById('ls-lideres').textContent='0';
-        document.getElementById('ls-ultimo').textContent='—';
+        tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros para el filtro seleccionado.</td></tr>`;
         return;
       }
-      const lideres=new Set(logs.map(e=>e.lider));
-      document.getElementById('ls-usos').textContent=logs.length;
-      document.getElementById('ls-lideres').textContent=lideres.size;
-      document.getElementById('ls-ultimo').textContent=`${logs[0].fecha} ${logs[0].hora}`;
       tbody.innerHTML=logs.map((e,i)=>`<tr>
         <td style="color:var(--text-muted)">${i+1}</td>
         <td><strong>${e.lider}</strong></td>
-        <td style="color:var(--text-muted)">—</td>
+        <td><span class="badge" style="background:#e8f0ff;color:#3156c2">${e.site||'—'}</span></td>
         <td>${e.fecha}</td>
         <td style="font-family:var(--mono)">${e.hora}</td>
         <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
@@ -1077,6 +1101,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('show'));
   document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('show')});
   document.getElementById('btn-refresh-log').addEventListener('click',renderLog);
+  document.getElementById('log-filter-site').addEventListener('change',renderLog);
+  document.getElementById('log-filter-lider').addEventListener('change',renderLog);
 
   setupDrop('drop-zone','file-input','upload-text-main',f=>{
     currentFile=f;
@@ -1089,7 +1115,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('btn-process').addEventListener('click',()=>{
     const leader=document.getElementById('leader-name').value.trim();
+    const site=document.getElementById('leader-site').value.trim();
     if(!leader){showAlert('error','Por favor ingresá tu nombre antes de analizar.');return}
+    if(!site){showAlert('error','Por favor ingresá el site antes de analizar.');return}
     if(!currentFile){showAlert('error','Seleccioná un archivo primero.');return}
     clearAlerts();
     setProgress(0,'Iniciando…','');
@@ -1103,9 +1131,9 @@ document.addEventListener('DOMContentLoaded',()=>{
         const fechas=[...new Set(results.map(r=>r.fecha))].sort();
         const periodo=fechas.length>1?`${fechas[0]} – ${fechas[fechas.length-1]}`:fechas[0];
         const now=new Date();
-        saveLog({lider:leader,fecha:fmtDate(now),hora:fmtTime(now),archivo:currentFile.name,periodo});
+        saveLog({lider:leader,site,fecha:fmtDate(now),hora:fmtTime(now),archivo:currentFile.name,periodo});
         setProgress(100,'¡Listo!','');
-        document.getElementById('header-meta').innerHTML=`${leader} &nbsp;|&nbsp; ${fmtDate(now)} ${fmtTime(now)}`;
+        document.getElementById('header-meta').innerHTML=`${leader} &nbsp;|&nbsp; ${site} &nbsp;|&nbsp; ${fmtDate(now)} ${fmtTime(now)}`;
         renderAll(results,periodo);
         document.getElementById('loader').classList.remove('show');
         document.getElementById('btn-process').disabled=false;
