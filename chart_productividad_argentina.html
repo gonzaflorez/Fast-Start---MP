@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Productividad vs Tickets — Argentina</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #1a1d3a;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .card {
+    background: #23274a;
+    border: 1px solid #373b6e;
+    border-radius: 16px;
+    padding: 28px 32px 24px;
+    width: 100%;
+    max-width: 860px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f0f2ff;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: #9ba3cc;
+    margin-top: 3px;
+  }
+  .badge-impl {
+    background: rgba(255,230,0,0.12);
+    border: 1px solid rgba(255,230,0,0.35);
+    color: #ffe600;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .chart-area {
+    position: relative;
+    height: 320px;
+    margin: 20px 0 16px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .kpi {
+    background: #1a1d3a;
+    border: 1px solid #373b6e;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .kpi-q { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #9ba3cc; margin-bottom: 6px; }
+  .kpi-val { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .kpi-lbl { font-size: 10px; color: #9ba3cc; }
+  .kpi-delta { font-size: 11px; font-weight: 700; margin-top: 4px; }
+  .note {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(255,230,0,0.05);
+    border-left: 3px solid #ffe600;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #9ba3cc;
+    line-height: 1.6;
+  }
+  .note strong { color: #ffe600; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="card-header">
+    <div>
+      <div class="card-title">Productividad vs Tickets — Argentina 2025</div>
+      <div class="card-sub">Correlación entre implementación Post Order, volumen de tickets y caída de productividad</div>
+    </div>
+    <span class="badge-impl">▼ Post Order: ago 2025</span>
+  </div>
+
+  <div class="chart-area">
+    <canvas id="mainChart"></canvas>
+  </div>
+
+  <!-- KPIs por quarter -->
+  <div class="kpis">
+    <div class="kpi" style="border-top:3px solid #3483fa">
+      <div class="kpi-q">Q1 2025</div>
+      <div class="kpi-val" style="color:#3483fa">91</div>
+      <div class="kpi-lbl">tickets</div>
+      <div class="kpi-val" style="color:#3483fa;font-size:14px;margin-top:4px">108.6</div>
+      <div class="kpi-lbl">prod. neta</div>
+      <div class="kpi-delta" style="color:#9ba3cc">base</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid #3483fa">
+      <div class="kpi-q">Q2 2025</div>
+      <div class="kpi-val" style="color:#3483fa">101</div>
+      <div class="kpi-lbl">tickets</div>
+      <div class="kpi-val" style="color:#3483fa;font-size:14px;margin-top:4px">114.6</div>
+      <div class="kpi-lbl">prod. neta</div>
+      <div class="kpi-delta" style="color:#2ed573">↑ pico prod.</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid #ffa502">
+      <div class="kpi-q">Q3 2025</div>
+      <div class="kpi-val" style="color:#ffa502">83</div>
+      <div class="kpi-lbl">tickets</div>
+      <div class="kpi-val" style="color:#ffa502;font-size:14px;margin-top:4px">109.7</div>
+      <div class="kpi-lbl">prod. neta</div>
+      <div class="kpi-delta" style="color:#ffa502">inicio impl.</div>
+    </div>
+    <div class="kpi" style="border-top:3px solid #ff4757">
+      <div class="kpi-q">Q4 2025</div>
+      <div class="kpi-val" style="color:#ff4757">154</div>
+      <div class="kpi-lbl">tickets ⚠️</div>
+      <div class="kpi-val" style="color:#ff4757;font-size:14px;margin-top:4px">102.8</div>
+      <div class="kpi-lbl">prod. neta</div>
+      <div class="kpi-delta" style="color:#ff4757">-10.3% vs base</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Julio 2025</strong> fue el pico de productividad del año (Prod. Neta 126.2 · Sistémica 170.6). A partir de <strong>agosto</strong> (inicio Post Order) la caída es sostenida y Q4 registra simultáneamente el <strong>mínimo de productividad</strong> y el <strong>máximo de tickets (+60%)</strong>.
+  </div>
+
+</div>
+
+<script>
+Chart.register(window['chartjs-plugin-annotation']);
+
+const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+const prodEfect  = [165.4,180.3,191.4,184.2,209.3,201.4,214.9,188.5,176,176,174,178.3];
+const prodNeta   = [124.5,101.8,99.4,103.9,124.6,115.3,126.2,105.7,97.1,102.2,103.6,102.5];
+const prodSist   = [149.5,141.2,142.8,137.6,160,157.5,170.6,150.3,135.3,134,120.6,123.3];
+
+// tickets por mes (distribuidos proporcionalmente por quarter)
+// Q1=91, Q2=101, Q3=83, Q4=154
+const tickets = [30,30,31, 34,34,33, 28,28,27, 51,52,51];
+
+const TT = {
+  backgroundColor:'#1a1d3a', borderColor:'#373b6e', borderWidth:1,
+  titleColor:'#ffe600', bodyColor:'#f0f2ff', padding:12,
+  callbacks:{
+    label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}`
+  }
+};
+
+new Chart(document.getElementById('mainChart'), {
+  data: {
+    labels: meses,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Tickets (aprox. mensual)',
+        data: tickets,
+        backgroundColor: meses.map((_,i) =>
+          i < 6  ? 'rgba(52,131,250,0.25)' :
+          i < 9  ? 'rgba(255,165,2,0.35)' :
+                   'rgba(255,71,87,0.4)'),
+        borderColor: meses.map((_,i) =>
+          i < 6  ? '#3483fa' :
+          i < 9  ? '#ffa502' :
+                   '#ff4757'),
+        borderWidth: 1.5,
+        borderRadius: 4,
+        yAxisID: 'yTickets',
+        order: 3,
+      },
+      {
+        type: 'line',
+        label: 'Prod. Efectividad',
+        data: prodEfect,
+        borderColor: '#c8d400',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#c8d400',
+        tension: 0.4,
+        yAxisID: 'yProd',
+        order: 0,
+      },
+      {
+        type: 'line',
+        label: 'Prod. Neta',
+        data: prodNeta,
+        borderColor: '#3483fa',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#3483fa',
+        tension: 0.4,
+        yAxisID: 'yProd',
+        order: 1,
+      },
+      {
+        type: 'line',
+        label: 'Prod. Neta Sistémica',
+        data: prodSist,
+        borderColor: '#9ba3cc',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5,3],
+        pointRadius: 3,
+        pointBackgroundColor: '#9ba3cc',
+        tension: 0.4,
+        yAxisID: 'yProd',
+        order: 2,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color:'#9ba3cc', font:{size:11}, boxWidth:16, padding:14 }
+      },
+      tooltip: TT,
+      annotation: {
+        annotations: {
+          implLine: {
+            type: 'line',
+            xMin: 6.5, xMax: 6.5,
+            borderColor: '#ffe600',
+            borderWidth: 2,
+            borderDash: [6,4],
+            label: {
+              display: true,
+              content: '▼ Post Order',
+              position: 'start',
+              backgroundColor: 'rgba(255,230,0,0.15)',
+              color: '#ffe600',
+              font: { size: 11, weight: 'bold' },
+              padding: { x:8, y:4 },
+              borderRadius: 4,
+            }
+          },
+          q1Band: { type:'box', xMin:-0.5, xMax:2.5, backgroundColor:'rgba(52,131,250,0.04)', borderWidth:0 },
+          q2Band: { type:'box', xMin:2.5,  xMax:5.5, backgroundColor:'rgba(52,131,250,0.07)', borderWidth:0 },
+          q3Band: { type:'box', xMin:5.5,  xMax:8.5, backgroundColor:'rgba(255,165,2,0.05)', borderWidth:0 },
+          q4Band: { type:'box', xMin:8.5,  xMax:11.5,backgroundColor:'rgba(255,71,87,0.07)', borderWidth:0 },
+          q1Label: { type:'label', xValue:1,  yValue:230, content:'Q1', color:'rgba(52,131,250,0.5)',  font:{size:11,weight:'bold'} },
+          q2Label: { type:'label', xValue:4,  yValue:230, content:'Q2', color:'rgba(52,131,250,0.5)',  font:{size:11,weight:'bold'} },
+          q3Label: { type:'label', xValue:7,  yValue:230, content:'Q3', color:'rgba(255,165,2,0.6)',   font:{size:11,weight:'bold'} },
+          q4Label: { type:'label', xValue:10, yValue:230, content:'Q4', color:'rgba(255,71,87,0.6)',   font:{size:11,weight:'bold'} },
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color:'#2d3277' },
+        ticks: { color:'#9ba3cc', font:{size:11} }
+      },
+      yProd: {
+        type: 'linear',
+        position: 'left',
+        min: 60,
+        max: 240,
+        grid: { color:'#2d3277' },
+        ticks: { color:'#9ba3cc', font:{size:11} },
+        title: { display:true, text:'Productividad', color:'#9ba3cc', font:{size:11} }
+      },
+      yTickets: {
+        type: 'linear',
+        position: 'right',
+        min: 0,
+        max: 100,
+        grid: { drawOnChartArea:false },
+        ticks: { color:'rgba(255,71,87,0.7)', font:{size:11} },
+        title: { display:true, text:'Tickets / mes', color:'rgba(255,71,87,0.7)', font:{size:11} }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

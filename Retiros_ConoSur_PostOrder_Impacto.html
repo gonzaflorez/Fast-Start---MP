@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retiros Cono Sur — Impacto Post Order</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ml-yellow: #ffe600; --ml-blue: #2d3277; --ml-light-blue: #3483fa;
+    --ml-dark: #1a1d3a; --ml-card: #23274a; --ml-border: #373b6e;
+    --text-main: #f0f2ff; --text-muted: #9ba3cc;
+    --red: #ff4757; --green: #2ed573; --orange: #ffa502;
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--ml-dark); color: var(--text-main); min-height: 100vh; }
+  .header { background: linear-gradient(135deg, var(--ml-blue) 0%, #1a1d3a 100%); border-bottom: 3px solid var(--ml-yellow); padding: 28px 40px 24px; display: flex; align-items: flex-end; justify-content: space-between; }
+  .header-left h1 { font-size: 26px; font-weight: 700; color: var(--ml-yellow); }
+  .header-left p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .badge { background: var(--ml-yellow); color: var(--ml-blue); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
+  .header-meta { text-align: right; font-size: 12px; color: var(--text-muted); line-height: 1.8; }
+  .nav-tabs { display: flex; background: var(--ml-card); border-bottom: 1px solid var(--ml-border); padding: 0 40px; }
+  .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 14px 22px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: var(--text-main); }
+  .tab-btn.active { color: var(--ml-yellow); border-bottom-color: var(--ml-yellow); }
+  .slide { display: none; padding: 32px 40px 40px; }
+  .slide.active { display: block; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--ml-card); border: 1px solid var(--ml-border); border-radius: 12px; padding: 20px 18px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.yellow::before { background: var(--ml-yellow); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.blue::before { background: var(--ml-light-blue); }
+  .kpi-card.orange::before { background: var(--orange); }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+  .kpi-value.yellow { color: var(--ml-yellow); } .kpi-value.red { color: var(--red); }
+  .kpi-value.green { color: var(--green); } .kpi-value.blue { color: var(--ml-light-blue); } .kpi-value.orange { color: var(--orange); }
+  .kpi-sub { font-size: 12px; color: var(--text-muted); }
+  .kpi-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-top: 8px; }
+  .kpi-tag.up { background: rgba(255,71,87,0.15); color: var(--red); }
+  .kpi-tag.down { background: rgba(46,213,115,0.15); color: var(--green); }
+  .kpi-tag.neutral { background: rgba(52,131,250,0.15); color: var(--ml-light-blue); }
+  .chart-card { background: var(--ml-card); border: 1px solid var(--ml-border); border-radius: 12px; padding: 24px; }
+  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .chart-card .chart-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+  .chart-wrapper { position: relative; height: 280px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--ml-border); }
+  .impact-row { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; margin-bottom: 20px; }
+  .impact-before, .impact-after { background: var(--ml-card); border: 1px solid var(--ml-border); border-radius: 10px; padding: 18px 20px; }
+  .impact-before { border-left: 3px solid var(--ml-light-blue); }
+  .impact-after { border-left: 3px solid var(--red); }
+  .impact-arrow { text-align: center; font-size: 22px; color: var(--text-muted); }
+  .impact-before h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ml-light-blue); margin-bottom: 8px; }
+  .impact-after h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--red); margin-bottom: 8px; }
+  .impact-before p, .impact-after p { font-size: 13px; line-height: 1.6; }
+  .pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .pill.arg { background: rgba(255,165,2,0.15); color: var(--orange); border: 1px solid rgba(255,165,2,0.3); }
+  .pill.col { background: rgba(52,131,250,0.15); color: var(--ml-light-blue); border: 1px solid rgba(52,131,250,0.3); }
+  .pill.chi { background: rgba(46,213,115,0.15); color: var(--green); border: 1px solid rgba(46,213,115,0.3); }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { background: #2d3277; color: var(--ml-yellow); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 16px; text-align: left; font-weight: 700; }
+  .data-table td { padding: 11px 16px; border-bottom: 1px solid var(--ml-border); vertical-align: middle; }
+  .data-table tr:hover td { background: rgba(52,131,250,0.05); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .bar-inline { display: flex; align-items: center; gap: 10px; }
+  .bar-fill { height: 8px; border-radius: 4px; background: var(--ml-light-blue); min-width: 4px; }
+  .bar-fill.peak { background: var(--red); } .bar-fill.low { background: var(--ml-yellow); } .bar-fill.ok { background: var(--green); }
+  .action-list { display: flex; flex-direction: column; gap: 10px; }
+  .action-item { background: var(--ml-card); border: 1px solid var(--ml-border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; }
+  .action-item .checkbox { width: 18px; height: 18px; border: 2px solid var(--ml-border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .action-item .checkbox:hover { border-color: var(--ml-yellow); }
+  .action-item.done .checkbox { background: var(--green); border-color: var(--green); color: #000; font-size: 11px; }
+  .action-owner { font-size: 11px; font-weight: 700; color: var(--ml-light-blue); margin-bottom: 3px; }
+  .action-desc { font-size: 13px; line-height: 1.5; }
+  .action-tag { margin-left: auto; flex-shrink: 0; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: rgba(255,230,0,0.1); color: var(--ml-yellow); border: 1px solid rgba(255,230,0,0.2); white-space: nowrap; align-self: center; }
+  .highlight-box { background: rgba(255,230,0,0.06); border: 1px solid rgba(255,230,0,0.25); border-left: 4px solid var(--ml-yellow); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .highlight-box p { font-size: 13px; line-height: 1.7; }
+  .highlight-box strong { color: var(--ml-yellow); }
+  .alert-box { background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.25); border-left: 4px solid var(--red); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .alert-box p { font-size: 13px; line-height: 1.7; }
+  .alert-box strong { color: var(--red); }
+  .footer { background: var(--ml-card); border-top: 1px solid var(--ml-border); padding: 14px 40px; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+  .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .progress-label { width: 110px; font-size: 12px; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+  .progress-track { flex: 1; height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 5px; }
+  .progress-value { width: 50px; font-size: 13px; font-weight: 700; text-align: right; flex-shrink: 0; }
+  .divider { height: 1px; background: var(--ml-border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Retiros Cono Sur — Impacto Post Order</h1>
+    <p>Análisis de tickets generados por problemas de retiro · Argentina · Colombia · Chile</p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+    <span class="badge">Interno</span>
+    <div class="header-meta">Reunión: 27/03/2026<br>J. Arevalo · JM Fernandez · M. Bravo · G. Florez · M. Becci</div>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('resumen',this)">Resumen Ejecutivo</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets por Quarter</button>
+  <button class="tab-btn" onclick="showTab('impacto',this)">Impacto por País</button>
+  <button class="tab-btn" onclick="showTab('acciones',this)">Próximos Pasos</button>
+</div>
+
+<!-- SLIDE 1 -->
+<div id="slide-resumen" class="slide active">
+  <div class="grid-4">
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Total tickets 2025</div>
+      <div class="kpi-value yellow">429</div>
+      <div class="kpi-sub">Q1 a Q4 2025</div>
+      <span class="kpi-tag up">▲ +60% post-impl.</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Pico — Q4 2025</div>
+      <div class="kpi-value red">154</div>
+      <div class="kpi-sub">Oct · Nov · Dic 2025</div>
+      <span class="kpi-tag up">▲ Mayor volumen</span>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Promedio pre-impl.</div>
+      <div class="kpi-value blue">96</div>
+      <div class="kpi-sub">Q1 + Q2 2025 / 2</div>
+      <span class="kpi-tag neutral">Referencia base</span>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Error etiquetas COL</div>
+      <div class="kpi-value green">3-4%</div>
+      <div class="kpi-sub">Bajó desde 30%</div>
+      <span class="kpi-tag down">▼ -87%</span>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>Contexto clave:</strong> La implementación de <strong>Post Order</strong> se activó en Argentina y Colombia a partir de <strong>agosto 2025</strong>. El objetivo es cuantificar el incremento en tickets para demostrar el impacto operativo comparando trimestres anteriores y posteriores.</p>
+  </div>
+
+  <div class="section-title">Evolución de tickets</div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Tickets por Quarter 2025–2026</h3>
+      <div class="chart-sub">Corte en agosto 2025 = inicio implementación Post Order</div>
+      <div class="chart-wrapper"><canvas id="chartResumen"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Pre vs Post Implementación</h3>
+      <div class="chart-sub">Volumen por quarter con línea base</div>
+      <div style="padding:20px 0">
+        <div class="progress-row">
+          <div class="progress-label">Q1 2025</div>
+          <div class="progress-track"><div class="progress-fill" style="width:59%;background:#3483fa"></div></div>
+          <div class="progress-value" style="color:#3483fa">91</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Q2 2025</div>
+          <div class="progress-track"><div class="progress-fill" style="width:65%;background:#3483fa"></div></div>
+          <div class="progress-value" style="color:#3483fa">101</div>
+        </div>
+        <div style="margin:12px 0;font-size:11px;color:var(--ml-yellow);font-weight:700;padding-left:122px;letter-spacing:1px">▼ IMPLEMENTACIÓN AGO 2025</div>
+        <div class="progress-row">
+          <div class="progress-label">Q3 2025</div>
+          <div class="progress-track"><div class="progress-fill" style="width:54%;background:#ffa502"></div></div>
+          <div class="progress-value" style="color:#ffa502">83</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Q4 2025</div>
+          <div class="progress-track"><div class="progress-fill" style="width:100%;background:#ff4757"></div></div>
+          <div class="progress-value" style="color:#ff4757">154</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Q1 2026</div>
+          <div class="progress-track"><div class="progress-fill" style="width:3%;background:#ffe600"></div></div>
+          <div class="progress-value" style="color:#ffe600">4*</div>
+        </div>
+        <div style="margin-top:20px;padding:12px 16px;background:rgba(255,71,87,0.08);border-radius:8px;border:1px solid rgba(255,71,87,0.2)">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">INCREMENTO Q4 vs PROMEDIO PRE-IMPL.</div>
+          <div style="font-size:28px;font-weight:700;color:#ff4757">+60.4%</div>
+          <div style="font-size:12px;color:var(--text-muted)">154 vs 96 tickets/quarter promedio</div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">* Q1 2026 en curso al 27/03/2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2 -->
+<div id="slide-tickets" class="slide">
+  <div class="section-title">Detalle de tickets por quarter</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="chart-card">
+      <h3>Volumen de tickets por Quarter</h3>
+      <div class="chart-sub">Con línea de referencia promedio pre-implementación (96)</div>
+      <div class="chart-wrapper"><canvas id="chartBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Distribución porcentual</h3>
+      <div class="chart-sub">Peso relativo de cada quarter sobre el total</div>
+      <div class="chart-wrapper"><canvas id="chartDoughnut"></canvas></div>
+    </div>
+  </div>
+  <div class="section-title">Tabla de datos</div>
+  <div class="chart-card">
+    <table class="data-table">
+      <thead><tr><th>Quarter</th><th>Tickets</th><th>Volumen relativo</th><th>Variación vs anterior</th><th>Fase</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2025-Q1</strong></td><td>91</td><td><div class="bar-inline"><div class="bar-fill ok" style="width:118px"></div><span style="font-size:12px;color:var(--text-muted)">21%</span></div></td><td><span style="color:var(--text-muted)">—</span></td><td><span class="pill col">Pre-impl.</span></td><td style="font-size:12px;color:var(--text-muted)">Línea base</td></tr>
+        <tr><td><strong>2025-Q2</strong></td><td>101</td><td><div class="bar-inline"><div class="bar-fill ok" style="width:131px"></div><span style="font-size:12px;color:var(--text-muted)">23%</span></div></td><td><span style="color:#2ed573;font-weight:600">+10.9%</span></td><td><span class="pill col">Pre-impl.</span></td><td style="font-size:12px;color:var(--text-muted)">Línea base</td></tr>
+        <tr><td><strong>2025-Q3</strong></td><td>83</td><td><div class="bar-inline"><div class="bar-fill low" style="width:107px"></div><span style="font-size:12px;color:var(--text-muted)">19%</span></div></td><td><span style="color:#ff4757;font-weight:600">-17.8%</span></td><td><span class="pill arg">Inicio impl.</span></td><td style="font-size:12px;color:var(--text-muted)">Parcial (ago)</td></tr>
+        <tr><td><strong>2025-Q4</strong></td><td style="font-weight:700;color:#ff4757">154</td><td><div class="bar-inline"><div class="bar-fill peak" style="width:200px"></div><span style="font-size:12px;color:var(--red)">36%</span></div></td><td><span style="color:#ff4757;font-weight:700">+85.5% ⚠️</span></td><td><span class="pill arg">Post-impl.</span></td><td style="font-size:12px;color:var(--red)">Pico máximo</td></tr>
+        <tr><td><strong>2026-Q1</strong></td><td>4 *</td><td><div class="bar-inline"><div class="bar-fill" style="width:5px;background:var(--ml-yellow)"></div><span style="font-size:12px;color:var(--text-muted)">&lt;1%</span></div></td><td><span style="color:var(--text-muted)">En curso</span></td><td><span class="pill chi">Post-impl.</span></td><td style="font-size:12px;color:var(--ml-yellow)">En curso</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 16px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--ml-border)">* 2026-Q1 datos parciales al 27/03/2026</div>
+  </div>
+</div>
+
+<!-- SLIDE 3 -->
+<div id="slide-impacto" class="slide">
+  <div class="section-title">Argentina</div>
+
+  <div class="grid-2" style="margin-bottom:0">
+
+    <!-- NOVEDADES ARG -->
+    <div class="chart-card" style="border-left:3px solid var(--orange)">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:14px;text-align:center">Novedades</div>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:10px">
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Impresión de <strong>código QR</strong> en lugar de etiqueta de envío (shipping label)</li>
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Retiros de tipo <strong>e-shipment</strong> salen etiquetados incorrectamente como <strong style="color:var(--red)">FTL</strong></li>
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Retiros con <strong>errores de ruta</strong> cargados semanalmente (5–6 tickets por box)</li>
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Sin registro automático de <strong>reimpresiones manuales</strong> de etiquetas</li>
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Sin estándar definido en los <strong>tipos de errores</strong> registrados</li>
+        <li style="display:flex;gap:10px;font-size:13px;line-height:1.5"><span style="color:var(--orange);flex-shrink:0">●</span>Impacto operativo de <strong>3 a 4 días por semana</strong></li>
+      </ul>
+    </div>
+
+    <!-- IMPACTOS ARG -->
+    <div class="chart-card" style="border-left:3px solid var(--red)">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:14px;text-align:center">Impactos — Volumen de Tickets</div>
+
+      <!-- Incremento de tickets por quarter -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        📊 Incremento de tickets post-implementación (ago 2025)
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+        <div style="text-align:center;padding:10px 6px;background:rgba(52,131,250,0.08);border-radius:8px;border:1px solid rgba(52,131,250,0.2)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Q1 2025</div>
+          <div style="font-size:20px;font-weight:700;color:#3483fa">91</div>
+          <div style="font-size:10px;color:var(--text-muted)">base</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:rgba(52,131,250,0.08);border-radius:8px;border:1px solid rgba(52,131,250,0.2)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Q2 2025</div>
+          <div style="font-size:20px;font-weight:700;color:#3483fa">101</div>
+          <div style="font-size:10px;color:var(--text-muted)">base</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:rgba(255,165,2,0.08);border-radius:8px;border:1px solid rgba(255,165,2,0.2)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Q3 2025</div>
+          <div style="font-size:20px;font-weight:700;color:#ffa502">83</div>
+          <div style="font-size:10px;color:var(--orange)">inicio</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:rgba(255,71,87,0.1);border-radius:8px;border:1px solid rgba(255,71,87,0.3)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Q4 2025</div>
+          <div style="font-size:20px;font-weight:700;color:#ff4757">154</div>
+          <div style="font-size:10px;color:var(--red)">+60% ⚠️</div>
+        </div>
+      </div>
+
+      <!-- Incremento semanal de tickets por box -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        🖨️ Tickets por box cargados semanalmente (Argentina)
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:rgba(255,71,87,0.06);border-radius:8px;border:1px solid rgba(255,71,87,0.15);margin-bottom:16px">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text-muted)">Pre-impl.</div>
+          <div style="font-size:22px;font-weight:700;color:#3483fa">~0</div>
+          <div style="font-size:10px;color:var(--text-muted)">tickets/box</div>
+        </div>
+        <div style="font-size:20px;color:var(--red)">→</div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text-muted)">Post-impl.</div>
+          <div style="font-size:22px;font-weight:700;color:#ff4757">5–6</div>
+          <div style="font-size:10px;color:var(--text-muted)">tickets/box · semana</div>
+        </div>
+        <div style="flex:1;font-size:12px;color:var(--text-muted);line-height:1.5;padding-left:8px;border-left:1px solid var(--ml-border)">
+          Impacto en <strong style="color:var(--text-main)">3–4 días</strong> operativos por semana. Sin registro automático de reimpresiones manuales.
+        </div>
+      </div>
+
+      <!-- Promedio pre vs post -->
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:8px">⚡ Promedio pre vs post implementación</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:10px 14px;background:rgba(52,131,250,0.08);border-radius:8px;border:1px solid rgba(52,131,250,0.2)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Prom. Q1+Q2 (base)</div>
+          <div style="font-size:22px;font-weight:700;color:#3483fa">96 <span style="font-size:12px;font-weight:400">tickets</span></div>
+        </div>
+        <div style="padding:10px 14px;background:rgba(255,71,87,0.08);border-radius:8px;border:1px solid rgba(255,71,87,0.2)">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Q4 2025 (pico)</div>
+          <div style="font-size:22px;font-weight:700;color:#ff4757">154 <span style="font-size:12px;font-weight:400;color:var(--red)">+60%</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title">Colombia</div>
+  <div class="highlight-box">
+    <p><strong>Mejora parcial:</strong> Error en etiquetas bajó del <strong>30% al 3–4%</strong>, pero el tiempo de espera aumentó: promedio actual <strong>30 segundos</strong>, hasta 1 minuto antes de mostrar error. Impacta productividad en packing withdrawal.</p>
+  </div>
+  <div class="grid-3">
+    <div class="kpi-card red"><div class="kpi-label">Error etiquetas antes</div><div class="kpi-value" style="color:#ff4757">30%</div><div class="kpi-sub">Al momento del encendido</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Error etiquetas ahora</div><div class="kpi-value green">3–4%</div><div class="kpi-sub">Reducción significativa</div><span class="kpi-tag down">▼ -87%</span></div>
+    <div class="kpi-card orange"><div class="kpi-label">Tiempo espera generación</div><div class="kpi-value orange">30s</div><div class="kpi-sub">Promedio · hasta 60s</div><span class="kpi-tag up">▲ Impacto productividad</span></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title">Chile</div>
+  <div class="alert-box">
+    <p><strong>Incidente reciente (25–26 mar 2026):</strong> Todos los retiros directos y códigos QR salieron con error — requirió <strong>reimpresión masiva de todos los envíos</strong>. Se está mapeando trazabilidad y recopilando Box ID afectadas. Error causa demora de 1 minuto en generación de etiqueta.</p>
+  </div>
+  <div style="padding:14px 18px;background:rgba(46,213,115,0.05);border:1px solid rgba(46,213,115,0.15);border-radius:8px;font-size:13px;line-height:1.7">
+    <strong style="color:var(--green)">Metodología Chile:</strong> Casos individuales por correo/mensaje privado. Para volumen alto (~15 problemas) se cargan tickets etiquetando a Belén. Matias Bravo compila tickets históricos.
+  </div>
+</div>
+
+<!-- SLIDE 4 -->
+<div id="slide-acciones" class="slide">
+  <div class="section-title">Próximos pasos — Reunión 27/03/2026</div>
+  <div class="highlight-box">
+    <p><strong>Objetivo:</strong> Cuantificar el incremento en tickets desde <strong>agosto 2025</strong> y correlacionar con caída de productividad en <em>packing withdrawal</em>. Consolidar en un slide por país: <strong>% volumen con error vs caída de productividad</strong>.</p>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Matias Becci</div><div class="action-desc">Compartir registro de tickets y causas del año pasado (Argentina): N° ticket, título, ID retiro / Box ID.</div></div>
+      <div class="action-tag">Argentina</div>
+    </div>
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Matias Ignacio Bravo Cubillos</div><div class="action-desc">Crear ticket para dejar trazabilidad de los correos enviados al equipo de retiros (Chile).</div></div>
+      <div class="action-tag">Chile</div>
+    </div>
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Matias Ignacio Bravo Cubillos</div><div class="action-desc">Recopilar y compilar los tickets históricos de Chile.</div></div>
+      <div class="action-tag">Chile</div>
+    </div>
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Matias Ignacio Bravo Cubillos</div><div class="action-desc">Calcular el % de error de retiros directos frente al volumen total de retiros.</div></div>
+      <div class="action-tag">Chile · Métricas</div>
+    </div>
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Julian Arevalo</div><div class="action-desc">Unificar información Colombia: error 30% → 3-4%, tiempos de espera +30s, impacto productividad — en un slide.</div></div>
+      <div class="action-tag">Colombia</div>
+    </div>
+    <div class="action-item">
+      <div class="checkbox" onclick="toggleAction(this)"></div>
+      <div style="flex:1"><div class="action-owner">Alguien en MLA-SH-ARBA01-1C</div><div class="action-desc">Generar o actualizar el correo electrónico con la información unificada para el equipo.</div></div>
+      <div class="action-tag">Comunicación</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title">Datos pendientes para completar el análisis</div>
+  <div class="grid-3">
+    <div class="kpi-card blue"><div class="kpi-label">Pendiente — Chile</div><div class="kpi-sub" style="margin-top:8px;line-height:1.7">Tickets históricos + % error retiros directos vs volumen total</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Pendiente — Colombia</div><div class="kpi-sub" style="margin-top:8px;line-height:1.7">Métricas productividad packing withdrawal + tiempos de espera</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Pendiente — Argentina</div><div class="kpi-sub" style="margin-top:8px;line-height:1.7">Registro tickets 2025 con causas categorizadas (Matias Becci)</div></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Retiros Cono Sur — Post Order · Reunión 27/03/2026 · Interno</span>
+  <span>Datos: Google Sheets "Inconvenientes y Tickets | Retiros 2"</span>
+</div>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('slide-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleAction(el) {
+  const item = el.closest('.action-item');
+  const done = item.classList.toggle('done');
+  el.innerHTML = done ? '✓' : '';
+}
+
+const Q = ['2025-Q1','2025-Q2','2025-Q3','2025-Q4','2026-Q1*'];
+const V = [91,101,83,154,4];
+const C = ['#3483fa','#3483fa','#ffa502','#ff4757','#ffe600'];
+const TT = { backgroundColor:'#23274a', borderColor:'#373b6e', borderWidth:1, titleColor:'#ffe600', bodyColor:'#f0f2ff', padding:12 };
+
+new Chart(document.getElementById('chartResumen'),{
+  type:'bar', data:{ labels:Q, datasets:[{ data:V, backgroundColor:C.map(c=>c+'33'), borderColor:C, borderWidth:2, borderRadius:6, borderSkipped:false }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:TT },
+    scales:{ x:{grid:{color:'#373b6e'},ticks:{color:'#9ba3cc'}}, y:{grid:{color:'#373b6e'},ticks:{color:'#9ba3cc'},beginAtZero:true} } }
+});
+
+new Chart(document.getElementById('chartBar'),{
+  type:'bar', data:{ labels:Q, datasets:[
+    { label:'Tickets', data:V, backgroundColor:C.map(c=>c+'40'), borderColor:C, borderWidth:2, borderRadius:8 },
+    { label:'Promedio pre-impl.', data:[96,96,96,96,96], type:'line', borderColor:'#ffe600', borderWidth:2, borderDash:[6,4], pointRadius:0, fill:false }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:true,labels:{color:'#9ba3cc',font:{size:11},boxWidth:20}}, tooltip:TT },
+    scales:{ x:{grid:{color:'#373b6e'},ticks:{color:'#9ba3cc'}}, y:{grid:{color:'#373b6e'},ticks:{color:'#9ba3cc'},beginAtZero:true} } }
+});
+
+new Chart(document.getElementById('chartDoughnut'),{
+  type:'doughnut', data:{ labels:Q, datasets:[{ data:V, backgroundColor:['#3483fa55','#3483fa88','#ffa50288','#ff475799','#ffe60066'], borderColor:C, borderWidth:2 }] },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:true,position:'right',labels:{color:'#9ba3cc',font:{size:11},padding:12,boxWidth:14}}, tooltip:TT } }
+});
+</script>
+</body>
+</html>
