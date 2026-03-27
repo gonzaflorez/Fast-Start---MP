@@ -361,6 +361,21 @@ tr:hover td{background:#f5fbff}
         </div>
       </div>
 
+      <!-- Usuarios excluidos -->
+      <div class="config-section-title" style="margin-top:18px">🚫 Usuarios a excluir (TL / PS)</div>
+      <div style="margin-bottom:16px">
+        <div class="config-field">
+          <label>Usernames separados por coma o por línea (ej: gnatale, bsanchez)</label>
+          <textarea id="cfg-excluidos" rows="3"
+            style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);resize:vertical;outline:none"
+            placeholder="gnatale, bsanchez, negarcia, lcarabajal"
+            oninput="guardarExcluidos()"></textarea>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font);margin-top:4px">
+          Al analizar, estos usuarios quedarán como <strong>Excluido</strong> y no afectarán el cumplimiento.
+        </div>
+      </div>
+
       <!-- Preview -->
       <div class="config-preview" id="config-preview">—</div>
       </div><!-- /manager-zone-open -->
@@ -638,6 +653,24 @@ function actualizarPreview() {
     `&nbsp;&nbsp;&nbsp; → El rep debe tener <strong>${t} bipeos</strong> antes de las <strong>${minToStr(cfg.controles[3].corteMin)}</strong>${tBrk} para quedar OK en post break`;
 }
 
+// ── Usuarios excluidos (TL/PS) ────────────────────────────────────
+const LS_EXCLUIDOS = 'mercadito_excluidos';
+
+function guardarExcluidos(){
+  const val = document.getElementById('cfg-excluidos').value;
+  localStorage.setItem(LS_EXCLUIDOS, val);
+}
+
+function cargarExcluidos(){
+  const val = localStorage.getItem(LS_EXCLUIDOS) || '';
+  document.getElementById('cfg-excluidos').value = val;
+}
+
+function getExcluidosUsuarios(){
+  const val = localStorage.getItem(LS_EXCLUIDOS) || '';
+  return val.split(/[\n,]/).map(u=>u.trim().toLowerCase()).filter(Boolean);
+}
+
 // ── Contraseña manager ────────────────────────────────────────────
 const MANAGER_PWD = 'Meli1234';
 let managerUnlocked = false;
@@ -662,6 +695,7 @@ function verificarPassword() {
     document.getElementById('manager-zone-locked').style.display = 'none';
     document.getElementById('manager-zone-open').style.display = 'block';
     document.getElementById('manager-unlocked-badge').classList.add('show');
+    cargarExcluidos();
     actualizarPreview();
   } else {
     document.getElementById('pwd-error').classList.add('show');
@@ -788,7 +822,8 @@ function processXLSX(wb){
   const cfg = getConfig();
   byUserDay.forEach(({usuario,fecha,ruta,bipeos})=>{
     bipeos.sort((a,b)=>a-b);
-    const isExcluido=EXCLUIDAS.includes(ruta.toLowerCase());
+    const excUsers=getExcluidosUsuarios();
+    const isExcluido=EXCLUIDAS.includes(ruta.toLowerCase())||excUsers.includes(usuario.toLowerCase());
     cfg.controles.forEach(ctrl=>{
       const bdt=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin});
       if(bdt.length===0)return;
