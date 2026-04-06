@@ -738,6 +738,14 @@ const enAppsScript = typeof google !== 'undefined' && google.script && google.sc
 
 function parseDate(val){
   if(!val)return null;
+  if(val instanceof Date) return isNaN(val.getTime()) ? null : val;
+  // Número serial de Excel (cellDates:false) → convertir sin offset UTC
+  if(typeof val === 'number' && val > 1){
+    try{
+      const p = XLSX.SSF.parse_date_code(val);
+      if(p) return new Date(p.y, p.m-1, p.d, p.H, p.M, p.S);
+    }catch(e){}
+  }
   const s=String(val).trim();
   let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
   if(m)return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0));
@@ -749,13 +757,21 @@ function parseDate(val){
 function processXLSX(wb){
   const sheet = wb.Sheets[wb.SheetNames[0]];
 
-  // Leer todo como array de arrays para detectar headers
-  const rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
-  if(rows.length < 2) throw new Error('El archivo parece estar vacío.');
+  // ── Leer headers celda por celda (solo fila 0) ───────────────
+  const sheetRange = XLSX.utils.decode_range(sheet['!ref'] || 'A1');
+  const nRows = sheetRange.e.r;
+  const nCols = sheetRange.e.c;
+  if(nRows < 1) throw new Error('El archivo parece estar vacío.');
 
-  // ── Detectar columnas por nombre de header ────────────────────
+  const enc = XLSX.utils.encode_cell;
+  const headerRow = [];
+  for(let c = 0; c <= nCols; c++){
+    const cell = sheet[enc({r:0, c})];
+    headerRow.push(cell ? cell.v : '');
+  }
+
   const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  const headers = rows[0].map(norm);
+  const headers = headerRow.map(norm);
 
   const findCol = (...keywords) => {
     for(const kw of keywords){
@@ -765,7 +781,7 @@ function processXLSX(wb){
     return -1;
   };
 
-  const iUsuario = findCol('usuario ult mod','operador','usuario creacion','usuario','user','operator');
+  const iUsuario = findCol('usuario asignado','usuario ult mod','operador','usuario creacion','usuario','user','operator');
   const iFecha   = findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
   const iRuta    = findCol('nombre ruta','ruta','route');
 
@@ -776,17 +792,22 @@ function processXLSX(wb){
     );
   }
 
-  const nRows = rows.length - 1;
+  // ── Leer solo las 3 columnas necesarias, celda por celda ─────
+  if(nRows < 1) throw new Error('El archivo parece estar vacío.');
+
   setProgress(70, 'Procesando registros…', `${nRows.toLocaleString()} filas a analizar`);
 
   const byUserDay = new Map();
   const CHUNK = 3000;
 
-  for(let i = 1; i < rows.length; i++){
-    const row = rows[i];
-    const ruta    = iRuta>=0 ? String(row[iRuta]||'').trim() : '';
-    const usuario = String(row[iUsuario]||'').trim();
-    const fechaRaw = row[iFecha];
+  for(let r = 1; r <= nRows; r++){
+    const cellU = sheet[enc({r, c:iUsuario})];
+    const cellF = sheet[enc({r, c:iFecha})];
+    const cellR = iRuta>=0 ? sheet[enc({r, c:iRuta})] : null;
+
+    const usuario = String(cellU ? cellU.v : '').trim();
+    const fechaRaw = cellF ? cellF.v : '';
+    const ruta = String(cellR ? cellR.v : '').trim();
 
     if(!usuario || !fechaRaw) continue;
 
@@ -804,16 +825,16 @@ function processXLSX(wb){
     entry.bipeos.push(dt);
     if(ruta) entry.ruta = ruta;
 
-    if(i % CHUNK === 0){
-      const pct = 70 + Math.round((i / rows.length) * 22);
-      setProgress(pct, 'Procesando registros…', `${i.toLocaleString()} de ${nRows.toLocaleString()} filas`);
+    if(r % CHUNK === 0){
+      const pct = 70 + Math.round((r / nRows) * 22);
+      setProgress(pct, 'Procesando registros…', `${r.toLocaleString()} de ${nRows.toLocaleString()} filas`);
     }
   }
 
   if(byUserDay.size === 0) throw new Error(
     `No se encontraron registros dentro del horario de turnos.\n` +
-    `Columnas usadas → Usuario: "${rows[0][iUsuario]}" (col ${iUsuario+1}), ` +
-    `Fecha: "${rows[0][iFecha]}" (col ${iFecha+1})${iRuta>=0?`, Ruta: "${rows[0][iRuta]}" (col ${iRuta+1})`:''}.`
+    `Columnas usadas → Usuario: "${headerRow[iUsuario]}" (col ${iUsuario+1}), ` +
+    `Fecha: "${headerRow[iFecha]}" (col ${iFecha+1})${iRuta>=0?`, Ruta: "${headerRow[iRuta]}" (col ${iRuta+1})`:''}.`
   );
 
   setProgress(93, 'Calculando Fast Start…', 'Evaluando controles por usuario');
