@@ -113,6 +113,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .btn-warning{background:var(--warning);color:#000;border:none;border-radius:7px;padding:10px 24px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s}
 .btn-warning:hover{opacity:.85}
 .btn-danger{background:var(--desvio);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer}
+.btn-danger-sm{background:transparent;color:var(--desvio);border:1px solid var(--desvio);border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;opacity:.7;transition:opacity .15s}.btn-danger-sm:hover{opacity:1}
 
 /* ALERTS */
 .alert{padding:10px 14px;border-radius:7px;font-size:12px;margin-top:12px;display:none}
@@ -366,12 +367,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="table-wrap">
     <div class="table-header">
       <div class="table-title">📋 Historial de Cargas</div>
-      <span class="table-count" id="hist-count">—</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="table-count" id="hist-count">—</span>
+        <button id="btn-clear-historial" class="btn-danger" style="display:none;font-size:11px;padding:4px 10px" onclick="clearHistorial()">🗑 Limpiar todo</button>
+      </div>
     </div>
     <div class="table-scroll">
       <table><thead><tr>
         <th>Fecha carga</th><th>Hora</th><th>Líder</th><th>Site</th><th>País</th>
-        <th>Fecha operación</th><th>Operarios</th><th>% Cumpl.</th><th>OK</th><th>Desvíos</th>
+        <th>Fecha operación</th><th>Operarios</th><th>% Cumpl.</th><th>OK</th><th>Desvíos</th><th></th>
       </tr></thead><tbody id="hist-body"></tbody></table>
     </div>
   </div>
@@ -915,8 +919,10 @@ function rowTurnoFull(o){
 function renderHistorial(entries){
   const sorted=[...entries].sort((a,b)=>(b.ts||0)-(a.ts||0));
   document.getElementById('hist-count').textContent=`${sorted.length} cargas`;
+  const btnClear=document.getElementById('btn-clear-historial');
+  if(btnClear) btnClear.style.display=managerUnlocked&&sorted.length?'inline-block':'none';
   if(!sorted.length){
-    document.getElementById('hist-body').innerHTML=`<tr><td colspan="10"><div class="empty-state"><p>Sin cargas registradas.</p></div></td></tr>`;
+    document.getElementById('hist-body').innerHTML=`<tr><td colspan="11"><div class="empty-state"><p>Sin cargas registradas.</p></div></td></tr>`;
     return;
   }
   document.getElementById('hist-body').innerHTML=sorted.map(e=>{
@@ -937,8 +943,23 @@ function renderHistorial(entries){
       <td><strong style="color:${col}">${typeof p==='number'?p+'%':p}</strong></td>
       <td style="color:var(--ok)">${e.stats?.ok??'—'}</td>
       <td style="color:var(--desvio)">${e.stats?.dev??'—'}</td>
+      <td>${managerUnlocked?`<button class="btn-danger-sm" onclick="deleteEntry('${e.id}')" title="Eliminar esta carga">🗑</button>`:''}</td>
     </tr>`;
   }).join('');
+}
+
+function deleteEntry(id){
+  if(!confirm('¿Eliminar esta carga del historial?')) return;
+  fetchBin().then(({entries,config})=>{
+    return putBin({entries:entries.filter(e=>e.id!==id),config:config||null});
+  }).then(()=>loadAndRender()).catch(()=>{});
+}
+
+function clearHistorial(){
+  if(!confirm('¿Borrar TODO el historial? Esta acción no se puede deshacer.')) return;
+  fetchBin().then(({config})=>{
+    return putBin({entries:[],config:config||null});
+  }).then(()=>loadAndRender()).catch(()=>{});
 }
 
 // ── MANAGER ANALYTICS ────────────────────────────────────────────
