@@ -925,7 +925,7 @@ function renderHistorial(entries){
   const sorted=[...entries].sort((a,b)=>(b.ts||0)-(a.ts||0));
   document.getElementById('hist-count').textContent=`${sorted.length} cargas`;
   const btnClear=document.getElementById('btn-clear-historial');
-  if(btnClear) btnClear.style.display=managerUnlocked&&sorted.length?'inline-block':'none';
+  if(btnClear) btnClear.style.display=sorted.length?'inline-block':'none';
   if(!sorted.length){
     document.getElementById('hist-body').innerHTML=`<tr><td colspan="11"><div class="empty-state"><p>Sin cargas registradas.</p></div></td></tr>`;
     return;
@@ -948,23 +948,35 @@ function renderHistorial(entries){
       <td><strong style="color:${col}">${typeof p==='number'?p+'%':p}</strong></td>
       <td style="color:var(--ok)">${e.stats?.ok??'—'}</td>
       <td style="color:var(--desvio)">${e.stats?.dev??'—'}</td>
-      <td>${managerUnlocked?`<button class="btn-danger-sm" onclick="deleteEntry('${e.id}')" title="Eliminar esta carga">🗑</button>`:''}</td>
+      <td><button class="btn-danger-sm" onclick="deleteEntry('${e.id}')" title="Eliminar esta carga">🗑</button></td>
     </tr>`;
   }).join('');
 }
 
+function requirePin(action){
+  if(managerUnlocked){action();return;}
+  const pin=prompt('Ingresá el PIN de Manager para continuar:');
+  if(pin===null) return;
+  if(pin===getPin()) action();
+  else alert('PIN incorrecto.');
+}
+
 function deleteEntry(id){
-  if(!confirm('¿Eliminar esta carga del historial?')) return;
-  fetchBin().then(({entries,config})=>{
-    return putBin({entries:entries.filter(e=>e.id!==id),config:config||null});
-  }).then(()=>loadAndRender()).catch(()=>{});
+  requirePin(()=>{
+    if(!confirm('¿Eliminar esta carga del historial?')) return;
+    fetchBin().then(({entries,config})=>{
+      return putBin({entries:entries.filter(e=>e.id!==id),config:config||null});
+    }).then(()=>loadAndRender()).catch(()=>{});
+  });
 }
 
 function clearHistorial(){
-  if(!confirm('¿Borrar TODO el historial? Esta acción no se puede deshacer.')) return;
-  fetchBin().then(({config})=>{
-    return putBin({entries:[],config:config||null});
-  }).then(()=>loadAndRender()).catch(()=>{});
+  requirePin(()=>{
+    if(!confirm('¿Borrar TODO el historial? Esta acción no se puede deshacer.')) return;
+    fetchBin().then(({config})=>{
+      return putBin({entries:[],config:config||null});
+    }).then(()=>loadAndRender()).catch(()=>{});
+  });
 }
 
 // ── MANAGER ANALYTICS ────────────────────────────────────────────
