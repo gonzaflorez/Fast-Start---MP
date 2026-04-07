@@ -685,8 +685,10 @@ function processXLSX(wb,siteCfg){
 
 // ── BUILD OPERARIOS (con bipeos) ─────────────────────────────────
 function buildOperarios(raw){
+  const excl=getGlobal().excluidas||[];
+  const isExcRuta=r=>excl.some(ex=>r.ruta&&r.ruta.toLowerCase().includes(ex.toLowerCase()));
   const map=new Map();
-  raw.filter(r=>r.estado!=='Excluido').forEach(r=>{
+  raw.filter(r=>r.estado!=='Excluido'&&!isExcRuta(r)).forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
     if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
     const op=map.get(k);
@@ -864,7 +866,10 @@ function renderResumen(entries){
 
 function renderOps(entries){
   const f=getFilters();
-  let ops=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider})));
+  const excl=getGlobal().excluidas||[];
+  let ops=entries.flatMap(e=>e.operarios
+    .filter(o=>o.estado!=='Excluido'&&!excl.some(ex=>o.ruta&&o.ruta.toLowerCase().includes(ex.toLowerCase())))
+    .map(o=>({...o,site:e.site,lider:e.lider})));
   if(f.turno) ops=ops.filter(o=>o.turno===f.turno);
   ops.sort((a,b)=>b.pct-a.pct);
   document.getElementById('ops-count').textContent=`${ops.length} registros`;
@@ -883,8 +888,8 @@ function renderTurno(entries,turno,bodyId,countId){
 function rowOp(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
   const ctrl=[o.inicio,o.postBreak].filter(Boolean);
-  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${CONFIG.target}</span>`:'—';
-  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${CONFIG.target}</span>`:'—';
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
   return `<tr>
     <td><strong>${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
@@ -900,8 +905,8 @@ function rowOp(o){
 
 function rowTurnoFull(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
-  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${CONFIG.target}</span>`:'—';
-  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${CONFIG.target}</span>`:'—';
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
   return `<tr>
     <td><strong>${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
