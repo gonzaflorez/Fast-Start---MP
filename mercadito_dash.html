@@ -3,223 +3,232 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Mercadito Dash · Mercado Pago</title>
+<title>Mercadito Dash · Fast Start</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --mp-blue:#009ee3;--mp-blue-dark:#0070a8;--mp-teal:#00c2a8;
-  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;
-  --border:#dde3ea;--text:#0d1b2a;--text-muted:#6b7a8d;
-  --ok:#00b87a;--desvio:#e8394a;--excluido:#8a94a0;--warning:#f5a623;
-  --radius:12px;--shadow:0 2px 16px rgba(0,100,180,.10);
-  --font:'Plus Jakarta Sans',sans-serif;
-  --mono:'IBM Plex Mono',monospace;
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --text:#e6edf3;--text-muted:#7d8590;
+  --mp-blue:#009ee3;--mp-blue-dark:#0070a8;
+  --ok:#3fb950;--desvio:#f85149;--warning:#d29922;--exc:#7d8590;
+  --purple:#a371f7;
+  --radius:10px;--font:'Plus Jakarta Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── HEADER ── */
-header{background:var(--text);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:68px;position:sticky;top:0;z-index:200;border-bottom:3px solid var(--mp-blue)}
-.logo{display:flex;align-items:center;gap:14px}
-.logo-badge{background:var(--mp-blue);color:#fff;font-family:var(--font);font-weight:800;font-size:11px;letter-spacing:.15em;padding:5px 12px;border-radius:6px;text-transform:uppercase}
-.logo-title{font-family:var(--font);font-weight:800;font-size:22px;color:#fff;letter-spacing:-.03em;line-height:1}
-.logo-sub{font-family:var(--font);font-size:11px;color:#5a6f82;margin-top:2px;font-weight:500;letter-spacing:.02em}
-.header-meta{font-size:11px;color:#8a99ab;text-align:right;line-height:1.6;font-family:var(--mono)}
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-badge{background:var(--mp-blue);color:#fff;font-weight:800;font-size:10px;letter-spacing:.15em;padding:4px 10px;border-radius:5px;text-transform:uppercase}
+.logo-title{font-weight:800;font-size:18px}
+.logo-sub{font-size:11px;color:var(--text-muted);font-weight:500}
+.header-meta{font-size:11px;color:var(--text-muted);font-family:var(--mono);text-align:right;line-height:1.6}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* ── NAV ── */
-.nav-tabs{display:flex;gap:2px;background:var(--surface);border-bottom:1.5px solid var(--border);padding:0 28px;position:sticky;top:68px;z-index:150;overflow-x:auto}
-.nav-tab{padding:13px 18px;font-family:var(--font);font-weight:600;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-1.5px;transition:all .15s;white-space:nowrap}
+/* NAV */
+.nav-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:60px;z-index:90;overflow-x:auto}
+.nav-tab{padding:14px 18px;font-weight:600;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
 .nav-tab:hover{color:var(--mp-blue)}
-.nav-tab.active{color:var(--mp-blue);border-bottom-color:var(--mp-blue)}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--mp-blue)}
+.nav-tab.manager-tab{color:var(--warning)}
+.nav-tab.manager-tab:hover{color:var(--warning)}
+.nav-tab.manager-tab.active{color:var(--warning);border-bottom-color:var(--warning)}
 
-/* ── LAYOUT ── */
-main{max-width:1320px;margin:0 auto;padding:28px 24px}
+/* FILTERS */
+.filters-bar{display:flex;align-items:center;gap:12px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.filter-select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--mp-blue)}
+.status-pill{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:auto}
+
+/* MAIN */
+main{max-width:1400px;margin:0 auto;padding:22px 20px}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
-/* ── SETUP ── */
-.setup-panel{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:28px;margin-bottom:20px;box-shadow:var(--shadow)}
-.setup-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:end}
-.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;font-family:var(--font)}
-.field input[type=text]{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:13px;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s}
-.field input[type=text]:focus{border-color:var(--mp-blue)}
-.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:18px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--mp-blue);background:#e8f6fd}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:26px;margin-bottom:4px}
-.upload-text{font-size:12px;color:var(--text-muted);line-height:1.5;font-family:var(--font)}
-.upload-text strong{color:var(--mp-blue);font-weight:700}
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;text-align:center}
+.kpi-val{font-weight:800;font-size:26px;line-height:1;margin-bottom:4px}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted)}
+.bar-wrap{height:4px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden}
+.bar-fill{height:4px;border-radius:3px;transition:width .5s}
 
-/* ── BUTTONS ── */
-.btn-primary{background:var(--mp-blue);color:#fff;border:none;border-radius:8px;padding:11px 28px;font-family:var(--font);font-weight:700;font-size:14px;cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
-.btn-primary:hover{background:var(--mp-blue-dark);transform:translateY(-1px)}
-.btn-primary:disabled{background:#b0c4d4;cursor:not-allowed;transform:none}
-.btn-secondary{background:transparent;color:var(--mp-blue);border:1.5px solid var(--mp-blue);border-radius:8px;padding:9px 18px;font-family:var(--font);font-weight:600;font-size:13px;cursor:pointer;transition:all .15s}
-.btn-secondary:hover{background:#e8f6fd}
+/* SITE CARDS */
+.site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.site-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.site-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.site-name{font-weight:700;font-size:15px;margin-bottom:3px}
+.site-meta{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.site-pct{font-weight:800;font-size:30px;text-align:right;line-height:1}
+.site-pct-lbl{font-size:10px;color:var(--text-muted);text-align:right}
+.site-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.site-kpi{background:var(--surface2);border-radius:6px;padding:9px;text-align:center}
+.site-kpi .val{font-weight:800;font-size:18px}
+.site-kpi .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em}
+.site-turnos{display:flex;gap:14px;font-size:11px;color:var(--text-muted)}
 
-/* ── ALERTS ── */
-.alert{padding:12px 16px;border-radius:8px;font-size:12px;margin-top:14px;display:none;font-family:var(--font)}
-.alert.show{display:block}
-.alert-info{background:#e8f6fd;border-left:3px solid var(--mp-blue);color:var(--mp-blue-dark)}
-.alert-error{background:#fdecea;border-left:3px solid var(--desvio);color:#a91a27}
-.alert-success{background:#e6f9f2;border-left:3px solid var(--ok);color:#006644}
-.loader{display:none;align-items:center;gap:10px;font-size:13px;color:var(--mp-blue);margin-top:14px;font-family:var(--font)}
-.loader.show{display:flex}
-.spinner{width:18px;height:18px;border:2.5px solid #cce8f6;border-top-color:var(--mp-blue);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
-.kpi-card{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:18px 14px;text-align:center;box-shadow:var(--shadow);transition:transform .15s}
-.kpi-card:hover{transform:translateY(-2px)}
-.kpi-value{font-family:var(--font);font-size:28px;font-weight:800;line-height:1;margin-bottom:6px}
-.kpi-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-family:var(--font)}
-.kpi-card.total .kpi-value{color:var(--mp-blue)}.kpi-card.ok .kpi-value{color:var(--ok)}
-.kpi-card.desvio .kpi-value{color:var(--desvio)}.kpi-card.excluido .kpi-value{color:var(--excluido)}
-.kpi-card.pct .kpi-value{color:var(--mp-teal)}.kpi-card.usuarios .kpi-value{color:var(--warning)}
-
-/* ── FILTERS ── */
-.filters-bar{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:12px 18px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow)}
-.filters-bar label{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-right:4px;font-family:var(--font);font-weight:600}
-.filters-bar select{padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);outline:none}
-.filters-bar select:focus{border-color:var(--mp-blue)}
-.filter-group{display:flex;align-items:center;gap:6px}
-
-/* ── TABLE ── */
-.table-wrap{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
-.table-header{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--border);background:var(--surface2)}
-.table-title{font-family:var(--font);font-weight:700;font-size:15px}
-.table-count{font-size:11px;color:var(--text-muted);background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);font-family:var(--font)}
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.table-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-title{font-weight:700;font-size:14px}
+.table-count{font-size:11px;color:var(--text-muted);background:var(--surface2);padding:3px 10px;border-radius:20px}
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead tr{background:#eaf5fb}
-th{padding:9px 13px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;white-space:nowrap;border-bottom:1.5px solid var(--border);font-family:var(--font)}
-td{padding:8px 13px;border-bottom:1px solid #f0f4f8;vertical-align:middle;white-space:nowrap}
+thead tr{background:var(--surface2)}
+th{padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#f5fbff}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--font)}
-.badge-ok{background:#e6f9f2;color:var(--ok)}.badge-desvio{background:#fdecea;color:var(--desvio)}
-.badge-excluido{background:#f0f2f4;color:var(--excluido)}.badge-manana{background:#fffbe6;color:#8a6500}
-.badge-tarde{background:#e8f0ff;color:#3156c2}
-.empty-state{text-align:center;padding:52px 20px;color:var(--text-muted);font-family:var(--font)}
-.empty-state .icon{font-size:42px;margin-bottom:10px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-title{font-family:var(--font);font-weight:700;font-size:16px}
-.export-row{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+tr:hover td{background:rgba(255,255,255,.02)}
 
-/* ── RANKING ── */
-.rank-section-label{font-family:var(--font);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:10px 0 12px;display:flex;align-items:center;gap:10px}
-.pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;font-family:var(--font)}
-.pill-green{background:#e6f9f2;color:var(--ok)}.pill-orange{background:#fff3cc;color:#7a5500}
-.ranking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:24px}
-.rank-card{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:15px 17px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,border-color .15s;position:relative;overflow:hidden}
-.rank-card:hover{transform:translateY(-2px);border-color:var(--mp-blue)}
-.rank-pos{position:absolute;top:11px;right:13px;font-family:var(--font);font-weight:800;font-size:18px;opacity:.1}
-.rank-name{font-family:var(--font);font-weight:700;font-size:13px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:26px}
-.rank-bar-wrap{height:5px;background:var(--bg);border-radius:3px;margin:7px 0 6px}
-.rank-bar{height:5px;border-radius:3px;transition:width .4s}
-.rank-stats{display:flex;gap:10px;font-size:11px;color:var(--text-muted);font-family:var(--font)}
-.rank-pct{font-family:var(--font);font-weight:800;font-size:21px}
-.rank-card.verde{border-left:4px solid var(--ok)}.rank-card.amarillo{border-left:4px solid var(--warning)}.rank-card.rojo{border-left:4px solid var(--desvio)}
-.rank-divider{height:1.5px;background:var(--border);margin:8px 0 18px;border-radius:2px}
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-ok{background:rgba(63,185,80,.15);color:var(--ok)}
+.badge-dev{background:rgba(248,81,73,.15);color:var(--desvio)}
+.badge-exc{background:rgba(125,133,144,.15);color:var(--exc)}
+.badge-site{background:rgba(0,158,227,.15);color:var(--mp-blue)}
+.badge-country{background:rgba(163,113,247,.15);color:var(--purple);font-size:11px;padding:2px 8px;border-radius:20px}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.show{display:flex}
-.modal{background:var(--surface);border-radius:16px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22)}
-.modal-header{padding:20px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:10}
-.modal-title{font-family:var(--font);font-weight:800;font-size:17px}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px 8px;border-radius:6px;transition:background .15s}
-.modal-close:hover{background:var(--bg)}
-.modal-body{padding:18px 22px}
-.ficha-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.ficha-kpi{background:var(--surface2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border)}
-.ficha-kpi .val{font-family:var(--font);font-weight:800;font-size:20px}
-.ficha-kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-family:var(--font)}
-.ficha-section-title{font-family:var(--font);font-weight:700;font-size:12px;margin:14px 0 6px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
-.dia-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bg);font-size:12px}
-.dia-label{width:85px;flex-shrink:0;color:var(--text-muted);font-family:var(--font)}
-.dia-controles{display:flex;gap:5px;flex-wrap:wrap}
-.ctrl-chip{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--font)}
-.ctrl-ok{background:#e6f9f2;color:var(--ok)}.ctrl-dev{background:#fdecea;color:var(--desvio)}
-.copy-btn{margin-top:14px;width:100%}
+/* CARGA */
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.field label{display:block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:13px;background:var(--surface2);color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--mp-blue)}
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--mp-blue);background:rgba(0,158,227,.04)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:30px;margin-bottom:6px}
+.upload-text{font-size:12px;color:var(--text-muted);line-height:1.7}
+.upload-text strong{color:var(--mp-blue)}
 
-/* ── RESUMEN ── */
-.resumen-box{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:26px;box-shadow:var(--shadow);margin-bottom:18px}
-.resumen-text{font-size:13px;line-height:1.9;color:var(--text);white-space:pre-line;font-family:var(--mono)}
+/* BUTTONS */
+.btn-primary{background:var(--mp-blue);color:#fff;border:none;border-radius:7px;padding:10px 24px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:background .15s;white-space:nowrap}
+.btn-primary:hover{background:var(--mp-blue-dark)}
+.btn-primary:disabled{background:#2a3540;color:#4a5568;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--mp-blue);border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-secondary:hover{border-color:var(--mp-blue);background:rgba(0,158,227,.08)}
+.btn-warning{background:var(--warning);color:#000;border:none;border-radius:7px;padding:10px 24px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s}
+.btn-warning:hover{opacity:.85}
+.btn-danger{background:var(--desvio);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer}
 
-/* ── COMPARACIÓN ── */
-.comp-kpis{display:flex;gap:12px;margin-bottom:18px}
-.comp-kpi{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:16px;text-align:center;box-shadow:var(--shadow);flex:1}
-.comp-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bg);font-size:12px;font-family:var(--font)}
-.comp-row:last-child{border-bottom:none}
-.comp-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.comp-bars{display:flex;align-items:center;gap:8px}
-.mini-bar-wrap{width:72px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
-.mini-bar{height:5px;border-radius:3px}
-.delta-pos{color:var(--ok);font-weight:700}.delta-neg{color:var(--desvio);font-weight:700}.delta-neu{color:var(--text-muted)}
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:7px;font-size:12px;margin-top:12px;display:none}
+.alert.show{display:block}
+.alert-error{background:rgba(248,81,73,.1);border-left:3px solid var(--desvio);color:#f85149}
+.alert-success{background:rgba(63,185,80,.1);border-left:3px solid var(--ok);color:#3fb950}
+.alert-info{background:rgba(0,158,227,.1);border-left:3px solid var(--mp-blue);color:var(--mp-blue)}
 
+/* LOADER */
+.loader{display:none;align-items:center;gap:10px;font-size:13px;color:var(--mp-blue);margin-top:14px}
+.loader.show{display:flex}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,158,227,.25);border-top-color:var(--mp-blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prog-wrap{height:3px;background:var(--surface2);border-radius:2px;margin-top:6px;overflow:hidden}
+.prog-bar{height:3px;background:var(--mp-blue);border-radius:2px;transition:width .2s}
 
-/* ── CONFIG PAÍS ── */
-.config-panel{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:24px 28px;margin-bottom:20px;box-shadow:var(--shadow)}
-.config-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;cursor:pointer;user-select:none}
-.config-header-left{display:flex;align-items:center;gap:10px}
-.config-header h3{font-family:var(--font);font-weight:700;font-size:14px}
-.config-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#e8f0ff;color:#3156c2;font-family:var(--font);font-weight:600}
-.config-toggle{font-size:11px;color:var(--text-muted);font-family:var(--font);display:flex;align-items:center;gap:6px}
-.config-body{display:none}
-.config-body.open{display:block}
-.config-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.config-grid-2{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end;margin-bottom:0}
-.config-field label{display:block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;font-family:var(--font)}
-.config-field input[type=number],.config-field input[type=time],.config-field select{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:13px;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s}
-.config-field input:focus,.config-field select:focus{border-color:var(--mp-blue)}
-.config-section-title{font-family:var(--font);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:14px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.config-lock{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface2);border-radius:8px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;margin-top:4px}
-.config-lock:hover{border-color:var(--mp-blue);background:#e8f6fd}
-.config-lock-icon{font-size:20px}
-.config-lock-text{font-family:var(--font);font-size:13px;color:var(--text-muted);flex:1}
-.config-lock-text strong{color:var(--text);font-weight:700}
-.config-lock-badge{font-size:10px;padding:3px 8px;border-radius:20px;background:#fdecea;color:var(--desvio);font-family:var(--font);font-weight:600}
+/* EMPTY */
+.empty-state{text-align:center;padding:56px 20px;color:var(--text-muted)}
+.empty-state .icon{font-size:38px;margin-bottom:10px}
+.empty-state p{font-size:13px;line-height:1.7}
 
-.pwd-modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,.6);z-index:600;display:none;align-items:center;justify-content:center}
-.pwd-modal-overlay.show{display:flex}
-.pwd-modal{background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.25);text-align:center}
-.pwd-modal-icon{font-size:40px;margin-bottom:12px}
-.pwd-modal-title{font-family:var(--font);font-weight:800;font-size:18px;margin-bottom:6px}
-.pwd-modal-sub{font-size:12px;color:var(--text-muted);font-family:var(--font);margin-bottom:20px}
-.pwd-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:15px;text-align:center;letter-spacing:.2em;outline:none;background:var(--surface2);color:var(--text);transition:border-color .15s;margin-bottom:12px}
-.pwd-input:focus{border-color:var(--mp-blue)}
-.pwd-input.error{border-color:var(--desvio);animation:shake .3s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.pwd-error{font-size:12px;color:var(--desvio);font-family:var(--font);margin-bottom:12px;display:none}
-.pwd-error.show{display:block}
-.pwd-actions{display:flex;gap:10px}
-.pwd-actions .btn-primary{flex:1}
-.pwd-actions .btn-secondary{flex:1}
-.manager-unlocked-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#e6f9f2;color:var(--ok);font-family:var(--font);font-weight:600;display:none}
-.manager-unlocked-badge.show{display:inline-block}
-.config-preview{background:var(--surface2);border-radius:8px;padding:12px 16px;margin-top:14px;font-size:12px;font-family:var(--mono);color:var(--text-muted);line-height:1.9;border:1px solid var(--border)}
-.config-preview strong{color:var(--mp-blue)}
+/* SECTION TITLE */
+.section-title{font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
-/* ── LOG TAB ── */
-.log-intro{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
-.log-intro-icon{font-size:32px}
-.log-intro-text h3{font-family:var(--font);font-weight:700;font-size:15px;margin-bottom:4px}
-.log-intro-text p{font-size:12px;color:var(--text-muted);font-family:var(--font);line-height:1.6}
-.log-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.log-stat{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:16px;text-align:center;box-shadow:var(--shadow)}
-.log-stat-val{font-family:var(--font);font-weight:800;font-size:24px;color:var(--mp-blue);margin-bottom:4px}
-.log-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-family:var(--font);font-weight:600}
+/* MANAGER PIN OVERLAY */
+.pin-overlay{position:relative}
+.pin-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.pin-lock-icon{font-size:48px;margin-bottom:16px}
+.pin-lock h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.pin-lock p{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.pin-input-wrap{display:flex;gap:8px;align-items:center;justify-content:center}
+.pin-input{width:140px;padding:10px 14px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:16px;letter-spacing:.2em;background:var(--surface2);color:var(--text);outline:none;text-align:center}
+.pin-input:focus{border-color:var(--warning)}
+.pin-error{color:var(--desvio);font-size:12px;margin-top:8px;display:none}
 
-@media(max-width:900px){.setup-grid{grid-template-columns:1fr 1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.ficha-kpis{grid-template-columns:repeat(2,1fr)}.log-stats{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.setup-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}header{padding:0 16px}main{padding:16px 12px}.nav-tabs{padding:0 10px}}
-/* ── HISTORIAL ── */
-.hist-empty{text-align:center;padding:48px 24px;color:var(--text-muted);font-family:var(--font)}
-.hist-empty .icon{font-size:36px;margin-bottom:12px}
-.hist-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.hist-leader-badge{font-family:var(--font);font-size:13px;font-weight:700;color:var(--mp-blue)}
+/* MANAGER CONTENT */
+.manager-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.manager-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.manager-card.full{grid-column:1/-1}
+.manager-card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--warning);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ctrl-row{display:grid;grid-template-columns:100px 90px 90px 90px 90px;gap:8px;align-items:center;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:7px}
+.ctrl-row:last-child{margin-bottom:0}
+.ctrl-label{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.ctrl-input{padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:12px;background:var(--bg);color:var(--text);outline:none;width:100%}
+.ctrl-input:focus{border-color:var(--warning)}
+.target-wrap{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.target-input{width:70px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:18px;font-weight:700;background:var(--bg);color:var(--warning);text-align:center;outline:none}
+.target-input:focus{border-color:var(--warning)}
+.exc-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:30px}
+.exc-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.25);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--desvio)}
+.exc-tag button{background:none;border:none;color:var(--desvio);cursor:pointer;font-size:12px;line-height:1;padding:0}
+.exc-add-wrap{display:flex;gap:8px;margin-top:6px}
+.exc-add-input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;background:var(--bg);color:var(--text);outline:none}
+.exc-add-input:focus{border-color:var(--desvio)}
+
+/* TURNO BLOCKS */
+.turno-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.turno-block-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.turno-block-header:hover{background:rgba(255,255,255,.03)}
+.turno-toggle{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;flex:1}
+.turno-toggle input[type=checkbox]{width:15px;height:15px;accent-color:var(--warning);cursor:pointer}
+.turno-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.08);color:var(--text-muted);font-weight:500}
+.turno-block-body{padding:14px}
+.turno-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.turno-grid .field label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:block}
+.turno-grid .field input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;background:var(--bg);color:var(--text);outline:none}
+.turno-grid .field input:focus{border-color:var(--warning)}
+.tol-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.tol-row .field label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:block}
+.tol-row .field input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:14px;background:var(--bg);color:var(--warning);text-align:center;outline:none;font-weight:700}
+.tol-row .field input:focus{border-color:var(--warning)}
+.config-desc{margin-top:14px;padding:14px 16px;background:rgba(0,158,227,.05);border:1px solid rgba(0,158,227,.2);border-radius:8px;font-size:12px;line-height:2;display:none}
+.config-desc.show{display:block}
+.config-desc .desc-turno{color:var(--text);font-weight:600;margin-bottom:2px}
+.config-desc .desc-line{color:var(--text-muted);padding-left:16px}
+.config-desc .desc-line strong{color:var(--mp-blue)}
+
+/* SITE TABS */
+.site-tabs-bar{display:flex;gap:3px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:0}
+.site-tab-btn{padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:6px 6px 0 0;white-space:nowrap}
+.site-tab-btn:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.site-tab-btn.active{color:var(--warning);border-bottom-color:var(--warning);background:rgba(210,153,34,.06)}
+.site-tab-btn.site-tab-add{color:var(--mp-blue);border:1px dashed rgba(0,158,227,.4);border-bottom:2px solid transparent;border-radius:6px 6px 0 0;padding:6px 12px;margin-left:4px}
+.site-tab-btn.site-tab-add:hover{border-color:var(--mp-blue);background:rgba(0,158,227,.06)}
+/* TAB FORM */
+.tab-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.tab-kpi-row .field label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:block}
+.tab-kpi-row .field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:16px;font-weight:700;background:var(--bg);color:var(--warning);text-align:center;outline:none}
+.tab-kpi-row .field input:focus{border-color:var(--warning)}
+.tab-kpi-row .field .hint{font-size:10px;color:var(--text-muted);margin-top:3px;text-align:center}
+.site-cfg-inherited{font-size:11px;color:var(--ok);background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);border-radius:6px;padding:7px 12px;margin-top:8px}
+
+/* MANAGER ANALYTICS */
+.pending-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:10px}
+.pending-card{padding:12px 14px;border-radius:7px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.pending-card.loaded{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);color:var(--ok)}
+.pending-card.missing{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);color:var(--desvio)}
+.trend-bar-wrap{display:flex;gap:3px;align-items:flex-end;height:40px;margin-top:8px}
+.trend-bar{min-width:14px;border-radius:3px 3px 0 0;transition:height .3s;position:relative;cursor:default}
+.trend-bar:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);padding:3px 7px;border-radius:5px;font-size:10px;white-space:nowrap;color:var(--text);z-index:10;margin-bottom:4px}
+
+/* HISTORIAL */
+.hist-meta{font-size:10px;color:var(--text-muted);font-family:var(--mono)}
+
+/* PIN CHANGE */
+.pin-change-wrap{display:flex;gap:8px;margin-top:8px}
+.pin-change-input{width:130px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;letter-spacing:.15em;background:var(--bg);color:var(--text);outline:none;text-align:center}
+.pin-change-input:focus{border-color:var(--warning)}
+
+/* LOGOUT */
+.manager-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.manager-title{font-size:16px;font-weight:700;color:var(--warning)}
+.manager-session{font-size:11px;color:var(--text-muted)}
+
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}.manager-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}.setup-grid{grid-template-columns:1fr}header{padding:0 14px}main{padding:14px 12px}.filters-bar{padding:10px 14px}.ctrl-row{grid-template-columns:1fr 1fr;gap:6px}}
 </style>
 </head>
 <body>
@@ -229,522 +238,380 @@ tr:hover td{background:#f5fbff}
     <span class="logo-badge">MP</span>
     <div>
       <div class="logo-title">Mercadito Dash</div>
-      <div class="logo-sub">Panel operacional · Mercado Pago</div>
+      <div class="logo-sub">Fast Start · Control operacional</div>
     </div>
   </div>
-  <div class="header-meta" id="header-meta">—</div>
+  <div class="header-meta" id="header-meta"><span class="online-dot"></span>en línea</div>
 </header>
 
 <nav class="nav-tabs">
-  <button class="nav-tab active" data-tab="tab-carga">📂 Carga</button>
-  <button class="nav-tab" data-tab="tab-faststart">🎯 Fast Start</button>
-  <button class="nav-tab" data-tab="tab-ranking">🏆 Ranking</button>
-  <button class="nav-tab" data-tab="tab-resumen">📝 Resumen</button>
-  <button class="nav-tab" data-tab="tab-comp">⚖ Comparar</button>
-  <button class="nav-tab" data-tab="tab-historial">🕒 Historial</button>
-  <button class="nav-tab" data-tab="tab-log">📋 Uso del tablero</button>
+  <button class="nav-tab active" data-tab="tab-resumen">📊 Resumen del Día</button>
+  <button class="nav-tab" data-tab="tab-operarios">👤 Por Operario</button>
+  <button class="nav-tab" data-tab="tab-manana">☀ Turno Mañana</button>
+  <button class="nav-tab" data-tab="tab-tarde">🌙 Turno Tarde</button>
+  <button class="nav-tab" data-tab="tab-historial">📋 Historial</button>
+  <button class="nav-tab" data-tab="tab-carga">📂 Carga</button>
+  <button class="nav-tab manager-tab" data-tab="tab-manager">⚙ Manager</button>
 </nav>
+
+<div class="filters-bar">
+  <span class="filter-label">Fecha</span>
+  <select class="filter-select" id="f-fecha"><option value="">Todas</option></select>
+  <span class="filter-label">Site</span>
+  <select class="filter-select" id="f-site"><option value="">Todos</option></select>
+  <span class="filter-label">Turno</span>
+  <select class="filter-select" id="f-turno">
+    <option value="">Ambos</option>
+    <option value="Mañana">Mañana</option>
+    <option value="Tarde">Tarde</option>
+  </select>
+  <button class="btn-secondary" onclick="loadAndRender()">↻</button>
+  <span class="status-pill" id="status-pill"></span>
+</div>
 
 <main>
 
-<!-- ══ CARGA ══════════════════════════════════════════════════════ -->
-<div class="tab-panel active" id="tab-carga">
-
-  <!-- Nombre + Site -->
-  <div class="setup-panel">
-    <div class="setup-grid" style="grid-template-columns:1fr 1fr">
-      <div class="field">
-        <label>👤 Tu nombre (líder)</label>
-        <input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/>
-      </div>
-      <div class="field">
-        <label>🏭 Site</label>
-        <input type="text" id="leader-site" placeholder="Ej: ARBA01"/>
-      </div>
+<!-- RESUMEN -->
+<div class="tab-panel active" id="tab-resumen">
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-pct" style="color:var(--mp-blue)">—</div>
+      <div class="kpi-lbl">% Cumplimiento</div>
+      <div class="bar-wrap"><div class="bar-fill" id="k-pct-bar" style="background:var(--mp-blue);width:0"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-ops" style="color:var(--text)">—</div>
+      <div class="kpi-lbl">Operarios</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-ok" style="color:var(--ok)">—</div>
+      <div class="kpi-lbl">Controles OK</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-dev" style="color:var(--desvio)">—</div>
+      <div class="kpi-lbl">Desvíos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-man" style="color:var(--ok)">—</div>
+      <div class="kpi-lbl">% Mañana</div>
+      <div class="bar-wrap"><div class="bar-fill" id="k-man-bar" style="background:var(--ok);width:0"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" id="k-tar" style="color:var(--purple)">—</div>
+      <div class="kpi-lbl">% Tarde</div>
+      <div class="bar-wrap"><div class="bar-fill" id="k-tar-bar" style="background:var(--purple);width:0"></div></div>
     </div>
   </div>
+  <div class="site-grid" id="site-cards">
+    <div class="empty-state"><div class="icon">⏳</div><p>Cargando datos…</p></div>
+  </div>
+  <div id="trend-resumen" style="display:none">
+    <div class="section-title" style="margin-top:6px">📈 Tendencia últimos 7 días</div>
+    <div class="manager-card" style="padding:18px 20px"><div id="trend-chart"></div></div>
+  </div>
+</div>
 
-  <!-- CONFIG PAÍS -->
-  <div class="config-panel">
-    <div class="config-header" onclick="toggleConfig()">
-      <div class="config-header-left">
-        <span style="font-size:18px">🌎</span>
-        <h3>Configuración de horarios</h3>
-        <span class="config-badge" id="config-pais-badge">MLA — Argentina</span>
-        <span class="manager-unlocked-badge" id="manager-unlocked-badge">🔓 Manager</span>
-      </div>
-      <div class="config-toggle" id="config-toggle-label">▼ Ver configuración</div>
+<!-- POR OPERARIO -->
+<div class="tab-panel" id="tab-operarios">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">👤 Detalle por Operario</div>
+      <span class="table-count" id="ops-count">—</span>
     </div>
-    <div class="config-body" id="config-body">
-
-      <!-- Selector de país — visible para todos -->
-      <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px">
-        <div class="config-field">
-          <label>🌎 País / Operación</label>
-          <select id="cfg-pais" onchange="aplicarPais()">
-            <option value="MLA">MLA — Argentina</option>
-            <option value="MLB">MLB — Brasil</option>
-            <option value="MLU">MLU — Uruguay</option>
-            <option value="MLC">MLC — Chile</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Zona protegida — solo manager -->
-      <div id="manager-zone-locked">
-        <div class="config-lock" onclick="abrirPasswordModal()">
-          <div class="config-lock-icon">🔒</div>
-          <div class="config-lock-text"><strong>Zona de manager</strong> — Target y tolerancias protegidos</div>
-          <div class="config-lock-badge">Bloqueado</div>
-        </div>
-      </div>
-
-      <div id="manager-zone-open" style="display:none">
-        <div class="config-section-title" style="display:flex;align-items:center;justify-content:space-between">
-          <span>🔓 Configuración de manager</span>
-          <span onclick="bloquearManager()" style="font-size:11px;color:var(--desvio);cursor:pointer;font-family:var(--font);font-weight:600">🔒 Bloquear</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
-          <div class="config-field">
-            <label>🎯 Target de bipeos</label>
-            <input type="number" id="cfg-target" value="6" min="1" max="999" onchange="actualizarPreview()"/>
-          </div>
-          <div class="config-field">
-            <label>⏱ Tolerancia inicio de turno (min)</label>
-            <input type="number" id="cfg-tolerancia-ini" value="0" min="0" max="60" onchange="actualizarPreview()"/>
-          </div>
-          <div class="config-field">
-            <label>⏱ Tolerancia post break (min)</label>
-            <input type="number" id="cfg-tolerancia-brk" value="0" min="0" max="60" onchange="actualizarPreview()"/>
-          </div>
-        </div>
-
-      <!-- Turno mañana -->
-      <div class="config-section-title">☀ Turno mañana</div>
-      <div class="config-grid">
-        <div class="config-field">
-          <label>Inicio turno</label>
-          <input type="time" id="cfg-man-ini" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Fin turno</label>
-          <input type="time" id="cfg-man-fin" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Inicio break</label>
-          <input type="time" id="cfg-man-brk-ini" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Fin break</label>
-          <input type="time" id="cfg-man-brk-fin" onchange="actualizarPreview()"/>
-        </div>
-      </div>
-
-      <!-- Turno tarde -->
-      <div class="config-section-title">🌙 Turno tarde</div>
-      <div class="config-grid">
-        <div class="config-field">
-          <label>Inicio turno</label>
-          <input type="time" id="cfg-tar-ini" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Fin turno</label>
-          <input type="time" id="cfg-tar-fin" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Inicio break</label>
-          <input type="time" id="cfg-tar-brk-ini" onchange="actualizarPreview()"/>
-        </div>
-        <div class="config-field">
-          <label>Fin break</label>
-          <input type="time" id="cfg-tar-brk-fin" onchange="actualizarPreview()"/>
-        </div>
-      </div>
-
-      <!-- Usuarios excluidos -->
-      <div class="config-section-title" style="margin-top:18px">🚫 Usuarios a excluir (TL / PS)</div>
-      <div style="margin-bottom:16px">
-        <div class="config-field">
-          <label>Usernames separados por coma o por línea (ej: gnatale, bsanchez)</label>
-          <textarea id="cfg-excluidos" rows="3"
-            style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);resize:vertical;outline:none"
-            placeholder="gnatale, bsanchez, negarcia, lcarabajal"
-            oninput="guardarExcluidos()"></textarea>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font);margin-top:4px">
-          Al analizar, estos usuarios quedarán como <strong>Excluido</strong> y no afectarán el cumplimiento.
-        </div>
-      </div>
-
-      <!-- Preview -->
-      <div class="config-preview" id="config-preview">—</div>
-      </div><!-- /manager-zone-open -->
-
-    </div><!-- /config-body -->
-
+    <div class="table-scroll">
+      <table><thead><tr>
+        <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th>
+        <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th>
+      </tr></thead><tbody id="ops-body">
+        <tr><td colspan="9"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
+      </tbody></table>
     </div>
+  </div>
+</div>
 
-  <!-- Excel Invas — Semana actual -->
-  <div class="setup-panel">
+<!-- TURNO MAÑANA -->
+<div class="tab-panel" id="tab-manana">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">☀ Turno Mañana</div>
+      <span class="table-count" id="man-count">—</span>
+    </div>
+    <div class="table-scroll">
+      <table><thead><tr>
+        <th>Operario</th><th>Site</th><th>Fecha</th><th>Líder</th>
+        <th>Inicio Turno</th><th>Bipeos</th><th>Post Break</th><th>Bipeos</th><th>% Cumpl.</th>
+      </tr></thead><tbody id="man-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- TURNO TARDE -->
+<div class="tab-panel" id="tab-tarde">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">🌙 Turno Tarde</div>
+      <span class="table-count" id="tar-count">—</span>
+    </div>
+    <div class="table-scroll">
+      <table><thead><tr>
+        <th>Operario</th><th>Site</th><th>Fecha</th><th>Líder</th>
+        <th>Inicio Turno</th><th>Bipeos</th><th>Post Break</th><th>Bipeos</th><th>% Cumpl.</th>
+      </tr></thead><tbody id="tar-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="tab-panel" id="tab-historial">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">📋 Historial de Cargas</div>
+      <span class="table-count" id="hist-count">—</span>
+    </div>
+    <div class="table-scroll">
+      <table><thead><tr>
+        <th>Fecha carga</th><th>Hora</th><th>Líder</th><th>Site</th><th>País</th>
+        <th>Fecha operación</th><th>Operarios</th><th>% Cumpl.</th><th>OK</th><th>Desvíos</th>
+      </tr></thead><tbody id="hist-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- CARGA -->
+<div class="tab-panel" id="tab-carga">
+  <div class="setup-card">
+    <div class="section-title">📂 Cargar análisis del día</div>
     <div class="setup-grid">
-      <div class="field">
-        <label>📂 Excel Invas — Semana actual</label>
-        <div class="upload-zone" id="drop-zone">
-          <input type="file" id="file-input" accept=".xlsx,.xls"/>
-          <div class="upload-icon">📊</div>
-          <div class="upload-text" id="upload-text-main"><strong>Hacé clic o arrastrá</strong> el Excel exportado de Invas</div>
-        </div>
-      </div>
-      <div><button class="btn-primary" id="btn-process" disabled>▶ Analizar</button></div>
+      <div class="field"><label>👤 Tu nombre (Líder)</label><input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/></div>
+      <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02"/></div>
     </div>
-    <div class="loader" id="loader">
-      <div style="width:100%">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div class="spinner"></div>
-          <span id="loader-text">Procesando…</span>
-        </div>
-        <div style="height:6px;background:#dde3ea;border-radius:3px;overflow:hidden">
-          <div id="progress-bar" style="height:6px;width:0%;background:var(--mp-blue);border-radius:3px;transition:width .3s"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:5px" id="loader-sub"></div>
-      </div>
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".xlsx,.xls"/>
+      <div class="upload-icon">📊</div>
+      <div class="upload-text" id="upload-text">Arrastrá el Excel o <strong>hacé clic para seleccionar</strong></div>
     </div>
-    <div class="alert alert-info"    id="alert-info"></div>
-    <div class="alert alert-error"   id="alert-error"></div>
+    <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+      <button class="btn-primary" id="btn-process" disabled>▶ Analizar y publicar</button>
+      <span style="font-size:11px;color:var(--text-muted)">Los resultados quedan disponibles para todos</span>
+    </div>
+    <div class="loader" id="loader"><div class="spinner"></div><span id="loader-text">Procesando…</span></div>
+    <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0"></div></div>
+    <div class="alert alert-info" id="alert-info"></div>
+    <div class="alert alert-error" id="alert-error"></div>
     <div class="alert alert-success" id="alert-success"></div>
   </div>
+  <div class="setup-card" style="background:var(--surface2)">
+    <div id="config-preview" style="font-size:12px;color:var(--text-muted);line-height:2">
+      <strong style="color:var(--text)">Configuración activa</strong><br>
+      <span id="cfg-target-lbl">Target: 6 bipeos</span> ·
+      <span id="cfg-exc-lbl">Excluidos: full, off, pickit</span><br>
+      <span id="cfg-horarios-lbl"></span>
+    </div>
+  </div>
+</div>
 
-  <!-- Excel Invas — Semana anterior (opcional) -->
-  <div class="setup-panel" style="opacity:.75">
-    <div class="setup-grid" style="grid-template-columns:1fr 1fr">
-      <div class="field">
-        <label>🗃 Excel Invas — Semana anterior (opcional)</label>
-        <div class="upload-zone" id="drop-zone-prev">
-          <input type="file" id="file-input-prev" accept=".xlsx,.xls"/>
-          <div class="upload-icon">🗃</div>
-          <div class="upload-text" id="upload-text-prev"><strong>Hacé clic o arrastrá</strong> para habilitar la comparación de semanas</div>
+<!-- MANAGER -->
+<div class="tab-panel" id="tab-manager">
+  <!-- PIN LOCK -->
+  <div id="manager-lock">
+    <div class="pin-lock">
+      <div class="pin-lock-icon">🔒</div>
+      <h3>Zona Manager</h3>
+      <p>Ingresá el PIN para acceder a la configuración y métricas avanzadas</p>
+      <div class="pin-input-wrap">
+        <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="8"/>
+        <button class="btn-warning" onclick="checkPin()">Entrar</button>
+      </div>
+      <div class="pin-error" id="pin-error">PIN incorrecto</div>
+    </div>
+  </div>
+
+  <!-- MANAGER CONTENT (hidden until PIN) -->
+  <div id="manager-content" style="display:none">
+    <div class="manager-header">
+      <div class="manager-title">⚙ Zona Manager</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="manager-session" id="manager-session"></span>
+        <button class="btn-secondary" onclick="lockManager()" style="font-size:11px;padding:5px 10px">🔒 Cerrar</button>
+      </div>
+    </div>
+
+    <!-- SITE TABS CONFIG -->
+    <div class="manager-grid">
+      <div class="manager-card full">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="manager-card-title" style="margin-bottom:0">🏭 Configuración por Site</div>
+          <button class="btn-secondary" onclick="promptAddSiteTab()" style="font-size:11px;padding:5px 12px">+ Agregar site</button>
+        </div>
+        <div class="site-tabs-bar" id="site-tabs-bar"></div>
+        <div id="site-tab-content" style="padding-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- EXCLUSIONES + PIN + GUARDAR -->
+    <div class="manager-grid">
+
+      <!-- EXCLUSIONES -->
+      <div class="manager-card">
+        <div class="manager-card-title">🚫 Rutas excluidas del control</div>
+        <div class="exc-list" id="exc-list"></div>
+        <div class="exc-add-wrap">
+          <input type="text" class="exc-add-input" id="exc-add-input" placeholder="Agregar ruta…" onkeydown="if(event.key==='Enter')addExclusion()"/>
+          <button class="btn-secondary" onclick="addExclusion()">+ Agregar</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Coincidencia parcial con nombre de ruta (sin distinción de mayúsculas)</div>
+      </div>
+
+      <!-- CAMBIAR PIN -->
+      <div class="manager-card">
+        <div class="manager-card-title">🔑 Cambiar PIN</div>
+        <div class="pin-change-wrap">
+          <input type="password" class="pin-change-input" id="new-pin-input" placeholder="Nuevo PIN" maxlength="8"/>
+          <button class="btn-secondary" onclick="changePin()">Guardar PIN</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px">PIN actual guardado en este dispositivo</div>
+        <div class="alert alert-success" id="pin-alert" style="margin-top:8px"></div>
+      </div>
+
+      <!-- GUARDAR CONFIG -->
+      <div class="manager-card" style="display:flex;flex-direction:column;justify-content:flex-end">
+        <div class="manager-card-title">💾 Guardar configuración</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Los cambios se publican en línea y aplican a todos los líderes en su próxima carga.</p>
+        <button class="btn-warning" onclick="saveConfig()" id="btn-save-config">💾 Guardar y publicar config</button>
+        <div class="alert alert-success" id="cfg-alert" style="margin-top:8px"></div>
+        <div class="loader" id="cfg-loader" style="margin-top:8px"><div class="spinner" style="border-top-color:var(--warning)"></div><span>Guardando…</span></div>
+      </div>
+
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="manager-grid">
+      <div class="manager-card">
+        <div class="manager-card-title">📍 Estado de cargas hoy</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Sites con actividad histórica vs. carga del día actual</div>
+        <div class="pending-grid" id="pending-sites"></div>
+      </div>
+      <div class="manager-card">
+        <div class="manager-card-title">👥 Actividad por Líder</div>
+        <div class="table-scroll">
+          <table><thead><tr>
+            <th>Líder</th><th>Site</th><th>Cargas</th><th>Última carga</th><th>Prom %</th>
+          </tr></thead><tbody id="leader-table"></tbody></table>
         </div>
       </div>
-      <div style="display:flex;align-items:flex-end">
-        <p style="font-size:12px;color:var(--text-muted);line-height:1.7;font-family:var(--font)">
-          Opcional. Si cargás este archivo junto con el principal, se activa la pestaña <strong>Comparar</strong> con la evolución de cada rep.
-        </p>
-      </div>
     </div>
-  </div>
 
-</div>
-
-<!-- ══ PRODUCTIVIDAD ══════════════════════════════════════════════ -->
-<!-- ══ FAST START ════════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-faststart">
-  <div class="kpi-grid" id="kpi-grid">
-    <div class="kpi-card usuarios"><div class="kpi-value" id="k-users">—</div><div class="kpi-label">Usuarios</div></div>
-    <div class="kpi-card ok"><div class="kpi-value" id="k-ok">—</div><div class="kpi-label">OK</div></div>
-    <div class="kpi-card desvio"><div class="kpi-value" id="k-dev">—</div><div class="kpi-label">Desvíos</div></div>
-    <div class="kpi-card pct"><div class="kpi-value" id="k-pct">—</div><div class="kpi-label">Cumplimiento</div></div>
-    <div class="kpi-card excluido" id="card-exc" style="display:none"><div class="kpi-value" id="k-exc">—</div><div class="kpi-label">Excluidos</div></div>
-  </div>
-  <div class="filters-bar">
-    <span style="font-family:var(--font);font-weight:700;font-size:13px;margin-right:8px">🎯 Fast Start</span>
-    <div class="filter-group"><label>Turno</label>
-      <select id="f-turno"><option value="">Todos</option><option>Mañana</option><option>Tarde</option></select></div>
-    <div class="filter-group"><label>Estado</label>
-      <select id="f-estado"><option value="">Todos</option><option>OK</option><option>Desvío</option></select></div>
-    <div class="filter-group"><label>Control</label>
-      <select id="f-control"><option value="">Todos</option><option>Inicio de turno</option><option>Post Break</option></select></div>
-    <div class="filter-group"><label>Fecha</label><select id="f-fecha"><option value="">Todas</option></select></div>
-    <div class="filter-group"><label>Usuario</label><select id="f-usuario"><option value="">Todos</option></select></div>
-    <button class="btn-secondary" id="btn-clear-filters">Limpiar</button>
-  </div>
-  <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">Detalle de controles Fast Start</div>
-      <span class="table-count" id="row-count">0 registros</span>
-    </div>
-    <div class="table-scroll">
-      <table><thead><tr>
-        <th>Usuario</th><th>Fecha</th><th>Turno</th><th>Control</th>
-        <th>Hora de corte</th><th>Bipeos acumulados</th>
-        <th>Primer bip</th><th>Estado</th><th>Detalle</th>
-      </tr></thead><tbody id="results-body"></tbody></table>
-    </div>
-  </div>
-  <div class="export-row"><button class="btn-secondary" id="btn-export">⬇ Exportar CSV</button></div>
-</div>
-
-<!-- ══ RANKING ════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-ranking">
-  <div class="section-header">
-    <div class="section-title">🏆 Ranking Fast Start</div>
-    <select id="rank-turno" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;background:var(--surface2);outline:none">
-      <option value="">Ambos turnos</option><option>Mañana</option><option>Tarde</option>
-    </select>
-  </div>
-  <div class="rank-section-label">✅ Sin necesidad de feedback <span class="pill pill-green" id="pill-ok-count">0 reps</span></div>
-  <div class="ranking-grid" id="ranking-grid-ok"><div class="empty-state"><div class="icon">🏆</div><p>Cargá un archivo para ver el ranking.</p></div></div>
-  <div class="rank-divider"></div>
-  <div class="rank-section-label">⚠️ Requieren feedback <span class="pill pill-orange" id="pill-dev-count">0 reps</span></div>
-  <div class="ranking-grid" id="ranking-grid-dev"><div class="empty-state" style="padding:20px"><p>—</p></div></div>
-</div>
-
-<!-- ══ RESUMEN ════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-resumen">
-  <div class="resumen-box">
-    <div class="section-header" style="margin-bottom:18px">
-      <div class="section-title">📝 Resumen ejecutivo autogenerado</div>
-      <button class="btn-secondary" id="btn-copy-resumen">📋 Copiar</button>
-    </div>
-    <div class="resumen-text" id="resumen-text" style="color:var(--text-muted)">Cargá un archivo para generar el resumen automático.</div>
-  </div>
-</div>
-
-<!-- ══ COMPARAR ════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-comp">
-  <div class="section-header"><div class="section-title">⚖ Comparación: semana actual vs. anterior</div></div>
-  <div id="comp-content"><div class="empty-state"><div class="icon">⚖</div><p>Cargá el archivo de la semana anterior en la pestaña Carga para activar la comparación.</p></div></div>
-</div>
-
-<!-- ══ HISTORIAL ══════════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-historial">
-  <div id="hist-content">
-    <div class="hist-empty"><div class="icon">🕒</div><p>Ingresá tu nombre en la pestaña <strong>Carga</strong> para ver tu historial.</p></div>
-  </div>
-</div>
-
-<!-- ══ USO DEL TABLERO ════════════════════════════════════════════ -->
-<div class="tab-panel" id="tab-log">
-  <div class="log-intro">
-    <div class="log-intro-icon">📋</div>
-    <div class="log-intro-text">
-      <h3>Registro de uso del tablero</h3>
-      <p>Cada vez que un líder analiza un archivo, queda registrado acá. Sirve para dar seguimiento a la adopción y asegurar que el tablero esté siendo usado por el equipo.</p>
-    </div>
-  </div>
-  <div class="log-stats">
-    <div class="log-stat"><div class="log-stat-val" id="ls-usos">—</div><div class="log-stat-lbl">Usos registrados</div></div>
-    <div class="log-stat"><div class="log-stat-val" id="ls-lideres">—</div><div class="log-stat-lbl">Líderes distintos</div></div>
-    <div class="log-stat"><div class="log-stat-val" id="ls-ultimo">—</div><div class="log-stat-lbl">Último uso</div></div>
-  </div>
-  <div class="filters-bar" style="margin-bottom:14px">
-    <span style="font-family:var(--font);font-weight:700;font-size:13px;margin-right:8px">🔍 Filtrar</span>
-    <div class="filter-group"><label>Site</label>
-      <select id="log-filter-site"><option value="">Todos</option></select></div>
-    <div class="filter-group"><label>Líder</label>
-      <select id="log-filter-lider"><option value="">Todos</option></select></div>
-    <button class="btn-secondary" onclick="renderLog()" style="font-size:12px;padding:6px 14px">Limpiar</button>
-  </div>
-  <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">Historial de usos</div>
-      <button class="btn-secondary" id="btn-refresh-log" style="font-size:12px;padding:6px 14px">↻ Actualizar</button>
-    </div>
-    <div class="table-scroll">
-      <table><thead><tr>
-        <th>#</th><th>Líder</th><th>Site</th><th>Fecha</th><th>Hora</th><th>Archivo cargado</th><th>Período analizado</th>
-      </tr></thead><tbody id="log-body"></tbody></table>
-    </div>
   </div>
 </div>
 
 </main>
 
-<!-- MODAL CONTRASEÑA MANAGER -->
-<div class="pwd-modal-overlay" id="pwd-modal-overlay">
-  <div class="pwd-modal">
-    <div class="pwd-modal-icon">🔐</div>
-    <div class="pwd-modal-title">Zona de manager</div>
-    <div class="pwd-modal-sub">Ingresá la contraseña para acceder a la configuración de target y tolerancias.</div>
-    <input type="password" class="pwd-input" id="pwd-input" placeholder="••••••••••••"
-      onkeydown="if(event.key==='Enter')verificarPassword()"/>
-    <div class="pwd-error" id="pwd-error">Contraseña incorrecta. Intentá de nuevo.</div>
-    <div class="pwd-actions">
-      <button class="btn-secondary" onclick="cerrarPasswordModal()">Cancelar</button>
-      <button class="btn-primary" onclick="verificarPassword()">Ingresar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL FICHA USUARIO -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-user-name">—</div>
-      <button class="modal-close" id="modal-close">✕</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
-  </div>
-</div>
-
 <script>
-let allResults=[], prevResults=[], currentFile=null, prevFile=null;
-const COL_RUTA=13, COL_USUARIO=17, COL_FECHA=19;
-const EXCLUIDAS=['full','off','pickit'];
-
-// ── Configuraciones por país ──────────────────────────────────────
-const PAISES = {
-  MLA: { nombre:'Argentina', manIni:'06:00', manFin:'14:00', manBrkIni:'09:00', manBrkFin:'09:30', tarIni:'14:00', tarFin:'22:00', tarBrkIni:'18:00', tarBrkFin:'18:30' },
-  MLB: { nombre:'Brasil',    manIni:'06:00', manFin:'13:59', manBrkIni:'09:00', manBrkFin:'09:30', tarIni:'14:00', tarFin:'22:00', tarBrkIni:'17:00', tarBrkFin:'17:30' },
-  MLU: { nombre:'Uruguay',   manIni:'06:00', manFin:'13:59', manBrkIni:'09:00', manBrkFin:'09:30', tarIni:'14:00', tarFin:'22:00', tarBrkIni:'17:00', tarBrkFin:'17:30' },
-  MLC: { nombre:'Chile',     manIni:'06:00', manFin:'13:59', manBrkIni:'09:00', manBrkFin:'09:30', tarIni:'14:00', tarFin:'22:00', tarBrkIni:'17:00', tarBrkFin:'17:30' },
+// ── CONSTANTES ───────────────────────────────────────────────────
+const JBIN_KEY = '$2a$10$wzK.Zh3LOZw0dK2./KvJmuCNJKaH.206v9Xsb5EmO/QEYujiRBUbm';
+const JBIN_RESULTS = '69d515ceaaba882197d28fe4';
+const JBIN_URL = `https://api.jsonbin.io/v3/b/${JBIN_RESULTS}`;
+const DEFAULT_GLOBAL = {
+  target: 6,
+  excluidas: ['full','off','pickit'],
+  toleranciaInicio: 0,
+  toleranciaPB: 0,
+  turnos: [
+    {nombre:'Mañana', activo:true,  inicioTurno:'06:00', finTurno:'14:00', inicioBreak:'09:00', finBreak:'09:30'},
+    {nombre:'Tarde',  activo:true,  inicioTurno:'14:00', finTurno:'22:00', inicioBreak:'17:00', finBreak:'17:30'},
+    {nombre:'Noche',  activo:false, inicioTurno:'22:00', finTurno:'06:00', inicioBreak:'02:00', finBreak:'02:30'},
+  ]
 };
+const DEFAULT_CONFIG = { global: JSON.parse(JSON.stringify(DEFAULT_GLOBAL)), sites:{} };
 
-// Convierte "HH:MM" a minutos
+// ── HELPERS ──────────────────────────────────────────────────────
 const timeToMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
-const toMin=(h,m)=>h*60+m;
+const addMinutesStr = (t,m) => { const total=(timeToMin(t)+parseInt(m||0)+1440)%(1440); return `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`; };
+const toMin = (h,m) => h*60+m;
+const fmtDate = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+const fmtTime = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+const pctColor = p => p>=80?'var(--ok)':p>=40?'var(--warning)':'var(--desvio)';
 
-// Lee la config actual de los campos del panel
-function getConfig() {
-  const target = parseInt(document.getElementById('cfg-target')?.value)||6;
-  const tolIni = parseInt(document.getElementById('cfg-tolerancia-ini')?.value)||0;
-  const tolBrk = parseInt(document.getElementById('cfg-tolerancia-brk')?.value)||0;
-  const manIni  = timeToMin(document.getElementById('cfg-man-ini').value);
-  const manFin  = timeToMin(document.getElementById('cfg-man-fin').value);
-  const manBIni = timeToMin(document.getElementById('cfg-man-brk-ini').value);
-  const manBFin = timeToMin(document.getElementById('cfg-man-brk-fin').value);
-  const tarIni  = timeToMin(document.getElementById('cfg-tar-ini').value);
-  const tarFin  = timeToMin(document.getElementById('cfg-tar-fin').value);
-  const tarBIni = timeToMin(document.getElementById('cfg-tar-brk-ini').value);
-  const tarBFin = timeToMin(document.getElementById('cfg-tar-brk-fin').value);
-  return {
-    target, tolIni, tolBrk,
-    manIni, manFin, manBIni, manBFin,
-    tarIni, tarFin, tarBIni, tarBFin,
-    controles: [
-      { turno:'Mañana', tipo:'Inicio de turno', corteMin: manIni + tolIni,  contarDesde: manIni,  rango:{ini:manIni, fin:manFin} },
-      { turno:'Mañana', tipo:'Post Break',       corteMin: manBFin + tolBrk, contarDesde: manBFin, rango:{ini:manIni, fin:manFin} },
-      { turno:'Tarde',  tipo:'Inicio de turno',  corteMin: tarIni + tolIni,  contarDesde: tarIni,  rango:{ini:tarIni, fin:tarFin} },
-      { turno:'Tarde',  tipo:'Post Break',        corteMin: tarBFin + tolBrk, contarDesde: tarBFin, rango:{ini:tarIni, fin:tarFin} },
-    ]
-  };
-}
-
-function aplicarPais() {
-  const pais = document.getElementById('cfg-pais').value;
-  const p = PAISES[pais];
-  if(!p) return;
-  document.getElementById('cfg-man-ini').value     = p.manIni;
-  document.getElementById('cfg-man-fin').value     = p.manFin;
-  document.getElementById('cfg-man-brk-ini').value = p.manBrkIni;
-  document.getElementById('cfg-man-brk-fin').value = p.manBrkFin;
-  document.getElementById('cfg-tar-ini').value     = p.tarIni;
-  document.getElementById('cfg-tar-fin').value     = p.tarFin;
-  document.getElementById('cfg-tar-brk-ini').value = p.tarBrkIni;
-  document.getElementById('cfg-tar-brk-fin').value = p.tarBrkFin;
-  document.getElementById('cfg-target').value          = 6;
-  document.getElementById('cfg-tolerancia-ini').value  = 0;
-  document.getElementById('cfg-tolerancia-brk').value  = 0;
-  document.getElementById('config-pais-badge').textContent = `${pais} — ${p.nombre}`;
-  actualizarPreview();
-}
-
-function actualizarPreview() {
-  const cfg = getConfig();
-  const tIni = cfg.tolIni > 0 ? ` <strong>(+${cfg.tolIni} min)</strong>` : '';
-  const tBrk = cfg.tolBrk > 0 ? ` <strong>(+${cfg.tolBrk} min)</strong>` : '';
-  const t = cfg.target;
-  document.getElementById('config-preview').innerHTML =
-    `<span style="color:var(--mp-blue);font-weight:700">🎯 Target: ${t} bipeos acumulados antes de la hora de corte</span><br><br>` +
-    `☀ <strong>Mañana</strong> — Inicio: ${minToStr(cfg.manIni)} | Break: ${minToStr(cfg.manBIni)} – ${minToStr(cfg.manBFin)} | Fin: ${minToStr(cfg.manFin)}<br>` +
-    `&nbsp;&nbsp;&nbsp; → El rep debe tener <strong>${t} bipeos</strong> antes de las <strong>${minToStr(cfg.controles[0].corteMin)}</strong>${tIni} para quedar OK en inicio de turno<br>` +
-    `&nbsp;&nbsp;&nbsp; → El rep debe tener <strong>${t} bipeos</strong> antes de las <strong>${minToStr(cfg.controles[1].corteMin)}</strong>${tBrk} para quedar OK en post break<br><br>` +
-    `🌙 <strong>Tarde</strong> — Inicio: ${minToStr(cfg.tarIni)} | Break: ${minToStr(cfg.tarBIni)} – ${minToStr(cfg.tarBFin)} | Fin: ${minToStr(cfg.tarFin)}<br>` +
-    `&nbsp;&nbsp;&nbsp; → El rep debe tener <strong>${t} bipeos</strong> antes de las <strong>${minToStr(cfg.controles[2].corteMin)}</strong>${tIni} para quedar OK en inicio de turno<br>` +
-    `&nbsp;&nbsp;&nbsp; → El rep debe tener <strong>${t} bipeos</strong> antes de las <strong>${minToStr(cfg.controles[3].corteMin)}</strong>${tBrk} para quedar OK en post break`;
-}
-
-// ── Usuarios excluidos (TL/PS) ────────────────────────────────────
-const LS_EXCLUIDOS = 'mercadito_excluidos';
-
-function guardarExcluidos(){
-  const val = document.getElementById('cfg-excluidos').value;
-  localStorage.setItem(LS_EXCLUIDOS, val);
-}
-
-function cargarExcluidos(){
-  const val = localStorage.getItem(LS_EXCLUIDOS) || '';
-  document.getElementById('cfg-excluidos').value = val;
-}
-
-function getExcluidosUsuarios(){
-  const val = localStorage.getItem(LS_EXCLUIDOS) || '';
-  return val.split(/[\n,]/).map(u=>u.trim().toLowerCase()).filter(Boolean);
-}
-
-// ── Contraseña manager ────────────────────────────────────────────
-const MANAGER_PWD = 'Meli1234';
+// ── STATE ────────────────────────────────────────────────────────
+let allEntries = [];
+let currentFile = null;
+let CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+let CONTROLES = buildControles(CONFIG.global);
 let managerUnlocked = false;
+const bClass = v => v==='OK'?'badge-ok':v==='Desvío'?'badge-dev':'badge-exc';
 
-function abrirPasswordModal() {
-  document.getElementById('pwd-input').value = '';
-  document.getElementById('pwd-error').classList.remove('show');
-  document.getElementById('pwd-input').classList.remove('error');
-  document.getElementById('pwd-modal-overlay').classList.add('show');
-  setTimeout(()=>document.getElementById('pwd-input').focus(), 100);
+function getCountry(site){
+  const s=site.toUpperCase();
+  if(s.startsWith('AR')||s.includes('MLA')||s.includes('ARBA')||s.includes('ARCO')) return {flag:'🇦🇷',code:'ARG'};
+  if(s.startsWith('CL')||s.includes('MLC')) return {flag:'🇨🇱',code:'CHI'};
+  if(s.startsWith('CO')||s.includes('MCO')||s.includes('COBA')) return {flag:'🇨🇴',code:'COL'};
+  if(s.startsWith('BR')||s.includes('MLB')) return {flag:'🇧🇷',code:'BRA'};
+  if(s.startsWith('MX')||s.includes('MLM')) return {flag:'🇲🇽',code:'MEX'};
+  if(s.startsWith('UY')||s.includes('MLU')) return {flag:'🇺🇾',code:'URU'};
+  return {flag:'🌐',code:'?'};
 }
 
-function cerrarPasswordModal() {
-  document.getElementById('pwd-modal-overlay').classList.remove('show');
-}
-
-function verificarPassword() {
-  const val = document.getElementById('pwd-input').value;
-  if(val === MANAGER_PWD) {
-    managerUnlocked = true;
-    cerrarPasswordModal();
-    document.getElementById('manager-zone-locked').style.display = 'none';
-    document.getElementById('manager-zone-open').style.display = 'block';
-    document.getElementById('manager-unlocked-badge').classList.add('show');
-    cargarExcluidos();
-    actualizarPreview();
-  } else {
-    document.getElementById('pwd-error').classList.add('show');
-    const inp = document.getElementById('pwd-input');
-    inp.classList.add('error');
-    setTimeout(()=>inp.classList.remove('error'), 400);
-    inp.value = '';
-    inp.focus();
+function buildControles(cfg){
+  // Nuevo formato por turnos
+  if(cfg.turnos){
+    const tolI=parseInt(cfg.toleranciaInicio)||0;
+    const tolPB=parseInt(cfg.toleranciaPB)||0;
+    const ctrl=[];
+    cfg.turnos.filter(t=>t.activo).forEach(t=>{
+      const corteI=addMinutesStr(t.inicioTurno,tolI);
+      const cortePB=addMinutesStr(t.finBreak,tolPB);
+      ctrl.push({turno:t.nombre,tipo:'Inicio',   corteMin:timeToMin(corteI), contarDesde:timeToMin(t.inicioTurno),rango:{ini:timeToMin(t.inicioTurno),fin:timeToMin(t.finTurno)}});
+      ctrl.push({turno:t.nombre,tipo:'Post Break',corteMin:timeToMin(cortePB),contarDesde:timeToMin(t.finBreak),  rango:{ini:timeToMin(t.inicioTurno),fin:timeToMin(t.finTurno)}});
+    });
+    return ctrl;
   }
+  // Formato legacy
+  return (cfg.controles||[]).map(c=>({
+    turno:c.turno,tipo:c.tipo,
+    corteMin:timeToMin(c.corte),
+    contarDesde:timeToMin(c.contarDesde),
+    rango:{ini:timeToMin(c.rangoIni),fin:timeToMin(c.rangoFin)}
+  }));
 }
 
-function bloquearManager() {
-  managerUnlocked = false;
-  document.getElementById('manager-zone-locked').style.display = 'block';
-  document.getElementById('manager-zone-open').style.display = 'none';
-  document.getElementById('manager-unlocked-badge').classList.remove('show');
+function getGlobal(){ return CONFIG.global||CONFIG; }
+
+function getEffectiveConfig(site){
+  const g=getGlobal();
+  if(!site) return g;
+  const key=(site||'').toUpperCase().trim();
+  const ov=(CONFIG.sites||{})[key];
+  if(!ov) return g;
+  const merged=Object.assign({},g,ov);
+  if(!ov.turnos) merged.turnos=g.turnos; // heredar turnos si no está sobreescrito
+  return merged;
 }
 
-function toggleConfig() {
-  const body = document.getElementById('config-body');
-  const label = document.getElementById('config-toggle-label');
-  const open = body.classList.toggle('open');
-  label.textContent = open ? '▲ Cerrar' : '▼ Ver configuración';
+function applyConfig(cfg){
+  if(!cfg) return;
+  // Migrar formatos legacy al nuevo {global, sites}
+  if(!cfg.global){
+    const g=Object.assign(JSON.parse(JSON.stringify(DEFAULT_GLOBAL)),cfg);
+    delete g.sites;
+    cfg={global:g, sites:cfg.sites||{}};
+  }
+  CONFIG={
+    global:Object.assign(JSON.parse(JSON.stringify(DEFAULT_GLOBAL)), cfg.global||{}),
+    sites:cfg.sites||{}
+  };
+  if(!CONFIG.global.turnos||CONFIG.global.turnos.length<3){
+    CONFIG.global.turnos=JSON.parse(JSON.stringify(DEFAULT_GLOBAL.turnos));
+  }
+  CONTROLES=buildControles(CONFIG.global);
+  updateConfigPreview();
 }
 
-// ── inferTurno ahora usa la config dinámica ───────────────────────
-function inferTurno(m) {
-  const cfg = getConfig();
-  if(m >= cfg.manIni && m <= cfg.manFin) return 'Mañana';
-  if(m >= cfg.tarIni && m <= cfg.tarFin) return 'Tarde';
-  return null;
-}
-
-const minToStr=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
-const fmtDate=d=>!d?'—':`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-const fmtTime=d=>!d?'—':`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-
-// ── Detectar si estamos dentro de Apps Script ─────────────────────
-const enAppsScript = typeof google !== 'undefined' && google.script && google.script.run;
-
+// ── DATE PARSE ───────────────────────────────────────────────────
 function parseDate(val){
-  if(!val)return null;
-  if(val instanceof Date) return isNaN(val.getTime()) ? null : val;
-  // Número serial de Excel (cellDates:false) → convertir sin offset UTC
-  if(typeof val === 'number' && val > 1){
-    try{
-      const p = XLSX.SSF.parse_date_code(val);
-      if(p) return new Date(p.y, p.m-1, p.d, p.H, p.M, p.S);
-    }catch(e){}
+  if(!val) return null;
+  if(val instanceof Date) return isNaN(val.getTime())?null:val;
+  if(typeof val==='number'&&val>1){
+    try{const p=XLSX.SSF.parse_date_code(val);if(p)return new Date(p.y,p.m-1,p.d,p.H,p.M,p.S);}catch(e){}
   }
   const s=String(val).trim();
   let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
@@ -754,569 +621,942 @@ function parseDate(val){
   return null;
 }
 
-function processXLSX(wb){
-  const sheet = wb.Sheets[wb.SheetNames[0]];
-
-  // ── Leer headers celda por celda (solo fila 0) ───────────────
-  const sheetRange = XLSX.utils.decode_range(sheet['!ref'] || 'A1');
-  const nRows = sheetRange.e.r;
-  const nCols = sheetRange.e.c;
-  if(nRows < 1) throw new Error('El archivo parece estar vacío.');
-
-  const enc = XLSX.utils.encode_cell;
-  const headerRow = [];
-  for(let c = 0; c <= nCols; c++){
-    const cell = sheet[enc({r:0, c})];
-    headerRow.push(cell ? cell.v : '');
-  }
-
-  const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  const headers = headerRow.map(norm);
-
-  const findCol = (...keywords) => {
-    for(const kw of keywords){
-      const i = headers.findIndex(h=>h===kw||h.includes(kw));
-      if(i>=0) return i;
-    }
-    return -1;
-  };
-
-  const iUsuario = findCol('usuario asignado','usuario ult mod','operador','usuario creacion','usuario','user','operator');
-  const iFecha   = findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
-  const iRuta    = findCol('nombre ruta','ruta','route');
-
-  if(iUsuario<0 || iFecha<0){
-    throw new Error(
-      `No se encontraron las columnas de usuario/fecha.\n` +
-      `Headers detectados: ${headers.slice(0,30).join(' | ')}`
-    );
-  }
-
-  // ── Leer solo las 3 columnas necesarias, celda por celda ─────
-  if(nRows < 1) throw new Error('El archivo parece estar vacío.');
-
-  setProgress(70, 'Procesando registros…', `${nRows.toLocaleString()} filas a analizar`);
-
-  const byUserDay = new Map();
-  const CHUNK = 3000;
-
-  for(let r = 1; r <= nRows; r++){
-    const cellU = sheet[enc({r, c:iUsuario})];
-    const cellF = sheet[enc({r, c:iFecha})];
-    const cellR = iRuta>=0 ? sheet[enc({r, c:iRuta})] : null;
-
-    const usuario = String(cellU ? cellU.v : '').trim();
-    const fechaRaw = cellF ? cellF.v : '';
-    const ruta = String(cellR ? cellR.v : '').trim();
-
-    if(!usuario || !fechaRaw) continue;
-
-    const dt = parseDate(fechaRaw);
+// ── PROCESS XLSX ─────────────────────────────────────────────────
+function processXLSX(wb,siteCfg){
+  const sheet=wb.Sheets[wb.SheetNames[0]];
+  const range=XLSX.utils.decode_range(sheet['!ref']||'A1');
+  const nRows=range.e.r,nCols=range.e.c;
+  if(nRows<1) throw new Error('Archivo vacío.');
+  const enc=XLSX.utils.encode_cell;
+  const headers=[];
+  for(let c=0;c<=nCols;c++){const cell=sheet[enc({r:0,c})];headers.push(cell?cell.v:'');}
+  const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const hdrs=headers.map(norm);
+  const findCol=(...kws)=>{for(const kw of kws){const i=hdrs.findIndex(h=>h===kw||h.includes(kw));if(i>=0)return i;}return -1;};
+  const iU=findCol('usuario asignado','usuario ult mod','operador','usuario creacion','usuario','user','operator');
+  const iF=findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
+  const iR=findCol('nombre ruta','ruta','route');
+  if(iU<0||iF<0) throw new Error(`No se encontraron columnas.\nHeaders: ${hdrs.slice(0,25).join(' | ')}`);
+  const cfg=siteCfg||getGlobal();
+  const controles=buildControles(cfg);
+  const excluidas=cfg.excluidas||[];
+  const target=cfg.target||6;
+  setProgress(70,'Procesando filas…');
+  const byUserDay=new Map();
+  for(let r=1;r<=nRows;r++){
+    const cellU=sheet[enc({r,c:iU})],cellF=sheet[enc({r,c:iF})],cellR=iR>=0?sheet[enc({r,c:iR})]:null;
+    const usuario=String(cellU?cellU.v:'').trim();
+    const fechaRaw=cellF?cellF.v:'';
+    const ruta=String(cellR?cellR.v:'').trim();
+    if(!usuario||!fechaRaw) continue;
+    const dt=parseDate(fechaRaw);
     if(!dt) continue;
-
-    const minDia = toMin(dt.getHours(), dt.getMinutes());
-    if(!inferTurno(minDia)) continue;
-
-    const dateKey = fmtDate(dt);
-    const mapKey  = `${usuario}||${dateKey}`;
-
-    if(!byUserDay.has(mapKey)) byUserDay.set(mapKey, {usuario, fecha:dateKey, ruta, bipeos:[]});
-    const entry = byUserDay.get(mapKey);
+    const minDia=toMin(dt.getHours(),dt.getMinutes());
+    if(!controles.some(c=>minDia>=c.rango.ini&&minDia<=c.rango.fin)) continue;
+    const dateKey=fmtDate(dt);
+    const key=`${usuario}||${dateKey}`;
+    if(!byUserDay.has(key)) byUserDay.set(key,{usuario,fecha:dateKey,ruta,bipeos:[]});
+    const entry=byUserDay.get(key);
     entry.bipeos.push(dt);
-    if(ruta) entry.ruta = ruta;
-
-    if(r % CHUNK === 0){
-      const pct = 70 + Math.round((r / nRows) * 22);
-      setProgress(pct, 'Procesando registros…', `${r.toLocaleString()} de ${nRows.toLocaleString()} filas`);
-    }
+    if(ruta) entry.ruta=ruta;
   }
-
-  if(byUserDay.size === 0) throw new Error(
-    `No se encontraron registros dentro del horario de turnos.\n` +
-    `Columnas usadas → Usuario: "${headerRow[iUsuario]}" (col ${iUsuario+1}), ` +
-    `Fecha: "${headerRow[iFecha]}" (col ${iFecha+1})${iRuta>=0?`, Ruta: "${headerRow[iRuta]}" (col ${iRuta+1})`:''}.`
-  );
-
-  setProgress(93, 'Calculando Fast Start…', 'Evaluando controles por usuario');
-
+  if(byUserDay.size===0) throw new Error('No se encontraron registros en el horario de turnos.');
+  setProgress(90,'Calculando controles…');
   const results=[];
-  const cfg = getConfig();
   byUserDay.forEach(({usuario,fecha,ruta,bipeos})=>{
     bipeos.sort((a,b)=>a-b);
-    const excUsers=getExcluidosUsuarios();
-    const isExcluido=EXCLUIDAS.includes(ruta.toLowerCase())||excUsers.includes(usuario.toLowerCase());
-    cfg.controles.forEach(ctrl=>{
-      const bdt=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin});
-      if(bdt.length===0)return;
-      const corteMin=ctrl.corteMin;
-      // Primer bipeo dentro de la ventana del control
-      const bipeosEnVentana=bdt.filter(b=>{
-        const m=toMin(b.getHours(),b.getMinutes());
-        return m>=ctrl.contarDesde && m<=corteMin;
-      });
-      const primerBipeoVentana = bipeosEnVentana.length > 0 ? fmtTime(bipeosEnVentana[0]) : '—';
-      const acumulados = bipeosEnVentana.length;
-      let estado,detalle;
-      if(isExcluido){estado='Excluido';detalle=`RUTA OS: ${ruta}`}
-      else if(acumulados>=cfg.target){estado='OK';detalle=`${acumulados} bipeos acumulados`}
-      else{estado='Desvío';detalle=`No llegó al target`}
-      results.push({usuario,fecha,turno:ctrl.turno,tipo:ctrl.tipo,horaCorte:minToStr(corteMin),
-        acumulados,totalTurno:bdt.length,primerBipeo:primerBipeoVentana,ultimoBipeo:fmtTime(bdt[bdt.length-1]),
-        estado,detalle});
+    const isExc=excluidas.some(ex=>ruta.toLowerCase().includes(ex.toLowerCase()));
+    controles.forEach(ctrl=>{
+      const enRango=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin;});
+      if(enRango.length===0) return;
+      const enVentana=enRango.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.contarDesde&&m<=ctrl.corteMin;});
+      const acum=enVentana.length;
+      const estado=isExc?'Excluido':acum>=target?'OK':'Desvío';
+      results.push({usuario,fecha,turno:ctrl.turno,tipo:ctrl.tipo,acumulados:acum,estado});
     });
   });
-  if(results.length===0)throw new Error('No se generaron resultados. Revisá el formato de fechas.');
+  if(results.length===0) throw new Error('No se generaron resultados.');
   return results;
 }
 
-function renderKPIs(data){
-  const a=data.filter(r=>r.estado!=='Excluido');
-  const ok=a.filter(r=>r.estado==='OK').length,dev=a.filter(r=>r.estado==='Desvío').length;
-  const exc=data.filter(r=>r.estado==='Excluido').length;
-  const pct=a.length>0?Math.round(ok/a.length*100):0;
-  document.getElementById('k-users').textContent=[...new Set(data.map(r=>r.usuario))].length;
-  document.getElementById('k-ok').textContent=ok;
-  document.getElementById('k-dev').textContent=dev;
-  document.getElementById('k-exc').textContent=exc;
-  document.getElementById('k-pct').textContent=pct+'%';
-  const ce=document.getElementById('card-exc'),kg=document.getElementById('kpi-grid');
-  if(exc===0){ce.style.display='none';kg.style.gridTemplateColumns='repeat(4,1fr)'}
-  else{ce.style.display='';kg.style.gridTemplateColumns='repeat(5,1fr)'}
+// ── BUILD OPERARIOS (con bipeos) ─────────────────────────────────
+function buildOperarios(raw){
+  const map=new Map();
+  raw.filter(r=>r.estado!=='Excluido').forEach(r=>{
+    const k=`${r.usuario}||${r.fecha}||${r.turno}`;
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
+    const op=map.get(k);
+    if(r.tipo==='Inicio'){op.inicio=r.estado;op.inicioAcum=r.acumulados;}
+    if(r.tipo==='Post Break'){op.postBreak=r.estado;op.postBreakAcum=r.acumulados;}
+  });
+  return Array.from(map.values()).map(op=>{
+    const ctrl=[op.inicio,op.postBreak].filter(Boolean);
+    op.pct=ctrl.length>0?Math.round(ctrl.filter(c=>c==='OK').length/ctrl.length*100):0;
+    return op;
+  });
 }
 
-function renderTable(data){
-  const turno=document.getElementById('f-turno').value,estado=document.getElementById('f-estado').value;
-  const control=document.getElementById('f-control').value,fecha=document.getElementById('f-fecha').value;
-  const usuario=document.getElementById('f-usuario').value;
-  let f=data;
-  if(turno)f=f.filter(r=>r.turno===turno);if(estado)f=f.filter(r=>r.estado===estado);
-  if(control)f=f.filter(r=>r.tipo===control);if(fecha)f=f.filter(r=>r.fecha===fecha);
-  if(usuario)f=f.filter(r=>r.usuario===usuario);
-  document.getElementById('row-count').textContent=`${f.length} registros`;
-  const tbody=document.getElementById('results-body');
-  if(f.length===0){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="icon">🔍</div><p>Sin resultados para los filtros aplicados.</p></div></td></tr>`;return}
-  tbody.innerHTML=f.map(r=>{
-    const eb=r.estado==='OK'?`<span class="badge badge-ok">✓ OK</span>`:r.estado==='Desvío'?`<span class="badge badge-desvio">⚠ Desvío</span>`:`<span class="badge badge-excluido">— Excluido</span>`;
-    const tb=r.turno==='Mañana'?`<span class="badge badge-manana">☀ Mañana</span>`:`<span class="badge badge-tarde">🌙 Tarde</span>`;
-    const uEsc=r.usuario.replace(/'/g,"\\'");
-    return`<tr>
-      <td><strong style="cursor:pointer;color:var(--mp-blue)" onclick="openFicha('${uEsc}')">${r.usuario}</strong></td>
-      <td>${r.fecha}</td><td>${tb}</td><td>${r.tipo}</td>
-      <td style="font-family:var(--mono);font-weight:600">${r.horaCorte}</td>
-      <td style="text-align:center"><strong style="font-size:15px">${r.acumulados}</strong></td>
-      <td style="font-family:var(--mono);color:var(--ok);font-weight:600">${r.primerBipeo}</td>
-      <td>${eb}</td><td style="color:var(--text-muted);font-size:11px">${r.detalle}</td>
+// ── STATS ────────────────────────────────────────────────────────
+function calcStats(raw){
+  const active=raw.filter(r=>r.estado!=='Excluido');
+  const ok=active.filter(r=>r.estado==='OK').length;
+  const dev=active.filter(r=>r.estado==='Desvío').length;
+  const pct=ok+dev>0?Math.round(ok/(ok+dev)*100):0;
+  const usuarios=[...new Set(active.map(r=>r.usuario))].length;
+  const ts=(t,tipo)=>{const r=active.filter(x=>(tipo?x.tipo===tipo:true)&&x.turno===t);const o=r.filter(x=>x.estado==='OK').length;return r.length>0?Math.round(o/r.length*100):0;};
+  return {ok,dev,pct,usuarios,
+    manana:{pct:ts('Mañana'),ok:active.filter(r=>r.turno==='Mañana'&&r.estado==='OK').length,dev:active.filter(r=>r.turno==='Mañana'&&r.estado==='Desvío').length},
+    tarde:{pct:ts('Tarde'),ok:active.filter(r=>r.turno==='Tarde'&&r.estado==='OK').length,dev:active.filter(r=>r.turno==='Tarde'&&r.estado==='Desvío').length},
+    inicio:{pct:ts(null,'Inicio')},postBreak:{pct:ts(null,'Post Break')}
+  };
+}
+
+// ── JSONBIN ──────────────────────────────────────────────────────
+function fetchBin(){
+  return fetch(`${JBIN_URL}/latest`,{headers:{'X-Master-Key':JBIN_KEY}})
+    .then(r=>r.json())
+    .then(d=>{
+      const rec=d.record||{};
+      return {
+        entries:Array.isArray(rec.entries)?rec.entries:[],
+        config:rec.config||null
+      };
+    });
+}
+
+function putBin(data){
+  return fetch(JBIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JBIN_KEY},body:JSON.stringify(data)});
+}
+
+function saveEntry(leader,site,fecha,hora,raw){
+  const operarios=buildOperarios(raw);
+  const stats=calcStats(raw);
+  const entry={
+    id:`${site}_${leader.replace(/\s+/g,'_')}_${fecha.replace(/\//g,'-')}`,
+    lider:leader,site,fecha,hora,ts:Date.now(),stats,operarios
+  };
+  fetchBin().then(({entries,config})=>{
+    const rest=entries.filter(e=>e.id!==entry.id);
+    rest.push(entry);
+    rest.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    return putBin({entries:rest.slice(0,60),config:config||null});
+  }).then(()=>loadAndRender()).catch(()=>{});
+}
+
+// ── CONFIG SAVE ──────────────────────────────────────────────────
+function saveConfig(){
+  saveCurrentTabToConfig();
+  const newCfg={global:CONFIG.global,sites:CONFIG.sites||{}};
+  document.getElementById('cfg-loader').classList.add('show');
+  document.getElementById('btn-save-config').disabled=true;
+  fetchBin().then(({entries})=>{
+    return putBin({entries,config:newCfg});
+  }).then(()=>{
+    applyConfig(newCfg);
+    localStorage.setItem('meli_dash_config',JSON.stringify(newCfg));
+    document.getElementById('cfg-loader').classList.remove('show');
+    document.getElementById('btn-save-config').disabled=false;
+    const a=document.getElementById('cfg-alert');
+    a.textContent='✓ Configuración guardada y publicada';a.classList.add('show');
+    setTimeout(()=>a.classList.remove('show'),3000);
+  }).catch(()=>{
+    document.getElementById('cfg-loader').classList.remove('show');
+    document.getElementById('btn-save-config').disabled=false;
+  });
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────
+function getFilters(){ return {fecha:document.getElementById('f-fecha').value,site:document.getElementById('f-site').value,turno:document.getElementById('f-turno').value}; }
+
+function applyFilters(entries){
+  const f=getFilters();
+  return entries.filter(e=>(!f.fecha||e.fecha===f.fecha)&&(!f.site||e.site.toLowerCase()===f.site.toLowerCase()));
+}
+
+function populateFilters(entries){
+  const fechas=[...new Set(entries.map(e=>e.fecha))].sort((a,b)=>{
+    const p=s=>{const[d,m,y]=s.split('/').map(Number);return new Date(y,m-1,d);};return p(b)-p(a);
+  });
+  const sites=[...new Set(entries.map(e=>e.site))].sort();
+  const fF=document.getElementById('f-fecha'),fS=document.getElementById('f-site');
+  const sf=fF.value,ss=fS.value;
+  fF.innerHTML='<option value="">Todas las fechas</option>'+fechas.map(f=>`<option${f===sf?' selected':''}>${f}</option>`).join('');
+  fS.innerHTML='<option value="">Todos los sites</option>'+sites.map(s=>`<option${s===ss?' selected':''}>${s}</option>`).join('');
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function renderAll(){
+  const f=applyFilters(allEntries);
+  populateFilters(allEntries);
+  renderResumen(f);
+  renderOps(f);
+  renderTurno(f,'Mañana','man-body','man-count');
+  renderTurno(f,'Tarde','tar-body','tar-count');
+  renderHistorial(allEntries);
+  if(managerUnlocked){renderManagerAnalytics(allEntries);renderSiteTabs();}
+  if(f.length>0){
+    const latest=f.slice().sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+    document.getElementById('header-meta').innerHTML=`<span class="online-dot"></span>${latest.site} · ${latest.lider} · ${latest.fecha} ${latest.hora}`;
+    document.getElementById('status-pill').textContent=`${f.length} análisis`;
+  }
+}
+
+function renderResumen(entries){
+  if(!entries.length){
+    document.getElementById('site-cards').innerHTML=`<div class="empty-state"><div class="icon">📊</div><p>No hay datos.<br>Usá la pestaña <strong>Carga</strong> para publicar.</p></div>`;
+    ['k-pct','k-ops','k-ok','k-dev','k-man','k-tar'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const okT=entries.reduce((s,e)=>s+e.stats.ok,0),devT=entries.reduce((s,e)=>s+e.stats.dev,0);
+  const total=okT+devT,pct=total>0?Math.round(okT/total*100):0;
+  const ops=[...new Set(entries.flatMap(e=>e.operarios.map(o=>o.usuario)))].length;
+  const manOk=entries.reduce((s,e)=>s+(e.stats.manana?.ok||0),0),manDev=entries.reduce((s,e)=>s+(e.stats.manana?.dev||0),0);
+  const tarOk=entries.reduce((s,e)=>s+(e.stats.tarde?.ok||0),0),tarDev=entries.reduce((s,e)=>s+(e.stats.tarde?.dev||0),0);
+  const manP=manOk+manDev>0?Math.round(manOk/(manOk+manDev)*100):0;
+  const tarP=tarOk+tarDev>0?Math.round(tarOk/(tarOk+tarDev)*100):0;
+  const set=(id,val,color)=>{document.getElementById(id).textContent=val;if(color)document.getElementById(id).style.color=color;};
+  set('k-pct',pct+'%',pctColor(pct));set('k-ops',ops);set('k-ok',okT);set('k-dev',devT);
+  set('k-man',manP+'%',pctColor(manP));set('k-tar',tarP+'%',pctColor(tarP));
+  document.getElementById('k-pct-bar').style.cssText=`width:${pct}%;background:${pctColor(pct)}`;
+  document.getElementById('k-man-bar').style.width=manP+'%';
+  document.getElementById('k-tar-bar').style.width=tarP+'%';
+  const bySite={};
+  entries.forEach(e=>{if(!bySite[e.site])bySite[e.site]={site:e.site,entries:[]};bySite[e.site].entries.push(e);});
+  document.getElementById('site-cards').innerHTML=Object.values(bySite).map(s=>{
+    const ok=s.entries.reduce((a,e)=>a+e.stats.ok,0),dev=s.entries.reduce((a,e)=>a+e.stats.dev,0);
+    const t=ok+dev,pct=t>0?Math.round(ok/t*100):0;
+    const opsN=[...new Set(s.entries.flatMap(e=>e.operarios.map(o=>o.usuario)))].length;
+    const mOk=s.entries.reduce((a,e)=>a+(e.stats.manana?.ok||0),0),mDev=s.entries.reduce((a,e)=>a+(e.stats.manana?.dev||0),0);
+    const tOk=s.entries.reduce((a,e)=>a+(e.stats.tarde?.ok||0),0),tDev=s.entries.reduce((a,e)=>a+(e.stats.tarde?.dev||0),0);
+    const mP=mOk+mDev>0?Math.round(mOk/(mOk+mDev)*100):0;
+    const tP=tOk+tDev>0?Math.round(tOk/(tOk+tDev)*100):0;
+    const col=pctColor(pct);
+    const lideres=[...new Set(s.entries.map(e=>e.lider))].join(' · ');
+    const c=getCountry(s.site);
+    return `<div class="site-card">
+      <div class="site-card-top">
+        <div>
+          <div class="site-name"><span class="badge badge-site">${s.site}</span> <span class="badge-country">${c.flag} ${c.code}</span></div>
+          <div class="site-meta" style="margin-top:5px">👤 ${lideres}</div>
+        </div>
+        <div><div class="site-pct" style="color:${col}">${pct}%</div><div class="site-pct-lbl">cumplimiento</div></div>
+      </div>
+      <div class="site-kpis">
+        <div class="site-kpi"><div class="val" style="color:var(--text)">${opsN}</div><div class="lbl">Operarios</div></div>
+        <div class="site-kpi"><div class="val" style="color:var(--ok)">${ok}</div><div class="lbl">OK</div></div>
+        <div class="site-kpi"><div class="val" style="color:var(--desvio)">${dev}</div><div class="lbl">Desvíos</div></div>
+      </div>
+      <div class="site-turnos">
+        <span>☀ Mañana: <strong style="color:var(--ok)">${mP}%</strong></span>
+        <span>🌙 Tarde: <strong style="color:var(--purple)">${tP}%</strong></span>
+      </div>
+      <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+  // Trend chart in Resumen
+  const tr=document.getElementById('trend-resumen');
+  if(tr){tr.style.display='block';renderTrendChart(allEntries);}
+}
+
+function renderOps(entries){
+  const f=getFilters();
+  let ops=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider})));
+  if(f.turno) ops=ops.filter(o=>o.turno===f.turno);
+  ops.sort((a,b)=>b.pct-a.pct);
+  document.getElementById('ops-count').textContent=`${ops.length} registros`;
+  if(!ops.length){document.getElementById('ops-body').innerHTML=`<tr><td colspan="9"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;return;}
+  document.getElementById('ops-body').innerHTML=ops.map(o=>rowOp(o)).join('');
+}
+
+function renderTurno(entries,turno,bodyId,countId){
+  let ops=entries.flatMap(e=>e.operarios.filter(o=>o.turno===turno).map(o=>({...o,site:e.site,lider:e.lider})));
+  ops.sort((a,b)=>b.pct-a.pct);
+  document.getElementById(countId).textContent=`${ops.length} operarios`;
+  if(!ops.length){document.getElementById(bodyId).innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:28px"><p>Sin datos para ${turno}.</p></div></td></tr>`;return;}
+  document.getElementById(bodyId).innerHTML=ops.map(o=>rowTurnoFull(o)).join('');
+}
+
+function rowOp(o){
+  const ib=bClass(o.inicio),pb=bClass(o.postBreak);
+  const ctrl=[o.inicio,o.postBreak].filter(Boolean);
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${CONFIG.target}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${CONFIG.target}</span>`:'—';
+  return `<tr>
+    <td><strong>${o.usuario}</strong></td>
+    <td><span class="badge badge-site">${o.site}</span></td>
+    <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
+    <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
+    <td>${o.inicio?`<span class="badge ${ib}">${o.inicio}</span>`:'—'}</td>
+    <td>${bipI}</td>
+    <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
+    <td>${bipP}</td>
+    <td><strong style="color:${pctColor(o.pct)}">${o.pct}%</strong></td>
+  </tr>`;
+}
+
+function rowTurnoFull(o){
+  const ib=bClass(o.inicio),pb=bClass(o.postBreak);
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${CONFIG.target}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${CONFIG.target}</span>`:'—';
+  return `<tr>
+    <td><strong>${o.usuario}</strong></td>
+    <td><span class="badge badge-site">${o.site}</span></td>
+    <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
+    <td style="color:var(--text-muted)">${o.lider}</td>
+    <td>${o.inicio?`<span class="badge ${ib}">${o.inicio}</span>`:'—'}</td>
+    <td>${bipI}</td>
+    <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
+    <td>${bipP}</td>
+    <td><strong style="color:${pctColor(o.pct)}">${o.pct}%</strong></td>
+  </tr>`;
+}
+
+// ── HISTORIAL ────────────────────────────────────────────────────
+function renderHistorial(entries){
+  const sorted=[...entries].sort((a,b)=>(b.ts||0)-(a.ts||0));
+  document.getElementById('hist-count').textContent=`${sorted.length} cargas`;
+  if(!sorted.length){
+    document.getElementById('hist-body').innerHTML=`<tr><td colspan="10"><div class="empty-state"><p>Sin cargas registradas.</p></div></td></tr>`;
+    return;
+  }
+  document.getElementById('hist-body').innerHTML=sorted.map(e=>{
+    const c=getCountry(e.site);
+    const tsDate=e.ts?new Date(e.ts):null;
+    const fechaCarga=tsDate?fmtDate(tsDate):'—';
+    const horaCarga=tsDate?fmtTime(tsDate):(e.hora||'—');
+    const p=e.stats?.pct??'—';
+    const col=typeof p==='number'?pctColor(p):'var(--text-muted)';
+    return `<tr>
+      <td style="font-family:var(--mono);color:var(--text-muted)">${fechaCarga}</td>
+      <td style="font-family:var(--mono)">${horaCarga}</td>
+      <td><strong>${e.lider||'—'}</strong></td>
+      <td><span class="badge badge-site">${e.site||'—'}</span></td>
+      <td><span class="badge-country">${c.flag} ${c.code}</span></td>
+      <td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha||'—'}</td>
+      <td style="font-family:var(--mono)">${e.operarios?.length??'—'}</td>
+      <td><strong style="color:${col}">${typeof p==='number'?p+'%':p}</strong></td>
+      <td style="color:var(--ok)">${e.stats?.ok??'—'}</td>
+      <td style="color:var(--desvio)">${e.stats?.dev??'—'}</td>
     </tr>`;
   }).join('');
 }
 
-function renderRanking(data,turnoFiltro){
-  const f=turnoFiltro?data.filter(r=>r.turno===turnoFiltro):data;
-  const a=f.filter(r=>r.estado!=='Excluido');
-  const m=new Map();
-  a.forEach(r=>{if(!m.has(r.usuario))m.set(r.usuario,{ok:0,total:0});const u=m.get(r.usuario);u.total++;if(r.estado==='OK')u.ok++});
-  const ranking=[...m.entries()].map(([u,s])=>({u,pct:Math.round(s.ok/s.total*100),ok:s.ok,total:s.total,dev:s.total-s.ok})).sort((a,b)=>b.pct-a.pct);
-  const sinFeedback=ranking.filter(r=>r.pct===100);
-  const conFeedback=ranking.filter(r=>r.pct<100);
-  document.getElementById('pill-ok-count').textContent=`${sinFeedback.length} rep${sinFeedback.length!==1?'s':''}`;
-  document.getElementById('pill-dev-count').textContent=`${conFeedback.length} rep${conFeedback.length!==1?'s':''}`;
-  const cardHtml=(r,i)=>{
-    const cls=r.pct>=80?'verde':r.pct>=50?'amarillo':'rojo';
-    const col=r.pct>=80?'var(--ok)':r.pct>=50?'var(--warning)':'var(--desvio)';
-    const uEsc=r.u.replace(/'/g,"\\'");
-    return`<div class="rank-card ${cls}" onclick="openFicha('${uEsc}')">
-      <div class="rank-pos">#${i+1}</div>
-      <div class="rank-name">${r.u}</div>
-      <div class="rank-pct" style="color:${col}">${r.pct}%</div>
-      <div class="rank-bar-wrap"><div class="rank-bar" style="width:${r.pct}%;background:${col}"></div></div>
-      <div class="rank-stats"><span>✓ ${r.ok}</span><span>⚠ ${r.dev}</span><span>de ${r.total}</span></div>
+// ── MANAGER ANALYTICS ────────────────────────────────────────────
+function renderManagerAnalytics(entries){
+  renderPendingSites(entries);
+  renderLeaderTable(entries);
+}
+
+function renderPendingSites(entries){
+  const today=fmtDate(new Date());
+  const allSites=[...new Set(entries.map(e=>e.site))].sort();
+  const loadedToday=[...new Set(entries.filter(e=>e.fecha===today).map(e=>e.site))];
+  if(!allSites.length){document.getElementById('pending-sites').innerHTML=`<div style="color:var(--text-muted);font-size:12px">Sin datos históricos aún</div>`;return;}
+  document.getElementById('pending-sites').innerHTML=allSites.map(s=>{
+    const loaded=loadedToday.includes(s);
+    const leaders=loaded?[...new Set(entries.filter(e=>e.fecha===today&&e.site===s).map(e=>e.lider))].join(', '):'Sin carga';
+    return `<div class="pending-card ${loaded?'loaded':'missing'}">
+      <span style="font-size:16px">${loaded?'✓':'✗'}</span>
+      <div><div>${s}</div><div style="font-size:10px;opacity:.7;font-weight:400">${leaders}</div></div>
     </div>`;
-  };
-  document.getElementById('ranking-grid-ok').innerHTML=sinFeedback.length?sinFeedback.map((r,i)=>cardHtml(r,i)).join(''):`<div class="empty-state" style="padding:20px"><p>Ningún rep llegó al 100% esta semana.</p></div>`;
-  document.getElementById('ranking-grid-dev').innerHTML=conFeedback.length?conFeedback.map((r,i)=>cardHtml(r,i)).join(''):`<div class="empty-state" style="padding:20px"><p>¡Todo el equipo llegó al 100%! 🎉</p></div>`;
-}
-
-function renderResumen(data,periodo){
-  const a=data.filter(r=>r.estado!=='Excluido');
-  const ok=a.filter(r=>r.estado==='OK').length,dev=a.filter(r=>r.estado==='Desvío').length;
-  const pct=a.length>0?Math.round(ok/a.length*100):0;
-  const usuarios=[...new Set(a.map(r=>r.usuario))];
-  const byCtrl={};
-  a.forEach(r=>{const k=`${r.tipo} — Turno ${r.turno}`;if(!byCtrl[k])byCtrl[k]={ok:0,dev:0};r.estado==='OK'?byCtrl[k].ok++:byCtrl[k].dev++});
-  const peorCtrl=Object.entries(byCtrl).sort((a,b)=>b[1].dev-a[1].dev)[0];
-  const byUser={};
-  a.forEach(r=>{if(!byUser[r.usuario])byUser[r.usuario]={ok:0,dev:0};r.estado==='OK'?byUser[r.usuario].ok++:byUser[r.usuario].dev++});
-  const rankDev=Object.entries(byUser).sort((a,b)=>b[1].dev-a[1].dev).slice(0,3);
-  const rankOk=Object.entries(byUser).map(([u,s])=>({u,pct:Math.round(s.ok/(s.ok+s.dev)*100)})).sort((a,b)=>b.pct-a.pct).slice(0,3);
-  const sem=pct>=80?'🟢':pct>=60?'🟡':'🔴';
-  document.getElementById('resumen-text').textContent=
-`📊 MERCADITO DASH — ${periodo}
-
-${sem} Cumplimiento Fast Start: ${pct}%
-👥 ${usuarios.length} usuarios · ${ok} OK · ${dev} desvío${dev!==1?'s':''}
-
-📌 Mayor incidencia: ${peorCtrl?peorCtrl[0]:' N/A'}
-
-⚠ Requieren feedback:
-${rankDev.map((e,i)=>`  ${i+1}. ${e[0]} — ${e[1].dev} desvío${e[1].dev!==1?'s':''}`).join('\n')}
-
-✅ Mejores de la semana:
-${rankOk.map((e,i)=>`  ${i+1}. ${e.u} — ${e.pct}%`).join('\n')}
-
-— Mercadito Dash · Mercado Pago`;
-}
-
-function renderComparacion(curr,prev){
-  const score=data=>{const m={};data.filter(r=>r.estado!=='Excluido').forEach(r=>{if(!m[r.usuario])m[r.usuario]={ok:0,total:0};m[r.usuario].total++;if(r.estado==='OK')m[r.usuario].ok++});const o={};Object.entries(m).forEach(([u,s])=>o[u]=Math.round(s.ok/s.total*100));return o};
-  const cs=score(curr),ps=score(prev);
-  const all=[...new Set([...Object.keys(cs),...Object.keys(ps)])].sort();
-  const rows=all.map(u=>({u,c:cs[u]??null,p:ps[u]??null,delta:(cs[u]!=null&&ps[u]!=null)?cs[u]-ps[u]:null}));
-  const mej=rows.filter(r=>r.delta!==null&&r.delta>0).length;
-  const emp=rows.filter(r=>r.delta!==null&&r.delta<0).length;
-  const neut=rows.filter(r=>r.delta===0).length;
-  const bc=p=>p>=80?'var(--ok)':p>=50?'var(--warning)':'var(--desvio)';
-  const dh=d=>{if(d===null)return`<span class="delta-neu">—</span>`;if(d>0)return`<span class="delta-pos">▲ ${d}pp</span>`;if(d<0)return`<span class="delta-neg">▼ ${Math.abs(d)}pp</span>`;return`<span class="delta-neu">= sin cambio</span>`};
-  const rh=rows.map(r=>`<div class="comp-row"><div class="comp-name" title="${r.u}">${r.u}</div>
-    <div class="comp-bars">
-      <span style="font-size:11px;color:var(--text-muted);width:28px;text-align:right">${r.p!==null?r.p+'%':'—'}</span>
-      <div class="mini-bar-wrap"><div class="mini-bar" style="width:${r.p??0}%;background:${bc(r.p??0)}"></div></div>
-      <span style="font-size:11px;width:28px;text-align:right;font-weight:700">${r.c!==null?r.c+'%':'—'}</span>
-      <div class="mini-bar-wrap"><div class="mini-bar" style="width:${r.c??0}%;background:${bc(r.c??0)}"></div></div>
-      <div style="width:80px;text-align:right">${dh(r.delta)}</div>
-    </div></div>`).join('');
-  document.getElementById('comp-content').innerHTML=`
-    <div class="comp-kpis">
-      <div class="comp-kpi kpi-card ok"><div class="kpi-value">${mej}</div><div class="kpi-label">Mejoraron</div></div>
-      <div class="comp-kpi kpi-card desvio"><div class="kpi-value">${emp}</div><div class="kpi-label">Empeoraron</div></div>
-      <div class="comp-kpi kpi-card total"><div class="kpi-value">${neut}</div><div class="kpi-label">Sin cambio</div></div>
-    </div>
-    <div class="table-wrap">
-      <div class="table-header"><div class="table-title">Evolución por usuario</div>
-        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font)">Ant. → Act. &nbsp; Δ diferencia en pp</span>
-      </div>
-      <div style="padding:14px 18px">${rh}</div>
-    </div>`;
-}
-
-function openFicha(usuario){
-  const data=allResults.filter(r=>r.usuario===usuario&&r.estado!=='Excluido');
-  if(data.length===0)return;
-  const ok=data.filter(r=>r.estado==='OK').length,dev=data.filter(r=>r.estado==='Desvío').length;
-  const total=data.length,pct=Math.round(ok/total*100);
-  const pc=pct>=80?'var(--ok)':pct>=50?'var(--warning)':'var(--desvio)';
-  const fechas=[...new Set(data.map(r=>r.fecha))].sort();
-  const diasHtml=fechas.map(f=>{
-    const c=data.filter(r=>r.fecha===f);
-    const chips=c.map(r=>{const cls=r.estado==='OK'?'ctrl-ok':'ctrl-dev';const ic=r.estado==='OK'?'✓':'⚠';return`<span class="ctrl-chip ${cls}">${ic} ${r.tipo.replace('Inicio de turno','Inicio')} ${r.turno.substring(0,3)}</span>`}).join('');
-    return`<div class="dia-row"><div class="dia-label">${f}</div><div class="dia-controles">${chips}</div></div>`;
   }).join('');
-  const byCtrl={};
-  data.forEach(r=>{const k=`${r.tipo} ${r.turno}`;if(!byCtrl[k])byCtrl[k]={ok:0,dev:0};r.estado==='OK'?byCtrl[k].ok++:byCtrl[k].dev++});
-  const ctrlHtml=Object.entries(byCtrl).map(([k,v])=>{const p=Math.round(v.ok/(v.ok+v.dev)*100);const col=p>=80?'var(--ok)':p>=50?'var(--warning)':'var(--desvio)';return`<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--bg);font-family:var(--font)"><span>${k}</span><span style="font-weight:700;color:${col}">${p}%</span></div>`}).join('');
-  const textoFicha=`MERCADITO DASH — ${usuario}\nCumplimiento Fast Start: ${pct}% (${ok} OK de ${total} controles)\n\nPor día:\n${fechas.map(f=>{const c=data.filter(r=>r.fecha===f);return`  ${f}: ${c.map(r=>`${r.tipo} ${r.turno} → ${r.estado}`).join(' | ')}`}).join('\n')}`;
-  document.getElementById('modal-user-name').textContent=usuario;
-  document.getElementById('modal-body').innerHTML=`
-    <div class="ficha-kpis">
-      <div class="ficha-kpi"><div class="val" style="color:${pc}">${pct}%</div><div class="lbl">Cumplimiento</div></div>
-      <div class="ficha-kpi"><div class="val" style="color:var(--ok)">${ok}</div><div class="lbl">OK</div></div>
-      <div class="ficha-kpi"><div class="val" style="color:var(--desvio)">${dev}</div><div class="lbl">Desvíos</div></div>
-      <div class="ficha-kpi"><div class="val">${total}</div><div class="lbl">Controles</div></div>
-    </div>
-    <div class="ficha-section-title">Cumplimiento por control</div>${ctrlHtml}
-    <div class="ficha-section-title">Detalle por día</div>${diasHtml}
-    <button class="btn-secondary copy-btn" id="copy-ficha-btn">📋 Copiar ficha para feedback</button>`;
-  document.getElementById('modal-overlay').classList.add('show');
-  document.getElementById('copy-ficha-btn').onclick=()=>{
-    navigator.clipboard.writeText(textoFicha).then(()=>{document.getElementById('copy-ficha-btn').textContent='✓ Copiado!';setTimeout(()=>document.getElementById('copy-ficha-btn').textContent='📋 Copiar ficha para feedback',2000)}).catch(()=>{});
-  };
 }
 
-
-// ── LOG — robusto con y sin Apps Script ───────────────────────────
-const JBIN_ID  = '69c57f81c3097a1dd56326e6';
-const JBIN_KEY = '$2a$10$wzK.Zh3LOZw0dK2./KvJmuCNJKaH.206v9Xsb5EmO/QEYujiRBUbm';
-const JBIN_URL = `https://api.jsonbin.io/v3/b/${JBIN_ID}`;
-
-function saveLog(entrada){
-  fetch(JBIN_URL, {headers:{'X-Master-Key':JBIN_KEY}})
-    .then(r=>r.json())
-    .then(data=>{
-      const logs = Array.isArray(data.record?.logs) ? data.record.logs : [];
-      logs.unshift(entrada);
-      return fetch(JBIN_URL, {
-        method:'PUT',
-        headers:{'Content-Type':'application/json','X-Master-Key':JBIN_KEY},
-        body: JSON.stringify({logs})
-      });
-    })
-    .then(()=>renderLog())
-    .catch(()=>{}); // silencioso si falla
+function renderLeaderTable(entries){
+  const map=new Map();
+  entries.forEach(e=>{
+    const k=`${e.lider}||${e.site}`;
+    if(!map.has(k)) map.set(k,{lider:e.lider,site:e.site,cargas:0,lastTs:0,pcts:[]});
+    const d=map.get(k);
+    d.cargas++;
+    if((e.ts||0)>d.lastTs) d.lastTs=e.ts||0;
+    if(typeof e.stats?.pct==='number') d.pcts.push(e.stats.pct);
+  });
+  const rows=[...map.values()].sort((a,b)=>b.lastTs-a.lastTs);
+  document.getElementById('leader-table').innerHTML=rows.map(r=>{
+    const lastDate=r.lastTs?fmtDate(new Date(r.lastTs))+' '+fmtTime(new Date(r.lastTs)):'—';
+    const avg=r.pcts.length?Math.round(r.pcts.reduce((a,b)=>a+b,0)/r.pcts.length):null;
+    return `<tr>
+      <td><strong>${r.lider}</strong></td>
+      <td><span class="badge badge-site">${r.site}</span></td>
+      <td style="font-family:var(--mono);text-align:center">${r.cargas}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${lastDate}</td>
+      <td><strong style="color:${avg!==null?pctColor(avg):'var(--text-muted)'}">${avg!==null?avg+'%':'—'}</strong></td>
+    </tr>`;
+  }).join('');
 }
 
-function renderLog(){
-  const tbody=document.getElementById('log-body');
-  tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;text-align:center;font-family:var(--font)">Cargando…</td></tr>`;
-  fetch(JBIN_URL, {headers:{'X-Master-Key':JBIN_KEY}})
-    .then(r=>r.json())
-    .then(data=>{
-      const allLogs = Array.isArray(data.record?.logs) ? data.record.logs : [];
-
-      // Poblar filtros
-      const fSite=document.getElementById('log-filter-site');
-      const fLider=document.getElementById('log-filter-lider');
-      const selSite=fSite.value, selLider=fLider.value;
-      const sites=[...new Set(allLogs.map(e=>e.site||'—'))].sort();
-      const lideres=[...new Set(allLogs.map(e=>e.lider))].sort();
-      fSite.innerHTML='<option value="">Todos</option>'+sites.map(s=>`<option${s===selSite?' selected':''}>${s}</option>`).join('');
-      fLider.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===selLider?' selected':''}>${l}</option>`).join('');
-
-      // Aplicar filtros
-      let logs=allLogs;
-      if(selSite) logs=logs.filter(e=>(e.site||'—')===selSite);
-      if(selLider) logs=logs.filter(e=>e.lider===selLider);
-
-      document.getElementById('ls-usos').textContent=allLogs.length;
-      document.getElementById('ls-lideres').textContent=new Set(allLogs.map(e=>e.lider)).size;
-      document.getElementById('ls-ultimo').textContent=allLogs.length?`${allLogs[0].fecha} ${allLogs[0].hora}`:'—';
-
-      if(logs.length===0){
-        tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:16px;text-align:center;font-family:var(--font)">Sin registros para el filtro seleccionado.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML=logs.map((e,i)=>`<tr>
-        <td style="color:var(--text-muted)">${i+1}</td>
-        <td><strong>${e.lider}</strong></td>
-        <td><span class="badge" style="background:#e8f0ff;color:#3156c2">${e.site||'—'}</span></td>
-        <td>${e.fecha}</td>
-        <td style="font-family:var(--mono)">${e.hora}</td>
-        <td style="color:var(--text-muted);font-size:11px">${e.archivo}</td>
-        <td>${e.periodo}</td>
-      </tr>`).join('');
-    })
-    .catch(()=>{
-      tbody.innerHTML=`<tr><td colspan="7" style="color:var(--text-muted);padding:12px;text-align:center;font-family:var(--font)">No se pudo conectar con el log centralizado.</td></tr>`;
+function renderTrendChart(entries){
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(fmtDate(d));}
+  const sites=[...new Set(entries.map(e=>e.site))].sort();
+  const colors=['#009ee3','#3fb950','#a371f7','#d29922','#f85149','#58a6ff','#ffa657'];
+  let html='<div style="overflow-x:auto">';
+  sites.forEach((site,si)=>{
+    const color=colors[si%colors.length];
+    const vals=days.map(d=>{
+      const dayEntries=entries.filter(e=>e.site===site&&e.fecha===d);
+      if(!dayEntries.length) return null;
+      const ok=dayEntries.reduce((s,e)=>s+(e.stats?.ok||0),0);
+      const dev=dayEntries.reduce((s,e)=>s+(e.stats?.dev||0),0);
+      return ok+dev>0?Math.round(ok/(ok+dev)*100):null;
     });
-}
-
-// ── Historial local ────────────────────────────────────────────────
-const HIST_MAX = 15;
-function histKey(leader){ return 'mercadito_hist_'+leader.trim().toLowerCase().replace(/\s+/g,'_'); }
-
-function guardarHistorial(leader, archivo, periodo, data, now){
-  const key=histKey(leader);
-  let hist=[];
-  try{hist=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
-  const a=data.filter(r=>r.estado!=='Excluido');
-  const ok=a.filter(r=>r.estado==='OK').length;
-  const dev=a.filter(r=>r.estado==='Desvío').length;
-  const pct=a.length>0?Math.round(ok/a.length*100):0;
-  const usuarios=[...new Set(data.map(r=>r.usuario))].length;
-  hist.unshift({id:now.getTime(),fecha:fmtDate(now),hora:fmtTime(now),archivo,periodo,usuarios,ok,dev,pct,data});
-  if(hist.length>HIST_MAX)hist=hist.slice(0,HIST_MAX);
-  try{localStorage.setItem(key,JSON.stringify(hist))}catch(e){}
-}
-
-function renderHistorial(){
-  const leader=document.getElementById('leader-name').value.trim();
-  const cont=document.getElementById('hist-content');
-  if(!leader){
-    cont.innerHTML=`<div class="hist-empty"><div class="icon">🕒</div><p>Ingresá tu nombre en la pestaña <strong>Carga</strong> para ver tu historial.</p></div>`;
-    return;
-  }
-  let hist=[];
-  try{hist=JSON.parse(localStorage.getItem(histKey(leader))||'[]')}catch(e){}
-  if(hist.length===0){
-    cont.innerHTML=`<div class="hist-empty"><div class="icon">🕒</div><p>No hay análisis guardados para <strong>${leader}</strong>.<br>Cargá un archivo en la pestaña <strong>Carga</strong> para comenzar.</p></div>`;
-    return;
-  }
-  cont.innerHTML=`
-    <div class="hist-actions">
-      <span class="hist-leader-badge">🕒 Historial de ${leader} <span style="font-weight:400;color:var(--text-muted)">(${hist.length} análisis guardados)</span></span>
-      <button class="btn-secondary" style="font-size:12px;color:var(--desvio);border-color:var(--desvio)" onclick="limpiarHistorial()">🗑 Limpiar todo</button>
-    </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table><thead><tr>
-          <th>#</th><th>Fecha</th><th>Hora</th><th>Archivo</th><th>Período</th>
-          <th>Usuarios</th><th>OK</th><th>Desvíos</th><th>Cumpl.</th><th>Acciones</th>
-        </tr></thead><tbody>
-        ${hist.map((e,i)=>`<tr>
-          <td style="color:var(--text-muted)">${i+1}</td>
-          <td><strong>${e.fecha}</strong></td>
-          <td style="font-family:var(--mono)">${e.hora}</td>
-          <td style="font-size:11px;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${e.archivo}">${e.archivo}</td>
-          <td>${e.periodo}</td>
-          <td style="color:var(--warning);font-weight:700">${e.usuarios}</td>
-          <td style="color:var(--ok);font-weight:700">${e.ok}</td>
-          <td style="color:var(--desvio);font-weight:700">${e.dev}</td>
-          <td style="color:var(--mp-teal);font-weight:700">${e.pct}%</td>
-          <td style="display:flex;gap:6px">
-            <button class="btn-primary" style="font-size:11px;padding:5px 12px" onclick="restaurarAnalisis(${e.id})">↩ Restaurar</button>
-            <button class="btn-secondary" style="font-size:11px;padding:5px 10px;color:var(--desvio);border-color:var(--desvio)" onclick="eliminarHistorial(${e.id})">✕</button>
-          </td>
-        </tr>`).join('')}
-        </tbody></table>
+    const hasData=vals.some(v=>v!==null);
+    if(!hasData) return;
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:${color};margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        <span class="badge badge-site" style="background:${color}22;color:${color}">${site}</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:flex-end;height:50px">
+        ${days.map((d,i)=>{
+          const v=vals[i];
+          const h=v!==null?Math.round(v/2):0;
+          const dayLabel=d.slice(0,5);
+          return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">
+            <div style="width:100%;background:${v!==null?color:'var(--surface2)'};height:${h||2}px;border-radius:3px 3px 0 0;min-height:2px;title='${v!==null?v+'%':'Sin datos'}'" title="${v!==null?v+'%':'Sin datos'}"></div>
+            <span style="font-size:9px;color:var(--text-muted);font-family:var(--mono)">${dayLabel}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:4px;margin-top:4px">
+        ${days.map((_,i)=>`<div style="flex:1;text-align:center;font-size:9px;font-family:var(--mono);color:${vals[i]!==null?pctColor(vals[i]):'var(--text-muted)'}">${vals[i]!==null?vals[i]+'%':'·'}</div>`).join('')}
       </div>
     </div>`;
+  });
+  html+=(!sites.length?'<div style="color:var(--text-muted);font-size:12px;padding:20px">Sin datos suficientes</div>':'')+'</div>';
+  document.getElementById('trend-chart').innerHTML=html;
 }
 
-function restaurarAnalisis(id){
-  const leader=document.getElementById('leader-name').value.trim();
-  let hist=[];
-  try{hist=JSON.parse(localStorage.getItem(histKey(leader))||'[]')}catch(e){}
-  const entry=hist.find(e=>e.id===id);
-  if(!entry)return;
-  allResults=entry.data;
-  renderAll(entry.data,entry.periodo);
+// ── MANAGER CONFIG UI ────────────────────────────────────────────
+const TURNO_ICONS = {Mañana:'☀',Tarde:'🌙',Noche:'🌚'};
+let currentSiteTab = 'global';
+
+function renderSiteTabs(){
+  const sites=Object.keys(CONFIG.sites||{});
+  const bar=document.getElementById('site-tabs-bar');
+  if(!bar) return;
+  bar.innerHTML=[
+    `<button class="site-tab-btn${currentSiteTab==='global'?' active':''}" onclick="switchSiteTab('global')">🌍 Global</button>`,
+    ...sites.map(s=>{const c=getCountry(s);return `<button class="site-tab-btn${currentSiteTab===s?' active':''}" onclick="switchSiteTab('${s}')">${c.flag} ${s}</button>`;}),
+    `<button class="site-tab-btn site-tab-add" onclick="promptAddSiteTab()">+ Agregar</button>`
+  ].join('');
+  renderActiveTabContent();
 }
 
-function eliminarHistorial(id){
-  const leader=document.getElementById('leader-name').value.trim();
-  const key=histKey(leader);
-  let hist=[];
-  try{hist=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
-  localStorage.setItem(key,JSON.stringify(hist.filter(e=>e.id!==id)));
-  renderHistorial();
+function switchSiteTab(name){
+  saveCurrentTabToConfig();
+  currentSiteTab=name;
+  renderSiteTabs();
 }
 
-function limpiarHistorial(){
-  if(!confirm('¿Eliminás todo el historial guardado?'))return;
-  const leader=document.getElementById('leader-name').value.trim();
-  localStorage.removeItem(histKey(leader));
-  renderHistorial();
+function promptAddSiteTab(){
+  const site=(prompt('Código del site (ej: ARBA02):')||'').trim().toUpperCase();
+  if(!site) return;
+  if(!CONFIG.sites) CONFIG.sites={};
+  if(!CONFIG.sites[site]) CONFIG.sites[site]={};
+  saveCurrentTabToConfig();
+  currentSiteTab=site;
+  renderSiteTabs();
 }
 
-// ── Render general ─────────────────────────────────────────────────
-function renderAll(data,periodo){
-  const usuarios=[...new Set(data.map(r=>r.usuario))];
-  const fechas=[...new Set(data.map(r=>r.fecha))].sort();
-  const fF=document.getElementById('f-fecha'),fU=document.getElementById('f-usuario');
-  fF.innerHTML='<option value="">Todas</option>';fU.innerHTML='<option value="">Todos</option>';
-  fechas.forEach(f=>fF.innerHTML+=`<option value="${f}">${f}</option>`);
-  usuarios.sort().forEach(u=>fU.innerHTML+=`<option value="${u}">${u}</option>`);
-  renderKPIs(data);renderTable(data);renderRanking(data,'');renderResumen(data,periodo);
-  if(prevResults.length>0)renderComparacion(data,prevResults);
-  switchTab('tab-faststart');
+function deleteCurrentSiteTab(){
+  if(currentSiteTab==='global') return;
+  if(!confirm(`¿Eliminar configuración de ${currentSiteTab}? Pasará a usar la config global.`)) return;
+  delete CONFIG.sites[currentSiteTab];
+  currentSiteTab='global';
+  renderSiteTabs();
 }
 
-function switchTab(id){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+function saveCurrentTabToConfig(){
+  const c=document.getElementById('site-tab-content');
+  if(!c) return;
+  const target=parseInt(c.querySelector('.tab-target')?.value)||DEFAULT_GLOBAL.target;
+  const tolI=parseInt(c.querySelector('.tab-tol-inicio')?.value)||0;
+  const tolPB=parseInt(c.querySelector('.tab-tol-pb')?.value)||0;
+  let turnos=null;
+  const useGlobal=c.querySelector('.tab-use-global-turnos')?.checked;
+  if(currentSiteTab==='global'||!useGlobal){
+    turnos=Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
+      const inputs=b.querySelectorAll('.tab-turno-input');
+      return {nombre:b.dataset.nombre,activo:b.querySelector('.tab-turno-chk')?.checked||false,
+        inicioTurno:inputs[0]?.value||'',finTurno:inputs[1]?.value||'',inicioBreak:inputs[2]?.value||'',finBreak:inputs[3]?.value||''};
+    });
+  }
+  if(currentSiteTab==='global'){
+    CONFIG.global.target=target;
+    CONFIG.global.toleranciaInicio=tolI;
+    CONFIG.global.toleranciaPB=tolPB;
+    if(turnos) CONFIG.global.turnos=turnos;
+  } else {
+    if(!CONFIG.sites) CONFIG.sites={};
+    CONFIG.sites[currentSiteTab]={target,toleranciaInicio:tolI,toleranciaPB:tolPB,turnos:useGlobal?null:turnos};
+  }
 }
 
-function exportCSV(data){
-  const headers=['Usuario','Fecha','Turno','Control','Hora corte','Bipeos acumulados','Primer bip','Estado','Detalle'];
-  const rows=data.map(r=>[r.usuario,r.fecha,r.turno,r.tipo,r.horaCorte,r.acumulados,r.primerBipeo,r.estado,r.detalle]);
-  const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mercadito_dash_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+function renderActiveTabContent(){
+  const c=document.getElementById('site-tab-content');
+  if(!c) return;
+  const isGlobal=currentSiteTab==='global';
+  const g=CONFIG.global;
+  const cfg=isGlobal?g:(CONFIG.sites||{})[currentSiteTab]||{};
+  const target=cfg.target??g.target;
+  const tolI=cfg.toleranciaInicio??g.toleranciaInicio??0;
+  const tolPB=cfg.toleranciaPB??g.toleranciaPB??0;
+  const turnos=(!isGlobal&&!cfg.turnos)?null:(cfg.turnos||g.turnos||DEFAULT_GLOBAL.turnos);
+  const usesGlobal=!isGlobal&&!cfg.turnos;
+  const country=isGlobal?null:getCountry(currentSiteTab);
+  const hint=(f,v)=>isGlobal?'':` <span style="font-size:10px;color:var(--text-muted);display:block;text-align:center;margin-top:2px">Global: ${v}</span>`;
+  const turnosSource=usesGlobal?(g.turnos||DEFAULT_GLOBAL.turnos):(turnos||DEFAULT_GLOBAL.turnos);
+  const turnoHTML=turnosSource.map(t=>`
+    <div class="turno-block tab-turno-block" data-nombre="${t.nombre}">
+      <div class="turno-block-header">
+        <label class="turno-toggle">
+          <input type="checkbox" class="tab-turno-chk" ${t.activo?'checked':''} onchange="handleTabTurnoChk(this)">
+          ${TURNO_ICONS[t.nombre]||'🕐'} Turno ${t.nombre}
+        </label>
+        <span class="turno-badge">${t.activo?'Activo':'Inactivo'}</span>
+      </div>
+      <div class="turno-block-body" style="${t.activo?'':'opacity:.4;pointer-events:none'}">
+        <div class="turno-grid">
+          <div class="field"><label>Inicio Turno</label><input type="time" class="tab-turno-input" value="${t.inicioTurno}" oninput="updateTabDesc()"/></div>
+          <div class="field"><label>Fin Turno</label><input type="time" class="tab-turno-input" value="${t.finTurno}" oninput="updateTabDesc()"/></div>
+          <div class="field"><label>Inicio Break</label><input type="time" class="tab-turno-input" value="${t.inicioBreak}" oninput="updateTabDesc()"/></div>
+          <div class="field"><label>Fin Break</label><input type="time" class="tab-turno-input" value="${t.finBreak}" oninput="updateTabDesc()"/></div>
+        </div>
+      </div>
+    </div>`).join('');
+  c.innerHTML=`
+    <div style="display:flex;align-items:center;margin-bottom:14px;gap:10px">
+      ${!isGlobal?`<span class="badge-country">${country.flag} ${country.code}</span>`:''}
+      <span style="font-size:12px;color:var(--text-muted)">${isGlobal?'Configuración base para todos los sites sin override':'Override sobre la configuración global'}</span>
+      ${!isGlobal?`<button class="btn-danger" onclick="deleteCurrentSiteTab()" style="margin-left:auto;font-size:11px;padding:4px 10px">✕ Eliminar ${currentSiteTab}</button>`:''}
+    </div>
+    <div class="tab-kpi-row">
+      <div class="field"><label>🎯 Target bipeos</label><input type="number" class="tab-target" min="1" max="30" value="${target}" oninput="updateTabDesc()"/>${hint('target',g.target)}</div>
+      <div class="field"><label>⏱ Tolerancia Inicio (min)</label><input type="number" class="tab-tol-inicio" min="0" max="120" value="${tolI}" oninput="updateTabDesc()"/>${hint('tolI',g.toleranciaInicio)}</div>
+      <div class="field"><label>⏱ Tolerancia Post Break (min)</label><input type="number" class="tab-tol-pb" min="0" max="120" value="${tolPB}" oninput="updateTabDesc()"/>${hint('tolPB',g.toleranciaPB)}</div>
+    </div>
+    ${!isGlobal?`<label class="turno-toggle" style="font-size:12px;margin-bottom:10px;display:flex;align-items:center">
+      <input type="checkbox" class="tab-use-global-turnos" ${usesGlobal?'checked':''} onchange="toggleTabTurnos(this)">
+      &nbsp;Usar turnos de la configuración global
+    </label>`:``}
+    <div class="tab-turno-container" style="${usesGlobal?'display:none':''}">
+      ${turnoHTML}
+    </div>
+    ${usesGlobal?`<div class="site-cfg-inherited">✓ Turnos heredados del Global (${(g.turnos||DEFAULT_GLOBAL.turnos).filter(t=>t.activo).map(t=>t.nombre).join(', ')})</div>`:''}
+    <div class="config-desc" id="tab-desc"></div>
+  `;
+  updateTabDesc();
 }
 
-function showAlert(t,m){clearAlerts();const el=document.getElementById(`alert-${t}`);el.innerHTML=m;el.classList.add('show')}
-function clearAlerts(){['info','error','success'].forEach(t=>{const el=document.getElementById(`alert-${t}`);el.classList.remove('show');el.innerHTML=''})}
-// ── Límite de tamaño ──────────────────────────────────────────────
-const MAX_MB = 80;
-
-function setProgress(pct, texto, sub='') {
-  document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('loader-text').textContent = texto;
-  document.getElementById('loader-sub').textContent = sub;
+function handleTabTurnoChk(chk){
+  const body=chk.closest('.turno-block').querySelector('.turno-block-body');
+  const badge=chk.closest('.turno-block').querySelector('.turno-badge');
+  body.style.opacity=chk.checked?'1':'.4';
+  body.style.pointerEvents=chk.checked?'':'none';
+  badge.textContent=chk.checked?'Activo':'Inactivo';
+  updateTabDesc();
 }
 
-// ── Leer Excel ────────────────────────────────────────────────────
-function readCSV(file) {
-  return new Promise((resolve, reject) => {
-    const mb = file.size / 1024 / 1024;
-    if (mb > MAX_MB) {
-      reject(new Error(`El archivo pesa ${mb.toFixed(1)} MB. El máximo soportado es ${MAX_MB} MB.`));
-      return;
-    }
-    setProgress(10, `Leyendo archivo… (${mb.toFixed(1)} MB)`, 'Cargando datos a memoria');
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        setProgress(30, 'Parseando Excel…', 'Leyendo columnas');
-        const wb = XLSX.read(e.target.result, {type:'array', cellDates:false, cellNF:false, cellStyles:false});
-        resolve(wb);
-      } catch(err) {
-        reject(err);
-      }
-    };
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
-    reader.readAsArrayBuffer(file);
+function toggleTabTurnos(chk){
+  const container=chk.closest('#site-tab-content').querySelector('.tab-turno-container');
+  const inherited=chk.closest('#site-tab-content').querySelector('.site-cfg-inherited');
+  container.style.display=chk.checked?'none':'block';
+  if(inherited) inherited.style.display=chk.checked?'block':'none';
+  updateTabDesc();
+}
+
+function updateTabDesc(){
+  const c=document.getElementById('site-tab-content');
+  const desc=document.getElementById('tab-desc');
+  if(!c||!desc) return;
+  const target=parseInt(c.querySelector('.tab-target')?.value)||DEFAULT_GLOBAL.target;
+  const tolI=parseInt(c.querySelector('.tab-tol-inicio')?.value)||0;
+  const tolPB=parseInt(c.querySelector('.tab-tol-pb')?.value)||0;
+  const useGlobal=c.querySelector('.tab-use-global-turnos')?.checked;
+  const turnosSource=useGlobal?(CONFIG.global.turnos||DEFAULT_GLOBAL.turnos):
+    Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
+      const inputs=b.querySelectorAll('.tab-turno-input');
+      return {nombre:b.dataset.nombre,activo:b.querySelector('.tab-turno-chk')?.checked||false,
+        inicioTurno:inputs[0]?.value,finTurno:inputs[1]?.value,finBreak:inputs[3]?.value};
+    });
+  const lines=[];
+  turnosSource.filter(t=>t.activo&&t.inicioTurno).forEach(t=>{
+    const icon=TURNO_ICONS[t.nombre]||'🕐';
+    const corteI=tolI>0?addMinutesStr(t.inicioTurno,tolI):null;
+    const cortePB=tolPB>0&&t.finBreak?addMinutesStr(t.finBreak,tolPB):null;
+    const f1=corteI?`acumular <strong>${target} bipeos</strong> entre <strong>${t.inicioTurno}</strong> y <strong>${corteI}</strong> (${tolI} min)`:`acumular <strong>${target} bipeos</strong> al inicio a las <strong>${t.inicioTurno}</strong>`;
+    const f2=t.finBreak?(cortePB?`Post Break: <strong>${target} bipeos</strong> entre <strong>${t.finBreak}</strong> y <strong>${cortePB}</strong> (${tolPB} min)`:`Post Break: <strong>${target} bipeos</strong> al volver a las <strong>${t.finBreak}</strong>`):'';
+    lines.push(`<div class="desc-turno">${icon} Turno ${t.nombre} (${t.inicioTurno}–${t.finTurno||'?'})</div>`);
+    lines.push(`<div class="desc-line">→ ${f1}</div>`);
+    if(f2) lines.push(`<div class="desc-line">→ ${f2}</div>`);
+  });
+  if(lines.length){desc.innerHTML=lines.join('');desc.classList.add('show');}
+  else desc.classList.remove('show');
+}
+
+// ── LEGACY STUBS (compatibilidad) ─────────────────────────────────
+function renderTurnoBlocks(){
+  const g=getGlobal();
+  const tolI=g.toleranciaInicio||0;
+  const tolPB=g.toleranciaPB||0;
+  document.getElementById('cfg-tol-inicio').value=tolI;
+  document.getElementById('cfg-tol-pb').value=tolPB;
+  document.getElementById('turno-blocks').innerHTML=g.turnos.map(t=>{
+    const icon=TURNO_ICONS[t.nombre]||'🕐';
+    return `<div class="turno-block turno-block-data" data-nombre="${t.nombre}">
+      <div class="turno-block-header">
+        <label class="turno-toggle">
+          <input type="checkbox" class="turno-chk" ${t.activo?'checked':''} onchange="updateConfigDesc()">
+          ${icon} Turno ${t.nombre}
+        </label>
+        <span class="turno-badge">${t.activo?'Activo':'Inactivo'}</span>
+      </div>
+      <div class="turno-block-body" ${t.activo?'':'style="opacity:.4;pointer-events:none"'}>
+        <div class="turno-grid">
+          <div class="field"><label>Inicio Turno</label><input type="time" class="turno-time-input" value="${t.inicioTurno}" oninput="updateConfigDesc()"/></div>
+          <div class="field"><label>Fin Turno</label><input type="time" class="turno-time-input" value="${t.finTurno}" oninput="updateConfigDesc()"/></div>
+          <div class="field"><label>Inicio Break</label><input type="time" class="turno-time-input" value="${t.inicioBreak}" oninput="updateConfigDesc()"/></div>
+          <div class="field"><label>Fin Break (Post Break)</label><input type="time" class="turno-time-input" value="${t.finBreak}" oninput="updateConfigDesc()"/></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Toggle disabled state cuando cambia el checkbox
+  document.querySelectorAll('.turno-chk').forEach(chk=>{
+    chk.addEventListener('change',()=>{
+      const body=chk.closest('.turno-block').querySelector('.turno-block-body');
+      const badge=chk.closest('.turno-block').querySelector('.turno-badge');
+      body.style.opacity=chk.checked?'1':'.4';
+      body.style.pointerEvents=chk.checked?'':'none';
+      badge.textContent=chk.checked?'Activo':'Inactivo';
+    });
+  });
+  updateConfigDesc();
+}
+
+function updateConfigDesc(){
+  const tolI=parseInt(document.getElementById('cfg-tol-inicio').value)||0;
+  const tolPB=parseInt(document.getElementById('cfg-tol-pb').value)||0;
+  const target=parseInt(document.getElementById('cfg-target').value)||CONFIG.target;
+  const desc=document.getElementById('config-desc');
+  const lines=[];
+  document.querySelectorAll('.turno-block-data').forEach(block=>{
+    const nombre=block.dataset.nombre;
+    const activo=block.querySelector('.turno-chk').checked;
+    if(!activo) return;
+    const inputs=block.querySelectorAll('.turno-time-input');
+    const inicioTurno=inputs[0]?.value||'';
+    const finTurno=inputs[1]?.value||'';
+    const finBreak=inputs[3]?.value||'';
+    if(!inicioTurno) return;
+    const icon=TURNO_ICONS[nombre]||'🕐';
+    const corteI=tolI>0?addMinutesStr(inicioTurno,tolI):null;
+    const cortePB=tolPB>0&&finBreak?addMinutesStr(finBreak,tolPB):null;
+    const frase1=corteI
+      ?`El operario debe acumular <strong>${target} bipeos</strong> entre las <strong>${inicioTurno}</strong> y las <strong>${corteI}</strong> (${tolI} min de tolerancia)`
+      :`El operario debe acumular <strong>${target} bipeos</strong> al iniciar turno a las <strong>${inicioTurno}</strong>`;
+    const frase2=finBreak?(cortePB
+      ?`Post Break: <strong>${target} bipeos</strong> entre las <strong>${finBreak}</strong> y las <strong>${cortePB}</strong> (${tolPB} min)`
+      :`Post Break: <strong>${target} bipeos</strong> al volver del break a las <strong>${finBreak}</strong>`):'';
+    lines.push(`<div class="desc-turno">${icon} Turno ${nombre} (${inicioTurno} – ${finTurno})</div>`);
+    lines.push(`<div class="desc-line">→ ${frase1}</div>`);
+    if(frase2) lines.push(`<div class="desc-line">→ ${frase2}</div>`);
+  });
+  if(lines.length){
+    desc.innerHTML=lines.join('');
+    desc.classList.add('show');
+  } else {
+    desc.classList.remove('show');
+  }
+}
+
+function renderExcList(){
+  document.getElementById('exc-list').innerHTML=(getGlobal().excluidas||[]).map(ex=>`
+    <span class="exc-tag">${ex}<button onclick="removeExclusion('${ex}')" title="Eliminar">✕</button></span>
+  `).join('');
+}
+
+function addExclusion(){
+  const input=document.getElementById('exc-add-input');
+  const val=input.value.trim().toLowerCase();
+  if(!val) return;
+  const exc=getGlobal().excluidas||(CONFIG.global.excluidas=[]);
+  if(!exc.includes(val)) exc.push(val);
+  input.value='';
+  renderExcList();
+}
+
+function removeExclusion(ex){
+  CONFIG.global.excluidas=(CONFIG.global.excluidas||CONFIG.excluidas||[]).filter(e=>e!==ex);
+  CONFIG.excluidas=CONFIG.global.excluidas;
+  renderExcList();
+}
+
+// ── SITE CONFIG FUNCTIONS ─────────────────────────────────────────
+function addSiteConfig(){
+  const input=document.getElementById('new-site-input');
+  const site=(input.value||'').trim().toUpperCase();
+  if(!site) return;
+  if(!(CONFIG.sites||{})[site]){
+    if(!CONFIG.sites) CONFIG.sites={};
+    const g=getGlobal();
+    CONFIG.sites[site]={target:g.target,toleranciaInicio:g.toleranciaInicio,toleranciaPB:g.toleranciaPB,turnos:null};
+  }
+  input.value='';
+  renderSiteConfigs();
+}
+
+function removeSiteConfig(site){
+  if(CONFIG.sites) delete CONFIG.sites[site];
+  renderSiteConfigs();
+}
+
+function renderSiteConfigs(){
+  const container=document.getElementById('site-config-list');
+  if(!container) return;
+  const sites=CONFIG.sites||{};
+  const keys=Object.keys(sites);
+  if(!keys.length){
+    container.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:10px 0">Sin configuraciones por site — todos usan la configuración global.</div>';
+    return;
+  }
+  const g=getGlobal();
+  container.innerHTML=keys.map(siteName=>{
+    const ov=sites[siteName]||{};
+    const c=getCountry(siteName);
+    const usaTurnos=!!ov.turnos;
+    const turnos=ov.turnos||g.turnos;
+    const turnoBlocks=turnos.map(t=>{
+      const icon=TURNO_ICONS[t.nombre]||'🕐';
+      return `<div class="turno-block" data-site-turno="${siteName}">
+        <div class="turno-block-header" style="padding:8px 12px">
+          <label class="turno-toggle" style="font-size:12px">
+            <input type="checkbox" class="site-turno-chk" ${t.activo?'checked':''}>
+            ${icon} ${t.nombre}
+          </label>
+        </div>
+        <div class="turno-block-body" style="padding:10px;${t.activo?'':'opacity:.4;pointer-events:none'}">
+          <div class="turno-grid">
+            <div class="field"><label>Inicio</label><input type="time" class="site-turno-input" value="${t.inicioTurno}"/></div>
+            <div class="field"><label>Fin</label><input type="time" class="site-turno-input" value="${t.finTurno}"/></div>
+            <div class="field"><label>Inicio Break</label><input type="time" class="site-turno-input" value="${t.inicioBreak}"/></div>
+            <div class="field"><label>Fin Break</label><input type="time" class="site-turno-input" value="${t.finBreak}"/></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="site-cfg-block" id="site-block-${siteName}">
+      <div class="site-cfg-header">
+        <strong style="font-size:14px">${siteName}</strong>
+        <span class="badge-country">${c.flag} ${c.code}</span>
+        <span style="font-size:11px;color:var(--ok);margin-left:4px">config custom</span>
+        <div style="margin-left:auto">
+          <button class="btn-danger" onclick="removeSiteConfig('${siteName}')">✕ Eliminar</button>
+        </div>
+      </div>
+      <div class="site-cfg-body">
+        <div class="site-cfg-grid">
+          <div class="field">
+            <label>Target bipeos</label>
+            <input type="number" class="ctrl-input site-target" value="${ov.target??g.target}" min="1" max="30"/>
+            <div class="hint">Global: ${g.target}</div>
+          </div>
+          <div class="field">
+            <label>Tolerancia Inicio (min)</label>
+            <input type="number" class="ctrl-input site-tol-inicio" value="${ov.toleranciaInicio??g.toleranciaInicio}" min="0" max="120"/>
+            <div class="hint">Global: ${g.toleranciaInicio}</div>
+          </div>
+          <div class="field">
+            <label>Tolerancia PB (min)</label>
+            <input type="number" class="ctrl-input site-tol-pb" value="${ov.toleranciaPB??g.toleranciaPB}" min="0" max="120"/>
+            <div class="hint">Global: ${g.toleranciaPB}</div>
+          </div>
+        </div>
+        <label class="turno-toggle" style="font-size:12px;margin-bottom:8px;display:flex">
+          <input type="checkbox" class="site-use-global-turnos" ${usaTurnos?'':'checked'} onchange="toggleSiteTurnos('${siteName}',this)">
+          &nbsp;Usar turnos de la configuración global
+        </label>
+        <div class="site-custom-turnos" id="site-turnos-${siteName}" style="${usaTurnos?'':'display:none'}">
+          ${turnoBlocks}
+        </div>
+        ${!usaTurnos?`<div class="site-cfg-inherited">✓ Turnos heredados de la configuración global (${g.turnos.filter(t=>t.activo).map(t=>t.nombre).join(', ')})</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  // listeners toggle turno activo por site
+  document.querySelectorAll('.site-turno-chk').forEach(chk=>{
+    chk.addEventListener('change',()=>{
+      const body=chk.closest('[data-site-turno]').querySelector('.turno-block-body');
+      body.style.opacity=chk.checked?'1':'.4';
+      body.style.pointerEvents=chk.checked?'':'none';
+    });
   });
 }
 
-function setupDrop(zoneId,inputId,textId,onFile){
-  const zone=document.getElementById(zoneId),input=document.getElementById(inputId);
-  input.addEventListener('change',()=>{if(input.files[0]){onFile(input.files[0]);document.getElementById(textId).innerHTML=`<strong>✓ ${input.files[0].name}</strong><br>${(input.files[0].size/1024).toFixed(1)} KB`}});
+function toggleSiteTurnos(site,chk){
+  const div=document.getElementById(`site-turnos-${site}`);
+  div.style.display=chk.checked?'none':'block';
+}
+
+function readSiteConfigs(){
+  const sites={};
+  document.querySelectorAll('.site-cfg-block[id^="site-block-"]').forEach(block=>{
+    const site=block.id.replace('site-block-','');
+    const target=parseInt(block.querySelector('.site-target')?.value)||getGlobal().target;
+    const tolI=parseInt(block.querySelector('.site-tol-inicio')?.value)||0;
+    const tolPB=parseInt(block.querySelector('.site-tol-pb')?.value)||0;
+    const useGlobal=block.querySelector('.site-use-global-turnos')?.checked;
+    let turnos=null;
+    if(!useGlobal){
+      const turnoBlocks=block.querySelectorAll('[data-site-turno]');
+      turnos=Array.from(turnoBlocks).map(tb=>{
+        const inputs=tb.querySelectorAll('.site-turno-input');
+        const nombre=tb.closest('.turno-block').querySelector('.turno-block-header span')?.textContent?.trim()||'';
+        const activo=tb.querySelector('.site-turno-chk')?.checked||false;
+        return {nombre,activo,inicioTurno:inputs[0]?.value,finTurno:inputs[1]?.value,inicioBreak:inputs[2]?.value,finBreak:inputs[3]?.value};
+      });
+    }
+    sites[site]={target,toleranciaInicio:tolI,toleranciaPB:tolPB,turnos};
+  });
+  return sites;
+}
+
+// ── CONFIG PREVIEW (en tab Carga) ────────────────────────────────
+function updateConfigPreview(){
+  const g=getGlobal();
+  const el=document.getElementById('cfg-target-lbl');
+  const el2=document.getElementById('cfg-exc-lbl');
+  const el3=document.getElementById('cfg-horarios-lbl');
+  if(el) el.textContent=`Target: ${g.target} bipeos`;
+  if(el2) el2.textContent=`Excluidos: ${(g.excluidas||[]).join(', ')||'ninguno'}`;
+  if(el3){
+    const activos=(g.turnos||[]).filter(t=>t.activo);
+    const sitesCount=Object.keys(CONFIG.sites||{}).length;
+    el3.textContent=activos.map(t=>`${TURNO_ICONS[t.nombre]||''}${t.nombre}: ${t.inicioTurno}–${t.finTurno}`).join(' · ')+(sitesCount?` · ${sitesCount} site(s) con config custom`:'');
+  }
+}
+
+// ── MANAGER PIN ──────────────────────────────────────────────────
+function getPin(){ return localStorage.getItem('meli_manager_pin')||'1234'; }
+
+function checkPin(){
+  const input=document.getElementById('pin-input').value;
+  if(input===getPin()){
+    managerUnlocked=true;
+    document.getElementById('manager-lock').style.display='none';
+    document.getElementById('manager-content').style.display='block';
+    document.getElementById('manager-session').textContent='Sesión activa';
+    renderSiteTabs();
+    renderExcList();
+    renderManagerAnalytics(allEntries);
+  } else {
+    document.getElementById('pin-error').style.display='block';
+    setTimeout(()=>document.getElementById('pin-error').style.display='none',2000);
+  }
+}
+
+function lockManager(){
+  managerUnlocked=false;
+  document.getElementById('manager-lock').style.display='block';
+  document.getElementById('manager-content').style.display='none';
+  document.getElementById('pin-input').value='';
+}
+
+function changePin(){
+  const np=document.getElementById('new-pin-input').value.trim();
+  if(!np||np.length<3){return;}
+  localStorage.setItem('meli_manager_pin',np);
+  document.getElementById('new-pin-input').value='';
+  const a=document.getElementById('pin-alert');
+  a.textContent='✓ PIN actualizado';a.classList.add('show');
+  setTimeout(()=>a.classList.remove('show'),2500);
+}
+
+// ── LOAD ─────────────────────────────────────────────────────────
+function loadAndRender(){
+  document.getElementById('status-pill').textContent='Cargando…';
+  fetchBin()
+    .then(({entries,config})=>{
+      allEntries=entries;
+      applyConfig(config);
+      renderAll();
+    })
+    .catch(()=>{document.getElementById('status-pill').textContent='Error al conectar';});
+}
+
+// ── PROGRESS / ALERTS ────────────────────────────────────────────
+function setProgress(pct,text){document.getElementById('prog-bar').style.width=pct+'%';document.getElementById('loader-text').textContent=text;}
+function showAlert(type,msg){['info','error','success'].forEach(t=>{const el=document.getElementById('alert-'+t);el.classList.remove('show');el.innerHTML='';});const el=document.getElementById('alert-'+type);el.innerHTML=msg;el.classList.add('show');}
+
+// ── INIT ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  // Try localStorage config as fallback
+  const saved=localStorage.getItem('meli_dash_config');
+  if(saved){try{applyConfig(JSON.parse(saved));}catch(e){}}
+
+  loadAndRender();
+
+  document.querySelectorAll('.nav-tab').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  }));
+
+  ['f-fecha','f-site','f-turno'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{
+    const f=applyFilters(allEntries);
+    renderResumen(f);renderOps(f);
+    renderTurno(f,'Mañana','man-body','man-count');
+    renderTurno(f,'Tarde','tar-body','tar-count');
+  }));
+
+  document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin();});
+
+  const zone=document.getElementById('drop-zone'),input=document.getElementById('file-input');
+  input.addEventListener('change',()=>{
+    if(input.files[0]){
+      currentFile=input.files[0];
+      document.getElementById('upload-text').innerHTML=`<strong>✓ ${input.files[0].name}</strong><br>${(input.files[0].size/1024).toFixed(1)} KB`;
+      document.getElementById('btn-process').disabled=false;
+      showAlert('info',`Archivo listo: <strong>${input.files[0].name}</strong>. Completá tu nombre y site, luego hacé clic en Analizar.`);
+    }
+  });
   zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag')});
   zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
-  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0]){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  aplicarPais(); // cargar MLA por defecto
-  renderLog(); // carga el log al abrir
-  document.querySelectorAll('.nav-tab').forEach(btn=>btn.addEventListener('click',()=>{
-    switchTab(btn.dataset.tab);
-    if(btn.dataset.tab==='tab-log')renderLog();
-    if(btn.dataset.tab==='tab-historial')renderHistorial(); // refresca al entrar a la pestaña
-  }));
-  document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal-overlay').classList.remove('show'));
-  document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('show')});
-  document.getElementById('btn-refresh-log').addEventListener('click',renderLog);
-  document.getElementById('log-filter-site').addEventListener('change',renderLog);
-  document.getElementById('log-filter-lider').addEventListener('change',renderLog);
-
-  setupDrop('drop-zone','file-input','upload-text-main',f=>{
-    currentFile=f;
-    const mb=(f.size/1024/1024).toFixed(1);
-    const warn = f.size/1024/1024 > 50 ? ` ⚠ Archivo grande (${mb} MB) — puede tardar` : ` (${mb} MB)`;
-    document.getElementById('btn-process').disabled=false;
-    showAlert('info',`Archivo listo: <strong>${f.name}</strong>${warn}. Completá tu nombre y hacé clic en Analizar.`);
-  });
-  setupDrop('drop-zone-prev','file-input-prev','upload-text-prev',f=>{prevFile=f});
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0]){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'));}});
 
   document.getElementById('btn-process').addEventListener('click',()=>{
     const leader=document.getElementById('leader-name').value.trim();
     const site=document.getElementById('leader-site').value.trim();
-    if(!leader){showAlert('error','Por favor ingresá tu nombre antes de analizar.');return}
-    if(!site){showAlert('error','Por favor ingresá el site antes de analizar.');return}
-    if(!currentFile){showAlert('error','Seleccioná un archivo primero.');return}
-    clearAlerts();
-    setProgress(0,'Iniciando…','');
+    if(!leader){showAlert('error','Ingresá tu nombre.');return;}
+    if(!site){showAlert('error','Ingresá el site.');return;}
+    if(!currentFile){showAlert('error','Seleccioná un archivo.');return;}
+    setProgress(0,'Leyendo archivo…');
     document.getElementById('loader').classList.add('show');
     document.getElementById('btn-process').disabled=true;
-    Promise.all([readCSV(currentFile),prevFile?readCSV(prevFile):Promise.resolve(null)])
-      .then(([csvMain,csvPrev])=>{
-        const results=processXLSX(csvMain);
-        allResults=results;
-        if(csvPrev){try{prevResults=processXLSX(csvPrev)}catch(e){prevResults=[]}}
-        const fechas=[...new Set(results.map(r=>r.fecha))].sort();
-        const periodo=fechas.length>1?`${fechas[0]} – ${fechas[fechas.length-1]}`:fechas[0];
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        setProgress(30,'Parseando Excel…');
+        const wb=XLSX.read(e.target.result,{type:'array',cellDates:false,cellNF:false,cellStyles:false});
+        const siteCfg=getEffectiveConfig(site);
+        const results=processXLSX(wb,siteCfg);
         const now=new Date();
-        saveLog({lider:leader,site,fecha:fmtDate(now),hora:fmtTime(now),archivo:currentFile.name,periodo});
-        guardarHistorial(leader,currentFile.name,periodo,results,now);
-        setProgress(100,'¡Listo!','');
-        document.getElementById('header-meta').innerHTML=`${leader} &nbsp;|&nbsp; ${site} &nbsp;|&nbsp; ${fmtDate(now)} ${fmtTime(now)}`;
-        renderAll(results,periodo);
+        setProgress(95,'Publicando…');
+        saveEntry(leader,site,fmtDate(now),fmtTime(now),results);
+        setProgress(100,'¡Publicado!');
         document.getElementById('loader').classList.remove('show');
         document.getElementById('btn-process').disabled=false;
-        showAlert('success',`✓ Análisis completado — período ${periodo}.`);
-      })
-      .catch(err=>{document.getElementById('loader').classList.remove('show');document.getElementById('btn-process').disabled=false;showAlert('error',`Error: ${err.message}`)});
-  });
-
-  ['f-turno','f-estado','f-control','f-fecha','f-usuario'].forEach(id=>document.getElementById(id).addEventListener('change',()=>renderTable(allResults)));
-  document.getElementById('btn-clear-filters').addEventListener('click',()=>{['f-turno','f-estado','f-control','f-fecha','f-usuario'].forEach(id=>document.getElementById(id).value='');renderTable(allResults)});
-  document.getElementById('btn-export').addEventListener('click',()=>exportCSV(allResults));
-  document.getElementById('rank-turno').addEventListener('change',e=>renderRanking(allResults,e.target.value));
-  document.getElementById('btn-copy-resumen').addEventListener('click',()=>{
-    const txt=document.getElementById('resumen-text').textContent;
-    navigator.clipboard.writeText(txt).then(()=>{document.getElementById('btn-copy-resumen').textContent='✓ Copiado!';setTimeout(()=>document.getElementById('btn-copy-resumen').textContent='📋 Copiar',2000)}).catch(()=>{});
+        showAlert('success',`✓ Datos publicados — ${[...new Set(results.map(r=>r.usuario))].length} operarios · todos pueden ver el resultado ahora.`);
+      }catch(err){
+        document.getElementById('loader').classList.remove('show');
+        document.getElementById('btn-process').disabled=false;
+        showAlert('error',`Error: ${err.message}`);
+      }
+    };
+    reader.onerror=()=>{document.getElementById('loader').classList.remove('show');showAlert('error','No se pudo leer el archivo.');};
+    reader.readAsArrayBuffer(currentFile);
   });
 });
 </script>
