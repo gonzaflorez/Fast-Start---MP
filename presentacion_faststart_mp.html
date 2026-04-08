@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Fast Start Control · Mercado Pago</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#7d8590;
+  --blue:#009ee3;--blue-dark:#2d3277;
+  --ok:#3fb950;--red:#f85149;--warn:#d29922;--purple:#a371f7;
+  --yellow:#ffe600;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+body{font-family:var(--font);color:var(--text)}
+
+/* ── DECK ── */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 80px;
+  opacity:0;pointer-events:none;
+  transform:translateX(60px);
+  transition:opacity .45s ease,transform .45s ease;
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.slide.exit{opacity:0;transform:translateX(-60px)}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;z-index:100;background:rgba(22,27,34,.85);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:40px;padding:10px 20px}
+.nav-dots{display:flex;gap:6px}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.nav-dot.active{background:var(--blue);width:22px;border-radius:4px}
+.nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 6px;transition:color .15s;line-height:1}
+.nav-btn:hover{color:var(--text)}
+.slide-counter{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:36px;text-align:center}
+
+/* ── PROGRESS BAR ── */
+.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--yellow));transition:width .4s ease;z-index:200}
+
+/* ── SLIDE BACKGROUNDS ── */
+.slide-cover{background:linear-gradient(135deg,#0a0e1a 0%,#0d1a2e 50%,#061420 100%)}
+.slide-cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 80% 40%,rgba(0,158,227,.12),transparent)}
+.slide-dark{background:var(--bg)}
+.slide-dark::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 20% 80%,rgba(45,50,119,.15),transparent)}
+.slide-impact{background:linear-gradient(135deg,#0a1628,#0d1117)}
+.slide-money{background:linear-gradient(135deg,#060d07,#0d1117)}
+.slide-money::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(63,185,80,.07),transparent)}
+.slide-close{background:linear-gradient(135deg,#2d3277,#1a1f6e,#0d1117)}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:24px;height:2px;background:var(--blue);border-radius:1px}
+h1{font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:clamp(28px,3.5vw,48px);font-weight:900;line-height:1.1;letter-spacing:-.02em}
+h3{font-size:clamp(18px,2vw,26px);font-weight:800}
+.accent{color:var(--yellow)}
+.accent-blue{color:var(--blue)}
+.accent-green{color:var(--ok)}
+.accent-red{color:var(--red)}
+.sub{font-size:clamp(14px,1.4vw,18px);color:var(--muted);line-height:1.65;max-width:600px}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.badge-blue{background:rgba(0,158,227,.15);color:var(--blue);border:1px solid rgba(0,158,227,.3)}
+.badge-green{background:rgba(63,185,80,.12);color:var(--ok);border:1px solid rgba(63,185,80,.25)}
+.badge-yellow{background:rgba(255,230,0,.1);color:var(--yellow);border:1px solid rgba(255,230,0,.25)}
+.badge-red{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;gap:14px}
+.kpi-grid-3{grid-template-columns:repeat(3,1fr)}
+.kpi-grid-4{grid-template-columns:repeat(4,1fr)}
+.kpi-grid-2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.blue::before{background:var(--blue)}
+.kpi.green::before{background:var(--ok)}
+.kpi.red::before{background:var(--red)}
+.kpi.yellow::before{background:var(--yellow)}
+.kpi.purple::before{background:var(--purple)}
+.kpi-val{font-size:clamp(28px,3vw,44px);font-weight:900;line-height:1;margin-bottom:6px}
+.kpi-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;width:100%;max-width:1100px;align-items:center}
+.two-col-wide{grid-template-columns:1.1fr .9fr}
+
+/* ── FEATURE LIST ── */
+.feature-list{display:flex;flex-direction:column;gap:12px}
+.feature-item{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.feature-icon{font-size:22px;flex-shrink:0}
+.feature-text strong{display:block;font-size:14px;font-weight:700;margin-bottom:2px}
+.feature-text span{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ── PROBLEM ── */
+.problem-list{display:flex;flex-direction:column;gap:10px}
+.problem-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.2);font-size:14px;font-weight:600}
+.problem-item::before{content:'✗';color:var(--red);font-weight:900;font-size:16px;flex-shrink:0}
+
+/* ── SOLUTION LIST ── */
+.solution-list{display:flex;flex-direction:column;gap:10px}
+.solution-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.2);font-size:14px;font-weight:600}
+.solution-item::before{content:'✓';color:var(--ok);font-weight:900;font-size:16px;flex-shrink:0}
+
+/* ── MONEY HIGHLIGHT ── */
+.money-hero{text-align:center;padding:32px;background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.2);border-radius:20px;margin-bottom:16px}
+.money-amount{font-size:clamp(52px,7vw,96px);font-weight:900;color:var(--ok);line-height:1;letter-spacing:-.03em}
+.money-label{font-size:14px;color:var(--muted);margin-top:8px;font-weight:600}
+
+/* ── DASHBOARD MOCK ── */
+.mock{background:#0d1117;border:1px solid var(--border);border-radius:14px;overflow:hidden;width:100%}
+.mock-bar{background:var(--surface);padding:8px 14px;display:flex;align-items:center;gap:8px}
+.mock-dot{width:9px;height:9px;border-radius:50%}
+.mock-url{font-size:10px;color:var(--muted);font-family:var(--mono);background:var(--bg);padding:3px 10px;border-radius:20px;flex:1;text-align:center}
+.mock-body{padding:14px}
+.mock-tabs{display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap}
+.mock-tab{padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;color:var(--muted);background:var(--surface)}
+.mock-tab.on{color:var(--text);background:var(--surface2);border-bottom:2px solid var(--blue)}
+.mock-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.mock-kpi{background:var(--surface);border-radius:8px;padding:10px;text-align:center}
+.mock-kpi-val{font-weight:900;font-size:18px}
+.mock-kpi-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px}
+.mock-countries{display:flex;gap:6px;margin-bottom:8px}
+.mock-country{background:var(--surface);border-radius:8px;padding:9px 12px;flex:1;border-top-width:2px;border-top-style:solid}
+.mock-country-flag{font-size:16px}
+.mock-country-code{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.mock-country-pct{font-weight:900;font-size:20px}
+.mock-ranking{background:var(--surface);border-radius:8px;padding:12px}
+.mock-rank-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.mock-rank-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border)}
+.mock-rank-row:last-child{border-bottom:none}
+.mock-rank-bar{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.mock-rank-fill{height:5px;border-radius:3px}
+
+/* ── LATAM SCALE ── */
+.scale-row{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
+.scale-flag{font-size:22px}
+.scale-country{font-weight:700;font-size:14px;min-width:50px}
+.scale-bar-wrap{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.scale-bar-fill{height:8px;border-radius:4px;background:var(--ok)}
+.scale-amount{font-weight:900;font-size:16px;font-family:var(--mono);min-width:100px;text-align:right}
+.scale-total{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);padding:16px 20px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:18px;padding-bottom:20px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:14px;top:28px;bottom:0;width:1px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:29px;height:29px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;z-index:1;background:var(--bg)}
+.tl-dot.done{border-color:var(--ok);background:rgba(63,185,80,.15);color:var(--ok)}
+.tl-dot.next{border-color:var(--blue);background:rgba(0,158,227,.1);color:var(--blue)}
+.tl-dot.future{border-color:var(--border);color:var(--muted)}
+.tl-content{padding-top:4px}
+.tl-content strong{display:block;font-size:14px;font-weight:700;margin-bottom:3px}
+.tl-content span{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── CLOSE SLIDE ── */
+.close-link{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);color:#1a1a2e;font-weight:900;font-size:16px;padding:16px 36px;border-radius:40px;margin-top:24px;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.close-link:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,230,0,.25)}
+
+/* ── DIVIDER ── */
+.divider{width:48px;height:3px;background:var(--blue);border-radius:2px;margin:18px 0}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ────────────── SLIDE 1 — COVER ────────────── -->
+  <div class="slide slide-cover active" data-slide="0">
+    <div style="max-width:900px;width:100%">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+        <div style="background:var(--blue);color:#fff;font-weight:900;font-size:12px;letter-spacing:.15em;padding:5px 12px;border-radius:6px;text-transform:uppercase">MP</div>
+        <span style="color:var(--muted);font-size:13px;font-weight:600">Logística Inversa · Fulfillment Argentina</span>
+      </div>
+      <div class="eyebrow">Proyecto Fast Start Control</div>
+      <h1>Mercadito<br><span class="accent">Dash</span></h1>
+      <div class="divider"></div>
+      <p class="sub" style="margin-bottom:28px">Control de bipeos en tiempo real. Inicio de turno + Post Break.<br>Vista LATAM · Sin IT · Sin servidor · Sin costo.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span class="badge badge-blue"><span class="live-dot"></span>En producción</span>
+        <span class="badge badge-yellow">ARG · BRA · MEX · URU · CHI</span>
+        <span class="badge badge-green">$0 infraestructura</span>
+      </div>
+    </div>
+    <div style="position:absolute;right:80px;bottom:100px;opacity:.06;font-size:220px;font-weight:900;letter-spacing:-.05em;line-height:1;pointer-events:none">MP</div>
+  </div>
+
+  <!-- ────────────── SLIDE 2 — EL PROBLEMA ────────────── -->
+  <div class="slide slide-dark" data-slide="1">
+    <div class="two-col" style="max-width:1000px">
+      <div>
+        <div class="eyebrow">El problema</div>
+        <h2>Nadie sabía <span class="accent-red">cuántos</span> llegaban a tiempo</h2>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:24px">Sin herramienta de control, el tiempo muerto de los operarios al inicio del turno y post break era invisible para el management.</p>
+      </div>
+      <div>
+        <div class="problem-list">
+          <div class="problem-item">Sin datos de bipeos al inicio del turno</div>
+          <div class="problem-item">Sin visibilidad del cumplimiento post break</div>
+          <div class="problem-item">Cada líder tenía su propio criterio</div>
+          <div class="problem-item">Imposible comparar sites o países</div>
+          <div class="problem-item">El tiempo muerto no estaba siendo medido</div>
+        </div>
+        <div style="margin-top:18px;padding:16px 18px;background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.2);border-radius:12px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:8px">Impacto sin control</div>
+          <div style="display:flex;gap:24px">
+            <div><div style="font-size:28px;font-weight:900;color:var(--red)">72 hs</div><div style="font-size:11px;color:var(--muted)">muertas / mes · ARG</div></div>
+            <div><div style="font-size:28px;font-weight:900;color:var(--red)">2.14%</div><div style="font-size:11px;color:var(--muted)">del total de horas</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 3 — LA SOLUCIÓN ────────────── -->
+  <div class="slide slide-dark" data-slide="2">
+    <div class="two-col" style="max-width:1000px">
+      <div>
+        <div class="eyebrow">La solución</div>
+        <h2>Un tablero que <span class="accent">mide</span> lo que antes era invisible</h2>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:24px">El líder carga el Excel del Task Manager y en segundos tiene quién llegó al target de bipeos, quién no, y por qué.</p>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge badge-blue">1 archivo HTML</span>
+          <span class="badge badge-green">Sync en tiempo real</span>
+          <span class="badge badge-yellow">Sin IT</span>
+        </div>
+      </div>
+      <div>
+        <div class="solution-list">
+          <div class="solution-item">Control de bipeos: Inicio de Turno + Post Break</div>
+          <div class="solution-item">Resultado inmediato al cargar el Excel</div>
+          <div class="solution-item">Vista por operario, site y país</div>
+          <div class="solution-item">Histórico y tendencia de los últimos 7 días</div>
+          <div class="solution-item">Top 10 operarios con más desvíos</div>
+          <div class="solution-item">Config por site desde Zona Manager</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 4 — DASHBOARD MOCK ────────────── -->
+  <div class="slide slide-dark" data-slide="3">
+    <div style="max-width:1000px;width:100%">
+      <div class="eyebrow">El tablero</div>
+      <h2 style="margin-bottom:20px">Vista en <span class="accent-blue">tiempo real</span></h2>
+      <div class="two-col two-col-wide" style="gap:32px;align-items:start">
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">gonzaflorez.github.io / Fast-Start---MP / mercadito_dash.html</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-tabs">
+              <div class="mock-tab on">📊 Resumen</div>
+              <div class="mock-tab">👤 Por Operario</div>
+              <div class="mock-tab">📋 Historial</div>
+              <div class="mock-tab">📂 Carga</div>
+              <div class="mock-tab" style="color:#d29922">⚙ Manager</div>
+            </div>
+            <div class="mock-kpis">
+              <div class="mock-kpi"><div class="mock-kpi-val" style="color:var(--blue)">83%</div><div class="mock-kpi-lbl">Cumplimiento</div></div>
+              <div class="mock-kpi"><div class="mock-kpi-val" style="color:var(--text)">47</div><div class="mock-kpi-lbl">Operarios</div></div>
+              <div class="mock-kpi"><div class="mock-kpi-val" style="color:var(--ok)">156</div><div class="mock-kpi-lbl">OK</div></div>
+              <div class="mock-kpi"><div class="mock-kpi-val" style="color:var(--red)">32</div><div class="mock-kpi-lbl">Desvíos</div></div>
+            </div>
+            <div class="mock-countries">
+              <div class="mock-country" style="border-top-color:var(--blue)"><div class="mock-country-flag">🇦🇷</div><div class="mock-country-code">ARG</div><div class="mock-country-pct" style="color:var(--ok)">79%</div></div>
+              <div class="mock-country" style="border-top-color:#e63946"><div class="mock-country-flag">🇨🇱</div><div class="mock-country-code">CHI</div><div class="mock-country-pct" style="color:var(--ok)">92%</div></div>
+              <div class="mock-country" style="border-top-color:#2dc653"><div class="mock-country-flag">🇧🇷</div><div class="mock-country-code">BRA</div><div class="mock-country-pct" style="color:var(--muted)">—</div></div>
+            </div>
+            <div class="mock-ranking">
+              <div class="mock-rank-title">🏆 Ranking de Sites</div>
+              <div class="mock-rank-row"><span style="font-size:11px;min-width:16px">🥇</span><span style="font-size:10px;font-weight:700;min-width:52px;color:var(--blue)">MLC01 🇨🇱</span><div class="mock-rank-bar"><div class="mock-rank-fill" style="width:92%;background:var(--ok)"></div></div><span style="font-size:10px;font-weight:800;color:var(--ok);min-width:28px;text-align:right">92%</span></div>
+              <div class="mock-rank-row"><span style="font-size:11px;min-width:16px">🥈</span><span style="font-size:10px;font-weight:700;min-width:52px;color:var(--blue)">ARBA02 🇦🇷</span><div class="mock-rank-bar"><div class="mock-rank-fill" style="width:87%;background:var(--ok)"></div></div><span style="font-size:10px;font-weight:800;color:var(--ok);min-width:28px;text-align:right">87%</span></div>
+              <div class="mock-rank-row"><span style="font-size:11px;min-width:16px">🥉</span><span style="font-size:10px;font-weight:700;min-width:52px;color:var(--blue)">ARBA04 🇦🇷</span><div class="mock-rank-bar"><div class="mock-rank-fill" style="width:74%;background:var(--warn)"></div></div><span style="font-size:10px;font-weight:800;color:var(--warn);min-width:28px;text-align:right">74%</span></div>
+              <div class="mock-rank-row"><span style="font-size:11px;min-width:16px">#4</span><span style="font-size:10px;font-weight:700;min-width:52px;color:var(--blue)">ARBA04 🇦🇷</span><div class="mock-rank-bar"><div class="mock-rank-fill" style="width:60%;background:var(--warn)"></div></div><span style="font-size:10px;font-weight:800;color:var(--warn);min-width:28px;text-align:right">60%</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="feature-item">
+            <div class="feature-icon">🌍</div>
+            <div class="feature-text"><strong>Vista LATAM</strong><span>Cards por país + ranking de sites comparativo</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🚨</div>
+            <div class="feature-text"><strong>Top Ofensores</strong><span>Top 10 operarios con más desvíos en 7 días</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📈</div>
+            <div class="feature-text"><strong>Tendencia multi-site</strong><span>Gráfico de líneas comparativo por site</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚙</div>
+            <div class="feature-text"><strong>Zona Manager</strong><span>Config por site: target, tolerancias, turnos</span></div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🔄</div>
+            <div class="feature-text"><strong>Sync real</strong><span>Todos los líderes ven lo mismo al instante</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 5 — IMPACTO FINANCIERO ARG ────────────── -->
+  <div class="slide slide-money" data-slide="4">
+    <div style="max-width:950px;width:100%">
+      <div class="eyebrow">Impacto financiero</div>
+      <h2 style="margin-bottom:24px">Cuánto cuesta <span class="accent-red">no medir</span></h2>
+      <div class="two-col" style="gap:40px;align-items:start">
+        <div>
+          <div style="margin-bottom:12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Base de cálculo — ARG 🇦🇷</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:13px"><span style="color:var(--muted)">Operarios Packing MP / día</span><strong>24</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:13px"><span style="color:var(--muted)">Horas totales / mes</span><strong>3,360 hs</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:13px"><span style="color:var(--muted)">Tiempo muerto / mes</span><strong style="color:var(--red)">72 hs (2.14%)</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:13px"><span style="color:var(--muted)">Costo por hora (USD)</span><strong>$16</strong></div>
+          </div>
+          <div style="padding:18px 20px;background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);border-radius:12px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:10px">Sin tablero de control</div>
+            <div style="display:flex;gap:28px">
+              <div><div style="font-size:32px;font-weight:900;color:var(--red);font-family:var(--mono)">$1,152</div><div style="font-size:11px;color:var(--muted)">USD / mes perdidos</div></div>
+              <div><div style="font-size:32px;font-weight:900;color:var(--red);font-family:var(--mono)">$13,824</div><div style="font-size:11px;color:var(--muted)">USD / año · solo ARG</div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-bottom:12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Oportunidad LATAM 🌎</div>
+          <div class="scale-row">
+            <div class="scale-flag">🇦🇷</div>
+            <div class="scale-country" style="color:var(--text)">ARG</div>
+            <div class="scale-bar-wrap"><div class="scale-bar-fill" style="width:100%"></div></div>
+            <div class="scale-amount" style="color:var(--ok);font-family:var(--mono)">$13,824</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-flag">🇧🇷</div>
+            <div class="scale-country" style="color:var(--muted)">BRA</div>
+            <div class="scale-bar-wrap"><div class="scale-bar-fill" style="width:100%;background:var(--muted)"></div></div>
+            <div class="scale-amount" style="color:var(--muted);font-family:var(--mono)">TBD</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-flag">🇲🇽</div>
+            <div class="scale-country" style="color:var(--muted)">MEX</div>
+            <div class="scale-bar-wrap"><div class="scale-bar-fill" style="width:100%;background:var(--muted)"></div></div>
+            <div class="scale-amount" style="color:var(--muted);font-family:var(--mono)">TBD</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-flag">🇺🇾</div>
+            <div class="scale-country" style="color:var(--muted)">URU</div>
+            <div class="scale-bar-wrap"><div class="scale-bar-fill" style="width:100%;background:var(--muted)"></div></div>
+            <div class="scale-amount" style="color:var(--muted);font-family:var(--mono)">TBD</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-flag">🇨🇱</div>
+            <div class="scale-country" style="color:var(--muted)">CHI</div>
+            <div class="scale-bar-wrap"><div class="scale-bar-fill" style="width:100%;background:var(--muted)"></div></div>
+            <div class="scale-amount" style="color:var(--muted);font-family:var(--mono)">TBD</div>
+          </div>
+          <div class="scale-total">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ok);margin-bottom:4px">Total LATAM / año · 6 países</div>
+              <div style="font-size:11px;color:var(--muted)">Potencial de recupero con control</div>
+            </div>
+            <div style="font-size:32px;font-weight:900;color:var(--ok);font-family:var(--mono)">$82,944</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 6 — DÍA 1 ────────────── -->
+  <div class="slide slide-impact" data-slide="5">
+    <div style="max-width:950px;width:100%">
+      <div class="eyebrow">Estado actual — Argentina 🇦🇷</div>
+      <h2 style="margin-bottom:8px">Día 1. <span class="accent-blue">Por primera vez</span><br>tenemos visibilidad.</h2>
+      <div class="divider"></div>
+      <div class="two-col" style="gap:40px;align-items:start;margin-top:8px">
+        <div>
+          <div class="kpi-grid kpi-grid-2" style="margin-bottom:16px">
+            <div class="kpi blue">
+              <div class="kpi-val" style="color:var(--blue)">24</div>
+              <div class="kpi-lbl">Operarios medidos</div>
+              <div class="kpi-sub">Por día · ARG</div>
+            </div>
+            <div class="kpi green">
+              <div class="kpi-val" style="color:var(--ok)">2</div>
+              <div class="kpi-lbl">Turnos controlados</div>
+              <div class="kpi-sub">Mañana + Tarde</div>
+            </div>
+            <div class="kpi yellow">
+              <div class="kpi-val" style="color:var(--ok)">$0</div>
+              <div class="kpi-lbl">Costo herramienta</div>
+              <div class="kpi-sub">Sin IT · Sin servidor</div>
+            </div>
+            <div class="kpi" style="border-color:var(--border)">
+              <div class="kpi-val" style="color:var(--blue)">ARG</div>
+              <div class="kpi-lbl">País activo</div>
+              <div class="kpi-sub">ARBA02 operativo</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="padding:18px 20px;background:rgba(0,158,227,.07);border:1px solid rgba(0,158,227,.2);border-radius:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Lo que esto habilita</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:10px;font-size:13px"><span style="color:var(--ok);font-weight:700">→</span><span>Saber en tiempo real quién llegó al target</span></div>
+              <div style="display:flex;gap:10px;font-size:13px"><span style="color:var(--ok);font-weight:700">→</span><span>Comparar performance por turno, site y país</span></div>
+              <div style="display:flex;gap:10px;font-size:13px"><span style="color:var(--ok);font-weight:700">→</span><span>Detectar operarios con desvíos recurrentes</span></div>
+              <div style="display:flex;gap:10px;font-size:13px"><span style="color:var(--ok);font-weight:700">→</span><span>Tomar decisiones con datos, no intuición</span></div>
+            </div>
+          </div>
+          <div style="padding:16px 18px;background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.2);border-radius:12px;font-size:13px;line-height:1.65;color:var(--muted)">
+            💡 <strong style="color:var(--text)">Antes de hoy:</strong> nadie sabía el número exacto.<br>
+            El tiempo muerto existía pero era invisible.<br>
+            <strong style="color:var(--yellow)">Ahora tiene nombre, fecha y operario.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 7 — PRÓXIMOS PASOS ────────────── -->
+  <div class="slide slide-dark" data-slide="6">
+    <div class="two-col" style="max-width:1000px">
+      <div>
+        <div class="eyebrow">Próximos pasos</div>
+        <h2>Escalar a <span class="accent">LATAM</span></h2>
+        <div class="divider"></div>
+        <p class="sub">La herramienta ya soporta múltiples países. El trabajo técnico está hecho. Lo que falta es el onboarding a los líderes locales.</p>
+        <div style="margin-top:20px;padding:16px 18px;background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.2);border-radius:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚡ Time to deploy por país</div>
+          <div style="font-size:28px;font-weight:900;color:var(--yellow)">≈ 1 día c/u</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Configurar horarios locales + capacitar líderes</div>
+        </div>
+      </div>
+      <div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot done">✓</div>
+            <div class="tl-content">
+              <strong>🇦🇷 ARG — Operativo</strong>
+              <span>ARBA02 activo desde hoy. Primer día de medición.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future">2</div>
+            <div class="tl-content">
+              <strong>🇧🇷 BRA — Expansión LATAM</strong>
+              <span>La herramienta ya soporta el país. Deploy en 1 día.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future">3</div>
+            <div class="tl-content">
+              <strong>🇲🇽 MEX — Expansión LATAM</strong>
+              <span>La herramienta ya soporta el país. Deploy en 1 día.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future">4</div>
+            <div class="tl-content">
+              <strong>🇺🇾 URU — Expansión LATAM</strong>
+              <span>La herramienta ya soporta el país. Deploy en 1 día.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future">5</div>
+            <div class="tl-content">
+              <strong>🇨🇱 CHI — Expansión LATAM</strong>
+              <span>La herramienta ya soporta el país. Deploy en 1 día.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future">6</div>
+            <div class="tl-content">
+              <strong>Integración WMS / BigQuery</strong>
+              <span>Eliminar el Excel manual. Carga automática desde el sistema.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── SLIDE 8 — CIERRE ────────────── -->
+  <div class="slide slide-close" data-slide="7">
+    <div style="text-align:center;max-width:680px">
+      <div style="font-size:48px;margin-bottom:20px">🚀</div>
+      <div class="eyebrow" style="justify-content:center">Logística Inversa · Mercado Pago · LATAM</div>
+      <h2 style="margin-bottom:16px">El tablero está vivo.<br><span class="accent">Probalo ahora.</span></h2>
+      <p class="sub" style="margin:0 auto 28px;text-align:center">Sin instalación. Sin login. Desde cualquier dispositivo.</p>
+      <a class="close-link" href="https://gonzaflorez.github.io/Fast-Start---MP/mercadito_dash.html" target="_blank">
+        Abrir Mercadito Dash →
+      </a>
+      <div style="margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.1)">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Gonzalo Florez</div>
+        <div style="font-size:12px;color:var(--muted)">Analista Sr. Mejora Continua · Logística Inversa<br>Fulfillment — Mercado Libre Argentina</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn" onclick="go(-1)">‹</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <button class="nav-btn" onclick="go(1)">›</button>
+  <span class="slide-counter" id="counter">1 / 8</span>
+</div>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dotsWrap=document.getElementById('nav-dots');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+let cur=0;
+
+// Build dots
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='nav-dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsWrap.appendChild(d);
+});
+
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),450);
+  cur=Math.max(0,Math.min(n,slides.length-1));
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  counter.textContent=`${cur+1} / ${slides.length}`;
+  progress.style.width=`${((cur+1)/slides.length)*100}%`;
+}
+
+function go(dir){goTo(cur+dir);}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+});
+
+// Touch swipe
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=tx-e.changedTouches[0].clientX;
+  if(Math.abs(dx)>50) go(dx>0?1:-1);
+},{passive:true});
+
+// Init progress
+progress.style.width=`${(1/slides.length)*100}%`;
+</script>
+</body>
+</html>
