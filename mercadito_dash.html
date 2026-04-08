@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Mercadito Dash · Fast Start</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -157,6 +158,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .ranking-bar-fill{height:7px;border-radius:4px;transition:width .6s}
 .ranking-pct{font-weight:800;font-size:13px;min-width:44px;text-align:right;font-family:var(--mono)}
 
+.ofensor-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(48,54,61,.6)}.ofensor-row:last-child{border-bottom:none}
+.ofensor-avatar{width:28px;height:28px;border-radius:50%;background:rgba(248,81,73,.15);color:var(--desvio);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
 /* TODAY PILLS */
 .today-pills-wrap{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
 .today-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
@@ -273,8 +277,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <nav class="nav-tabs">
   <button class="nav-tab active" data-tab="tab-resumen">📊 Resumen</button>
   <button class="nav-tab" data-tab="tab-operarios">👤 Por Operario</button>
-  <button class="nav-tab" data-tab="tab-manana">☀ Turno Mañana</button>
-  <button class="nav-tab" data-tab="tab-tarde">🌙 Turno Tarde</button>
   <button class="nav-tab" data-tab="tab-historial">📋 Historial</button>
   <button class="nav-tab" data-tab="tab-carga">📂 Carga</button>
   <button class="nav-tab manager-tab" data-tab="tab-manager">⚙ Manager</button>
@@ -357,6 +359,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="site-grid"><div class="empty-state"><div class="icon">📊</div><p>No hay datos.<br>Usá la pestaña <strong>Carga</strong> para publicar.</p></div></div>
   </div>
 
+  <!-- Top Ofensores -->
+  <div id="ofensores-section" style="display:none;margin-bottom:18px">
+    <div class="section-title">🚨 Top Ofensores — Últimos 7 días</div>
+    <div id="ofensores-body" class="ranking-wrap"></div>
+  </div>
+
   <!-- Trend -->
   <div id="trend-resumen" style="display:none">
     <div class="section-title">📈 Tendencia — Últimos 7 días</div>
@@ -368,8 +376,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div class="tab-panel" id="tab-operarios">
   <div class="table-wrap">
     <div class="table-header">
-      <div class="table-title">👤 Detalle por Operario</div>
-      <span class="table-count" id="ops-count">—</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="table-title">👤 Detalle por Operario</div>
+        <span class="table-count" id="ops-count">—</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Líder</span>
+          <select class="filter-select" id="f-lider" style="font-size:11px;padding:4px 8px">
+            <option value="">Todos</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="table-scroll">
       <table><thead><tr>
@@ -382,37 +398,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 </div>
 
-<!-- TURNO MAÑANA -->
-<div class="tab-panel" id="tab-manana">
-  <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">☀ Turno Mañana</div>
-      <span class="table-count" id="man-count">—</span>
-    </div>
-    <div class="table-scroll">
-      <table><thead><tr>
-        <th>Operario</th><th>Site</th><th>Fecha</th><th>Líder</th>
-        <th>Inicio Turno</th><th>Bipeos</th><th>Post Break</th><th>Bipeos</th><th>% Cumpl.</th>
-      </tr></thead><tbody id="man-body"></tbody></table>
-    </div>
-  </div>
-</div>
-
-<!-- TURNO TARDE -->
-<div class="tab-panel" id="tab-tarde">
-  <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">🌙 Turno Tarde</div>
-      <span class="table-count" id="tar-count">—</span>
-    </div>
-    <div class="table-scroll">
-      <table><thead><tr>
-        <th>Operario</th><th>Site</th><th>Fecha</th><th>Líder</th>
-        <th>Inicio Turno</th><th>Bipeos</th><th>Post Break</th><th>Bipeos</th><th>% Cumpl.</th>
-      </tr></thead><tbody id="tar-body"></tbody></table>
-    </div>
-  </div>
-</div>
 
 <!-- HISTORIAL -->
 <div class="tab-panel" id="tab-historial">
@@ -862,8 +847,6 @@ function renderAll(){
   populateFilters(allEntries);
   renderResumen(f);
   renderOps(f);
-  renderTurno(f,'Mañana','man-body','man-count');
-  renderTurno(f,'Tarde','tar-body','tar-count');
   renderHistorial(allEntries);
   if(managerUnlocked){renderManagerAnalytics(allEntries);renderSiteTabs();}
   if(f.length>0){
@@ -933,6 +916,7 @@ function renderResumen(entries){
   renderCountryOverview(entries);
   renderSiteRanking(entries);
   renderTodayPills(entries);
+  renderTopOfensores(entries);
   renderTrendChart(allEntries);
 }
 
@@ -1009,6 +993,56 @@ function renderTodayPills(entries){
   ].join('');
 }
 
+function renderTopOfensores(entries){
+  const section=document.getElementById('ofensores-section');
+  const body=document.getElementById('ofensores-body');
+  if(!section||!body) return;
+  const today=new Date();
+  const desde=new Date(today);desde.setDate(desde.getDate()-6);
+  const desdeStr=fmtDate(desde);
+  // Filter last 7 days
+  const recent=entries.filter(e=>{
+    const[d,m,y]=e.fecha.split('/').map(Number);
+    return new Date(y,m-1,d)>=new Date(desde.getFullYear(),desde.getMonth(),desde.getDate());
+  });
+  const map=new Map();
+  recent.forEach(e=>{
+    e.operarios.forEach(o=>{
+      if(o.inicio==='Excluido'&&o.postBreak==='Excluido') return;
+      const k=`${o.usuario}||${e.site}`;
+      if(!map.has(k)) map.set(k,{usuario:o.usuario,site:e.site,dev:0,total:0});
+      const r=map.get(k);
+      if(o.inicio&&o.inicio!=='Excluido') r.total++;
+      if(o.postBreak&&o.postBreak!=='Excluido') r.total++;
+      if(o.inicio==='Desvío') r.dev++;
+      if(o.postBreak==='Desvío') r.dev++;
+    });
+  });
+  const list=[...map.values()]
+    .filter(r=>r.dev>0&&r.total>0)
+    .sort((a,b)=>b.dev-a.dev||b.dev/b.total-a.dev/a.total)
+    .slice(0,10);
+  if(!list.length){section.style.display='none';return;}
+  section.style.display='block';
+  body.innerHTML=list.map((r,i)=>{
+    const pct=Math.round(r.dev/r.total*100);
+    const c=getCountry(r.site);
+    return `<div class="ofensor-row">
+      <div class="ofensor-avatar">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${r.usuario}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${r.dev} desvíos de ${r.total} controles</div>
+      </div>
+      <span class="badge badge-site" style="font-size:11px">${r.site}</span>
+      <span style="font-size:11px">${c.flag}</span>
+      <div style="text-align:right;min-width:50px">
+        <div style="font-weight:800;font-size:14px;color:var(--desvio)">${pct}%</div>
+        <div style="font-size:10px;color:var(--text-muted)">desvío</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderOps(entries){
   const f=getFilters();
   const excl=getGlobal().excluidas||[];
@@ -1016,19 +1050,20 @@ function renderOps(entries){
     .filter(o=>o.estado!=='Excluido'&&!excl.some(ex=>o.ruta&&o.ruta.toLowerCase().includes(ex.toLowerCase())))
     .map(o=>({...o,site:e.site,lider:e.lider})));
   if(f.turno) ops=ops.filter(o=>o.turno===f.turno);
+  // populate lider filter
+  const liderSel = document.getElementById('f-lider');
+  if(liderSel){
+    const lideres=[...new Set(entries.flatMap(e=>e.lider))].sort();
+    const cur=liderSel.value;
+    liderSel.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===cur?' selected':''}>${l}</option>`).join('');
+    if(cur) ops=ops.filter(o=>o.lider===cur);
+  }
   ops.sort((a,b)=>b.pct-a.pct);
   document.getElementById('ops-count').textContent=`${ops.length} registros`;
   if(!ops.length){document.getElementById('ops-body').innerHTML=`<tr><td colspan="9"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;return;}
   document.getElementById('ops-body').innerHTML=ops.map(o=>rowOp(o)).join('');
 }
 
-function renderTurno(entries,turno,bodyId,countId){
-  let ops=entries.flatMap(e=>e.operarios.filter(o=>o.turno===turno).map(o=>({...o,site:e.site,lider:e.lider})));
-  ops.sort((a,b)=>b.pct-a.pct);
-  document.getElementById(countId).textContent=`${ops.length} operarios`;
-  if(!ops.length){document.getElementById(bodyId).innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:28px"><p>Sin datos para ${turno}.</p></div></td></tr>`;return;}
-  document.getElementById(bodyId).innerHTML=ops.map(o=>rowTurnoFull(o)).join('');
-}
 
 function rowOp(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
@@ -1180,44 +1215,77 @@ function renderLeaderTable(entries){
 }
 
 function renderTrendChart(entries){
+  const el=document.getElementById('trend-chart');
+  if(!el) return;
   const days=[];
   for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(fmtDate(d));}
   const sites=[...new Set(entries.map(e=>e.site))].sort();
-  const colors=['#009ee3','#3fb950','#a371f7','#d29922','#f85149','#58a6ff','#ffa657'];
-  let html='<div style="overflow-x:auto">';
-  sites.forEach((site,si)=>{
-    const color=colors[si%colors.length];
-    const vals=days.map(d=>{
+  const COLORS=['#009ee3','#3fb950','#a371f7','#d29922','#f85149','#58a6ff','#ffa657','#e63946','#2dc653'];
+  const datasets=sites.map((site,si)=>{
+    const data=days.map(d=>{
       const dayEntries=entries.filter(e=>e.site===site&&e.fecha===d);
       if(!dayEntries.length) return null;
       const ok=dayEntries.reduce((s,e)=>s+(e.stats?.ok||0),0);
       const dev=dayEntries.reduce((s,e)=>s+(e.stats?.dev||0),0);
       return ok+dev>0?Math.round(ok/(ok+dev)*100):null;
     });
-    const hasData=vals.some(v=>v!==null);
-    if(!hasData) return;
-    html+=`<div style="margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;color:${color};margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        <span class="badge badge-site" style="background:${color}22;color:${color}">${site}</span>
-      </div>
-      <div style="display:flex;gap:4px;align-items:flex-end;height:50px">
-        ${days.map((d,i)=>{
-          const v=vals[i];
-          const h=v!==null?Math.round(v/2):0;
-          const dayLabel=d.slice(0,5);
-          return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">
-            <div style="width:100%;background:${v!==null?color:'var(--surface2)'};height:${h||2}px;border-radius:3px 3px 0 0;min-height:2px;title='${v!==null?v+'%':'Sin datos'}'" title="${v!==null?v+'%':'Sin datos'}"></div>
-            <span style="font-size:9px;color:var(--text-muted);font-family:var(--mono)">${dayLabel}</span>
-          </div>`;
-        }).join('')}
-      </div>
-      <div style="display:flex;gap:4px;margin-top:4px">
-        ${days.map((_,i)=>`<div style="flex:1;text-align:center;font-size:9px;font-family:var(--mono);color:${vals[i]!==null?pctColor(vals[i]):'var(--text-muted)'}">${vals[i]!==null?vals[i]+'%':'·'}</div>`).join('')}
-      </div>
-    </div>`;
+    if(data.every(v=>v===null)) return null;
+    const color=COLORS[si%COLORS.length];
+    return {
+      label:site,
+      data,
+      borderColor:color,
+      backgroundColor:color+'22',
+      pointBackgroundColor:color,
+      pointRadius:4,
+      pointHoverRadius:6,
+      borderWidth:2,
+      tension:0.3,
+      spanGaps:true
+    };
+  }).filter(Boolean);
+
+  // Destroy previous chart if exists
+  if(el._chart) el._chart.destroy();
+
+  // Create canvas
+  el.innerHTML='<canvas id="trend-canvas" style="max-height:260px"></canvas>';
+  const ctx=document.getElementById('trend-canvas').getContext('2d');
+  el._chart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:days.map(d=>d.slice(0,5)),
+      datasets
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{
+          labels:{color:'#e6edf3',font:{family:'Plus Jakarta Sans',size:11},boxWidth:12,padding:16}
+        },
+        tooltip:{
+          backgroundColor:'#21262d',
+          borderColor:'#30363d',
+          borderWidth:1,
+          titleColor:'#e6edf3',
+          bodyColor:'#7d8590',
+          callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y!==null?ctx.parsed.y+'%':'Sin datos'}`}
+        }
+      },
+      scales:{
+        x:{
+          ticks:{color:'#7d8590',font:{size:11}},
+          grid:{color:'rgba(48,54,61,.5)'}
+        },
+        y:{
+          min:0,max:100,
+          ticks:{color:'#7d8590',font:{size:11},callback:v=>v+'%'},
+          grid:{color:'rgba(48,54,61,.5)'}
+        }
+      }
+    }
   });
-  html+=(!sites.length?'<div style="color:var(--text-muted);font-size:12px;padding:20px">Sin datos suficientes</div>':'')+'</div>';
-  document.getElementById('trend-chart').innerHTML=html;
 }
 
 // ── MANAGER CONFIG UI ────────────────────────────────────────────
@@ -1787,9 +1855,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['f-fecha','f-site','f-turno'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{
     const f=applyFilters(allEntries);
     renderResumen(f);renderOps(f);
-    renderTurno(f,'Mañana','man-body','man-count');
-    renderTurno(f,'Tarde','tar-body','tar-count');
   }));
+
+  document.getElementById('f-lider')?.addEventListener('change',()=>{
+    const f=applyFilters(allEntries);
+    renderOps(f);
+  });
 
   document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin();});
 
