@@ -138,6 +138,30 @@ tr:hover td{background:rgba(255,255,255,.02)}
 /* SECTION TITLE */
 .section-title{font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
+/* COUNTRY OVERVIEW */
+.country-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px}
+.country-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden}
+.country-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--country-accent,var(--mp-blue))}
+.country-flag{font-size:26px;line-height:1;margin-bottom:6px}
+.country-name{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
+.country-pct{font-weight:800;font-size:34px;line-height:1.1;margin:4px 0}
+.country-meta{font-size:11px;color:var(--text-muted);line-height:1.6}
+
+/* SITE RANKING */
+.ranking-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:4px}
+.ranking-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(48,54,61,.6)}
+.ranking-row:last-child{border-bottom:none}
+.ranking-pos{font-weight:800;font-size:13px;min-width:26px;text-align:center;color:var(--text-muted);font-family:var(--mono)}
+.ranking-bar-wrap{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.ranking-bar-fill{height:7px;border-radius:4px;transition:width .6s}
+.ranking-pct{font-weight:800;font-size:13px;min-width:44px;text-align:right;font-family:var(--mono)}
+
+/* TODAY PILLS */
+.today-pills-wrap{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.today-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.today-pill.loaded{background:rgba(63,185,80,.12);color:var(--ok);border:1px solid rgba(63,185,80,.25)}
+.today-pill.missing{background:rgba(248,81,73,.08);color:var(--desvio);border:1px solid rgba(248,81,73,.2)}
+
 /* MANAGER PIN OVERLAY */
 .pin-overlay{position:relative}
 .pin-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
@@ -246,7 +270,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </header>
 
 <nav class="nav-tabs">
-  <button class="nav-tab active" data-tab="tab-resumen">📊 Resumen del Día</button>
+  <button class="nav-tab active" data-tab="tab-resumen">📊 Resumen</button>
   <button class="nav-tab" data-tab="tab-operarios">👤 Por Operario</button>
   <button class="nav-tab" data-tab="tab-manana">☀ Turno Mañana</button>
   <button class="nav-tab" data-tab="tab-tarde">🌙 Turno Tarde</button>
@@ -303,11 +327,37 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="bar-wrap"><div class="bar-fill" id="k-tar-bar" style="background:var(--purple);width:0"></div></div>
     </div>
   </div>
-  <div class="site-grid" id="site-cards">
-    <div class="empty-state"><div class="icon">⏳</div><p>Cargando datos…</p></div>
+  <!-- Country Overview -->
+  <div id="country-overview" style="display:none"></div>
+
+  <!-- Today status -->
+  <div id="today-section" style="display:none">
+    <div class="section-title">📅 Cargas de hoy</div>
+    <div id="today-pills" class="today-pills-wrap"></div>
   </div>
+
+  <!-- Site Ranking -->
+  <div id="ranking-section" style="display:none;margin-bottom:18px">
+    <div class="section-title">🏆 Ranking de Sites</div>
+    <div id="ranking-body" class="ranking-wrap"></div>
+  </div>
+
+  <!-- Site detail cards -->
+  <div id="site-cards-section" style="display:none;margin-bottom:18px">
+    <div class="section-title">🏭 Detalle por Site</div>
+    <div class="site-grid" id="site-cards">
+      <div class="empty-state"><div class="icon">⏳</div><p>Cargando datos…</p></div>
+    </div>
+  </div>
+
+  <!-- Fallback when no data -->
+  <div id="site-cards-empty" style="display:none">
+    <div class="site-grid"><div class="empty-state"><div class="icon">📊</div><p>No hay datos.<br>Usá la pestaña <strong>Carga</strong> para publicar.</p></div></div>
+  </div>
+
+  <!-- Trend -->
   <div id="trend-resumen" style="display:none">
-    <div class="section-title" style="margin-top:6px">📈 Tendencia últimos 7 días</div>
+    <div class="section-title">📈 Tendencia — Últimos 7 días</div>
     <div class="manager-card" style="padding:18px 20px"><div id="trend-chart"></div></div>
   </div>
 </div>
@@ -822,11 +872,16 @@ function renderAll(){
 }
 
 function renderResumen(entries){
+  const show=id=>{ const e=document.getElementById(id); if(e) e.style.display='block'; };
+  const hide=id=>{ const e=document.getElementById(id); if(e) e.style.display='none'; };
   if(!entries.length){
-    document.getElementById('site-cards').innerHTML=`<div class="empty-state"><div class="icon">📊</div><p>No hay datos.<br>Usá la pestaña <strong>Carga</strong> para publicar.</p></div>`;
+    ['country-overview','today-section','ranking-section','site-cards-section','trend-resumen'].forEach(hide);
+    show('site-cards-empty');
     ['k-pct','k-ops','k-ok','k-dev','k-man','k-tar'].forEach(id=>document.getElementById(id).textContent='—');
     return;
   }
+  hide('site-cards-empty');
+  ['country-overview','today-section','ranking-section','site-cards-section','trend-resumen'].forEach(show);
   const okT=entries.reduce((s,e)=>s+e.stats.ok,0),devT=entries.reduce((s,e)=>s+e.stats.dev,0);
   const total=okT+devT,pct=total>0?Math.round(okT/total*100):0;
   const ops=[...new Set(entries.flatMap(e=>e.operarios.map(o=>o.usuario)))].length;
@@ -873,9 +928,83 @@ function renderResumen(entries){
       <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
     </div>`;
   }).join('');
-  // Trend chart in Resumen
-  const tr=document.getElementById('trend-resumen');
-  if(tr){tr.style.display='block';renderTrendChart(allEntries);}
+  renderCountryOverview(entries);
+  renderSiteRanking(entries);
+  renderTodayPills(entries);
+  renderTrendChart(allEntries);
+}
+
+function renderCountryOverview(entries){
+  const el=document.getElementById('country-overview');
+  if(!el) return;
+  const byC={};
+  entries.forEach(e=>{
+    const c=getCountry(e.site);
+    if(!byC[c.code]) byC[c.code]={flag:c.flag,code:c.code,ok:0,dev:0,sites:new Set(),ops:0};
+    byC[c.code].ok+=e.stats?.ok||0;
+    byC[c.code].dev+=e.stats?.dev||0;
+    byC[c.code].sites.add(e.site);
+    byC[c.code].ops+=[...new Set(e.operarios.map(o=>o.usuario))].length;
+  });
+  const list=Object.values(byC).sort((a,b)=>{
+    const pa=(a.ok+a.dev>0?a.ok/(a.ok+a.dev):0),pb=(b.ok+b.dev>0?b.ok/(b.ok+b.dev):0);
+    return pb-pa;
+  });
+  const accentColors={'ARG':'#009ee3','CHI':'#e63946','COL':'#f4b942','BRA':'#2dc653','MEX':'#a371f7'};
+  el.innerHTML=`<div class="country-row">${list.map(c=>{
+    const t=c.ok+c.dev,pct=t>0?Math.round(c.ok/t*100):0,col=pctColor(pct);
+    const accent=accentColors[c.code]||'var(--mp-blue)';
+    return `<div class="country-card" style="--country-accent:${accent}">
+      <div class="country-flag">${c.flag}</div>
+      <div class="country-name">${c.code}</div>
+      <div class="country-pct" style="color:${col}">${pct}%</div>
+      <div class="country-meta">${c.sites.size} site${c.sites.size!==1?'s':''} · ${c.ops} operarios · ${t} controles</div>
+      <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderSiteRanking(entries){
+  const body=document.getElementById('ranking-body');
+  const section=document.getElementById('ranking-section');
+  if(!body||!section) return;
+  const bySite={};
+  entries.forEach(e=>{
+    if(!bySite[e.site]) bySite[e.site]={site:e.site,ok:0,dev:0};
+    bySite[e.site].ok+=e.stats?.ok||0;
+    bySite[e.site].dev+=e.stats?.dev||0;
+  });
+  const sites=Object.values(bySite).map(s=>{
+    const t=s.ok+s.dev;s.pct=t>0?Math.round(s.ok/t*100):0;return s;
+  }).sort((a,b)=>b.pct-a.pct);
+  if(!sites.length){section.style.display='none';return;}
+  body.innerHTML=sites.map((s,i)=>{
+    const col=pctColor(s.pct),c=getCountry(s.site);
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    return `<div class="ranking-row">
+      <span class="ranking-pos">${medal}</span>
+      <span style="font-weight:700;font-size:12px;min-width:70px"><span class="badge badge-site">${s.site}</span></span>
+      <span style="font-size:12px;min-width:20px">${c.flag}</span>
+      <div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:${s.pct}%;background:${col}"></div></div>
+      <span class="ranking-pct" style="color:${col}">${s.pct}%</span>
+      <span style="font-size:10px;color:var(--text-muted);font-family:var(--mono);min-width:70px;text-align:right">${s.ok} OK · ${s.dev} dev</span>
+    </div>`;
+  }).join('');
+}
+
+function renderTodayPills(entries){
+  const section=document.getElementById('today-section');
+  const pills=document.getElementById('today-pills');
+  if(!section||!pills) return;
+  const today=fmtDate(new Date());
+  const allSites=[...new Set(entries.map(e=>e.site))].sort();
+  const todaySites=new Set(entries.filter(e=>e.fecha===today).map(e=>e.site));
+  const loaded=allSites.filter(s=>todaySites.has(s));
+  const missing=allSites.filter(s=>!todaySites.has(s));
+  pills.innerHTML=[
+    ...loaded.map(s=>{const l=[...new Set(entries.filter(e=>e.site===s&&e.fecha===today).map(e=>e.lider))].join(', ');return `<span class="today-pill loaded">✓ ${s}<span style="opacity:.7;font-weight:400;margin-left:4px">${l}</span></span>`;}),
+    ...missing.map(s=>`<span class="today-pill missing">✗ ${s} sin carga</span>`)
+  ].join('');
 }
 
 function renderOps(entries){
