@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Guía Líderes · Mercadito Dash</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#7d8590;
+  --blue:#009ee3;--ok:#3fb950;--red:#f85149;--warn:#d29922;--yellow:#ffe600;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--font);color:var(--text)}
+
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:52px 72px;
+  opacity:0;pointer-events:none;transform:translateX(60px);
+  transition:opacity .4s ease,transform .4s ease;
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.slide.exit{opacity:0;transform:translateX(-60px)}
+
+/* NAV */
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:100;background:rgba(22,27,34,.9);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:40px;padding:9px 18px}
+.nav-dots{display:flex;gap:5px}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.nav-dot.active{background:var(--blue);width:20px;border-radius:4px}
+.nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 6px;transition:color .15s;line-height:1}
+.nav-btn:hover{color:var(--text)}
+.slide-counter{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:36px;text-align:center}
+.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--ok));transition:width .4s;z-index:200}
+
+/* BACKGROUNDS */
+.bg-cover{background:linear-gradient(135deg,#060d0f,#0a1628,#0d1117)}
+.bg-cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 75% 40%,rgba(0,158,227,.1),transparent)}
+.bg-dark{background:var(--bg)}
+.bg-step{background:linear-gradient(160deg,#080e10,#0d1117)}
+.bg-step::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 15% 50%,rgba(0,158,227,.06),transparent)}
+.bg-tips{background:linear-gradient(160deg,#070d09,#0d1117)}
+.bg-tips::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 85% 40%,rgba(63,185,80,.06),transparent)}
+
+/* TYPOGRAPHY */
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:20px;height:2px;background:var(--blue);border-radius:1px}
+h1{font-size:clamp(34px,5vw,60px);font-weight:900;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.5vw,44px);font-weight:900;line-height:1.1;letter-spacing:-.02em}
+.accent{color:var(--yellow)}
+.accent-blue{color:var(--blue)}
+.accent-green{color:var(--ok)}
+.sub{font-size:clamp(13px,1.3vw,16px);color:var(--muted);line-height:1.7}
+.divider{width:40px;height:3px;background:var(--blue);border-radius:2px;margin:16px 0}
+
+/* STEP NUMBER */
+.step-num{width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 6px rgba(0,158,227,.15)}
+.step-num.green{background:var(--ok);box-shadow:0 0 0 6px rgba(63,185,80,.15)}
+.step-num.yellow{background:var(--warn);box-shadow:0 0 0 6px rgba(210,153,34,.15)}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:44px;width:100%;max-width:1080px;align-items:center}
+
+/* INSTRUCTION CARDS */
+.instruction-list{display:flex;flex-direction:column;gap:10px}
+.instruction{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;position:relative}
+.instruction-num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.instruction-num.ok{background:var(--ok)}
+.instruction-body strong{display:block;font-size:13px;font-weight:700;margin-bottom:3px}
+.instruction-body span{font-size:12px;color:var(--muted);line-height:1.55}
+.instruction-tag{position:absolute;top:10px;right:12px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.tag-req{background:rgba(248,81,73,.15);color:var(--red)}
+.tag-opt{background:rgba(125,133,144,.15);color:var(--muted)}
+
+/* MOCK UI */
+.mock{background:#0d1117;border:1px solid var(--border);border-radius:14px;overflow:hidden;width:100%}
+.mock-bar{background:var(--surface);padding:8px 14px;display:flex;align-items:center;gap:7px}
+.mock-dot{width:9px;height:9px;border-radius:50%}
+.mock-url{font-size:10px;color:var(--muted);font-family:var(--mono);background:var(--bg);padding:3px 10px;border-radius:20px;flex:1;text-align:center}
+.mock-body{padding:14px}
+.mock-tabs{display:flex;gap:3px;margin-bottom:12px}
+.mock-tab{padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;color:var(--muted);background:var(--surface)}
+.mock-tab.on{color:var(--text);background:var(--surface2);border-bottom:2px solid var(--blue)}
+.mock-field{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.mock-field-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+.mock-field-val{font-size:12px;font-weight:600;color:var(--text)}
+.mock-upload{border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;margin-bottom:10px}
+.mock-upload-icon{font-size:24px;margin-bottom:6px}
+.mock-upload-text{font-size:11px;color:var(--muted)}
+.mock-btn{display:inline-block;background:var(--blue);color:#fff;font-weight:700;font-size:11px;padding:8px 18px;border-radius:8px;text-align:center;margin:0 auto;display:block;width:fit-content}
+.mock-btn.disabled{background:var(--surface2);color:var(--muted)}
+
+/* HIGHLIGHT BOX */
+.highlight{padding:16px 20px;border-radius:12px;margin-top:0}
+.highlight.blue{background:rgba(0,158,227,.07);border:1px solid rgba(0,158,227,.2)}
+.highlight.green{background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.2)}
+.highlight.yellow{background:rgba(255,230,0,.07);border:1px solid rgba(255,230,0,.2)}
+.highlight.red{background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.2)}
+.highlight-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.highlight.blue .highlight-title{color:var(--blue)}
+.highlight.green .highlight-title{color:var(--ok)}
+.highlight.yellow .highlight-title{color:var(--warn)}
+.highlight.red .highlight-title{color:var(--red)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em}
+.badge-blue{background:rgba(0,158,227,.15);color:var(--blue);border:1px solid rgba(0,158,227,.25)}
+.badge-green{background:rgba(63,185,80,.12);color:var(--ok);border:1px solid rgba(63,185,80,.25)}
+.badge-red{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+.badge-warn{background:rgba(210,153,34,.12);color:var(--warn);border:1px solid rgba(210,153,34,.25)}
+
+/* TABLE MOCK */
+.table-mock{width:100%;border-collapse:collapse;font-size:11px}
+.table-mock th{padding:7px 10px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--surface2)}
+.table-mock td{padding:8px 10px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle}
+
+/* TIPS GRID */
+.tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:900px}
+.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.tip-icon{font-size:28px;margin-bottom:10px}
+.tip-card strong{display:block;font-size:14px;font-weight:800;margin-bottom:6px}
+.tip-card p{font-size:12px;color:var(--muted);line-height:1.6}
+.tip-card.green{border-color:rgba(63,185,80,.3)}
+.tip-card.blue{border-color:rgba(0,158,227,.3)}
+.tip-card.yellow{border-color:rgba(210,153,34,.3)}
+.tip-card.red{border-color:rgba(248,81,73,.3)}
+
+/* CLOSE */
+.close-link{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);color:#1a1a2e;font-weight:900;font-size:15px;padding:14px 32px;border-radius:40px;margin-top:22px;text-decoration:none;transition:transform .15s}
+.close-link:hover{transform:translateY(-2px)}
+
+@media(max-width:900px){.two-col{grid-template-columns:1fr;gap:20px}.tips-grid{grid-template-columns:1fr}.slide{padding:40px 24px}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <!-- ── SLIDE 1 — COVER ── -->
+  <div class="slide bg-cover active" data-slide="0">
+    <div style="max-width:860px;width:100%">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
+        <div style="background:var(--blue);color:#fff;font-weight:900;font-size:11px;letter-spacing:.15em;padding:4px 11px;border-radius:6px;text-transform:uppercase">MP</div>
+        <span style="color:var(--muted);font-size:13px;font-weight:600">Logística Inversa · Guía para Líderes</span>
+      </div>
+      <div class="eyebrow">Mercadito Dash — Fast Start Control</div>
+      <h1>Cómo usar<br>el <span class="accent">tablero</span></h1>
+      <div class="divider"></div>
+      <p class="sub" style="max-width:520px;margin-bottom:28px">Guía paso a paso para cargar el Excel, publicar los datos y ver los resultados del Fast Start de tu turno.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span class="badge badge-blue">⏱ 5 minutos por carga</span>
+        <span class="badge badge-green">✓ Sin instalación</span>
+        <span class="badge badge-green">✓ Desde el celular</span>
+      </div>
+    </div>
+    <div style="position:absolute;right:72px;bottom:90px;opacity:.05;font-size:200px;font-weight:900;line-height:1;pointer-events:none">📊</div>
+  </div>
+
+  <!-- ── SLIDE 2 — QUÉ ES ── -->
+  <div class="slide bg-dark" data-slide="1">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div class="eyebrow">¿Qué es?</div>
+        <h2>El tablero que mide el <span class="accent-blue">Fast Start</span></h2>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:20px">Mercadito Dash es una herramienta online que analiza el Excel del Task Manager y calcula automáticamente si cada operario llegó al <strong style="color:var(--text)">target de bipeos</strong> al inicio del turno y después del break.</p>
+        <div class="highlight blue">
+          <div class="highlight-title">📋 Qué mide</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+            <div style="display:flex;gap:8px"><span style="color:var(--ok);font-weight:700">→</span><span><strong style="color:var(--text)">Inicio de turno:</strong> bipeos acumulados desde que arranca hasta el corte</span></div>
+            <div style="display:flex;gap:8px"><span style="color:var(--ok);font-weight:700">→</span><span><strong style="color:var(--text)">Post Break:</strong> bipeos acumulados al volver del descanso</span></div>
+            <div style="display:flex;gap:8px"><span style="color:var(--ok);font-weight:700">→</span><span><strong style="color:var(--text)">% cumplimiento</strong> por operario, turno y site</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">gonzaflorez.github.io / Fast-Start---MP / mercadito_dash.html</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-tabs">
+              <div class="mock-tab on">📊 Resumen</div>
+              <div class="mock-tab">👤 Por Operario</div>
+              <div class="mock-tab">📋 Historial</div>
+              <div class="mock-tab" style="color:var(--yellow)">📂 Carga</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px">
+              <div style="background:var(--surface);border-radius:8px;padding:10px;text-align:center"><div style="font-weight:900;font-size:20px;color:var(--blue)">83%</div><div style="font-size:9px;text-transform:uppercase;color:var(--muted);margin-top:3px">Cumplimiento</div></div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;text-align:center"><div style="font-weight:900;font-size:20px;color:var(--text)">24</div><div style="font-size:9px;text-transform:uppercase;color:var(--muted);margin-top:3px">Operarios</div></div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;text-align:center"><div style="font-weight:900;font-size:20px;color:var(--ok)">78</div><div style="font-size:9px;text-transform:uppercase;color:var(--muted);margin-top:3px">OK</div></div>
+              <div style="background:var(--surface);border-radius:8px;padding:10px;text-align:center"><div style="font-weight:900;font-size:20px;color:var(--red)">14</div><div style="font-size:9px;text-transform:uppercase;color:var(--muted);margin-top:3px">Desvíos</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3 — ANTES DE CARGAR ── -->
+  <div class="slide bg-step" data-slide="2">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num yellow">0</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Antes de empezar</div>
+            <h2>Lo que necesitás<br>tener listo</h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Antes de abrir el tablero, asegurate de tener estos dos elementos.</p>
+        <div class="highlight yellow" style="margin-bottom:12px">
+          <div class="highlight-title">📁 El Excel del Task Manager</div>
+          <div style="font-size:13px;line-height:1.7">Exportalo desde <strong style="color:var(--text)">mercadopago-ar.impruvex.com</strong><br>
+          Sección: <strong style="color:var(--text)">Task Manager → Exportar</strong><br>
+          Formato: <strong style="color:var(--text)">.xlsx</strong></div>
+        </div>
+        <div class="highlight blue">
+          <div class="highlight-title">🌐 El link del tablero</div>
+          <div style="font-size:12px;font-family:var(--mono);color:var(--blue);word-break:break-all">gonzaflorez.github.io/Fast-Start---MP/mercadito_dash.html</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Guardalo en favoritos. Funciona desde el celular o la PC.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px">Cómo exportar el Excel</div>
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body"><strong>Entrá al Task Manager</strong><span>Abrí mercadopago-ar.impruvex.com desde tu navegador</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body"><strong>Buscá el botón "Exportar"</strong><span>Generalmente arriba a la derecha de la lista de tareas</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">3</div>
+          <div class="instruction-body"><strong>Elegí formato Excel (.xlsx)</strong><span>Asegurate de que sea la semana actual</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">4</div>
+          <div class="instruction-body"><strong>Guardalo en un lugar accesible</strong><span>Escritorio, Descargas, o Google Drive</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4 — PASO 1: ABRIR TABLERO ── -->
+  <div class="slide bg-step" data-slide="3">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num">1</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Paso 1</div>
+            <h2>Abrí el <span class="accent-blue">tablero</span></h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Entrá al link desde cualquier dispositivo. No necesita instalación ni login.</p>
+        <div class="instruction-list">
+          <div class="instruction">
+            <div class="instruction-num">1</div>
+            <div class="instruction-body"><strong>Abrí el navegador</strong><span>Chrome, Edge o Safari. Funciona en PC y celular.</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">2</div>
+            <div class="instruction-body"><strong>Ingresá el link</strong><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">gonzaflorez.github.io/Fast-Start---MP/mercadito_dash.html</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">3</div>
+            <div class="instruction-body"><strong>Guardalo en favoritos</strong><span>Así no tenés que escribirlo cada vez. ⭐</span></div>
+          </div>
+        </div>
+        <div class="highlight green" style="margin-top:14px">
+          <div class="highlight-title">💡 Tip</div>
+          <div style="font-size:13px;color:var(--muted)">En el celular podés instalarlo como app: Menú del navegador → <strong style="color:var(--text)">"Agregar a pantalla de inicio"</strong></div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">gonzaflorez.github.io/Fast-Start---MP/mercadito_dash.html</div>
+          </div>
+          <div class="mock-body">
+            <div style="text-align:center;padding:20px 10px">
+              <div style="font-weight:900;font-size:22px;margin-bottom:6px">Mercadito Dash</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Fast Start · Control operacional</div>
+              <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;background:rgba(63,185,80,.1);color:var(--ok);border:1px solid rgba(63,185,80,.2);padding:3px 10px;border-radius:20px"><span style="width:5px;height:5px;border-radius:50%;background:var(--ok);display:inline-block"></span>en línea</span>
+              </div>
+              <div style="font-size:11px;color:var(--muted)">Los datos se sincronizan automáticamente</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:12px 14px;background:var(--surface);border-radius:10px;font-size:12px;color:var(--muted);text-align:center">
+          🔄 El tablero ya muestra los datos del día cargados por otros líderes
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5 — PASO 2: IR A CARGA ── -->
+  <div class="slide bg-step" data-slide="4">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num">2</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Paso 2</div>
+            <h2>Ir a la pestaña <span class="accent">Carga</span></h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Una vez que el tablero cargó, hacé clic en la pestaña <strong style="color:var(--yellow)">📂 Carga</strong> en el menú de arriba.</p>
+        <div class="instruction-list">
+          <div class="instruction">
+            <div class="instruction-num">1</div>
+            <div class="instruction-body"><strong>Encontrá el menú de pestañas</strong><span>Está debajo del header, arriba de la página</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">2</div>
+            <div class="instruction-body"><strong>Hacé clic en "📂 Carga"</strong><span>Es la pestaña amarilla del menú</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">3</div>
+            <div class="instruction-body"><strong>Se abre el formulario de carga</strong><span>Ahí vas a ingresar tu nombre, site y el Excel</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">mercadito_dash.html</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-tabs" style="margin-bottom:16px">
+              <div class="mock-tab">📊 Resumen</div>
+              <div class="mock-tab">👤 Por Operario</div>
+              <div class="mock-tab">📋 Historial</div>
+              <div class="mock-tab on" style="border-bottom-color:var(--yellow);color:var(--yellow)">📂 Carga</div>
+              <div class="mock-tab" style="color:var(--warn)">⚙ Manager</div>
+            </div>
+            <div style="background:var(--surface);border-radius:8px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:12px">📂 Cargar análisis del día</div>
+              <div style="height:8px;background:var(--surface2);border-radius:4px;margin-bottom:8px"></div>
+              <div style="height:8px;background:var(--surface2);border-radius:4px;margin-bottom:8px;width:70%"></div>
+              <div style="height:40px;background:var(--surface2);border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px">
+                <span style="font-size:10px;color:var(--muted)">📊 Arrastrá el Excel aquí</span>
+              </div>
+              <div style="background:rgba(0,158,227,.15);border-radius:6px;padding:7px;text-align:center;font-size:11px;font-weight:700;color:var(--blue)">▶ Analizar y publicar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6 — PASO 3: COMPLETAR DATOS ── -->
+  <div class="slide bg-step" data-slide="5">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num">3</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Paso 3</div>
+            <h2>Completá tus <span class="accent-blue">datos</span></h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Completá los dos campos obligatorios antes de cargar el archivo.</p>
+        <div class="instruction-list">
+          <div class="instruction">
+            <div class="instruction-num ok">A</div>
+            <div class="instruction-body">
+              <strong>Tu nombre (Líder)</strong>
+              <span>Escribí tu nombre completo. Ej: <strong style="color:var(--text)">Gonzalo Florez</strong></span>
+              <span class="instruction-tag tag-req">Obligatorio</span>
+            </div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num ok">B</div>
+            <div class="instruction-body">
+              <strong>Site</strong>
+              <span>El código de tu site. Ej: <strong style="color:var(--text)">ARBA02</strong></span>
+              <span class="instruction-tag tag-req">Obligatorio</span>
+            </div>
+          </div>
+        </div>
+        <div class="highlight red" style="margin-top:14px">
+          <div class="highlight-title">⚠ Importante</div>
+          <div style="font-size:13px;color:var(--muted)">Usá siempre el <strong style="color:var(--text)">mismo nombre</strong> para que el historial quede asociado a vos. No uses apodos ni abreviaturas distintas cada vez.</div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">📂 Carga</div>
+          </div>
+          <div class="mock-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+              <div>
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px">👤 Tu nombre (Líder)</div>
+                <div style="background:var(--surface);border:1px solid var(--blue);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text)">Gonzalo Florez</div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px">🏭 Site</div>
+                <div style="background:var(--surface);border:1px solid var(--blue);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text)">ARBA02</div>
+              </div>
+            </div>
+            <div style="border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;margin-bottom:8px">
+              <div style="font-size:20px;margin-bottom:5px">📊</div>
+              <div style="font-size:10px;color:var(--muted)">Arrastrá el Excel o hacé clic</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:7px;text-align:center;font-size:11px;font-weight:700;color:var(--muted)">▶ Analizar y publicar</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <span class="badge badge-red">✗ Sin nombre → error</span>
+          <span class="badge badge-red">✗ Sin site → error</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7 — PASO 4: CARGAR EXCEL ── -->
+  <div class="slide bg-step" data-slide="6">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num">4</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Paso 4</div>
+            <h2>Seleccioná el <span class="accent">Excel</span></h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Cargá el archivo Excel del Task Manager. Podés arrastrarlo o seleccionarlo desde tu dispositivo.</p>
+        <div class="instruction-list">
+          <div class="instruction">
+            <div class="instruction-num">1</div>
+            <div class="instruction-body"><strong>Opción A — Arrastrar</strong><span>Arrastrá el archivo Excel directo sobre la zona punteada</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">2</div>
+            <div class="instruction-body"><strong>Opción B — Clic</strong><span>Hacé clic en la zona punteada y buscá el archivo en tu dispositivo</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num">3</div>
+            <div class="instruction-body"><strong>Confirmación</strong><span>El nombre del archivo aparece en la zona. El botón <strong style="color:var(--blue)">"Analizar y publicar"</strong> se activa.</span></div>
+          </div>
+        </div>
+        <div class="highlight blue" style="margin-top:14px">
+          <div class="highlight-title">📋 Formato aceptado</div>
+          <div style="font-size:13px;color:var(--muted)">Solo archivos <strong style="color:var(--text)">.xlsx</strong> o <strong style="color:var(--text)">.xls</strong> del Task Manager. El tablero detecta las columnas automáticamente.</div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">📂 Carga</div>
+          </div>
+          <div class="mock-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 12px;font-size:12px">Gonzalo Florez</div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 12px;font-size:12px">ARBA02</div>
+            </div>
+            <div style="border:2px dashed var(--ok);border-radius:8px;padding:16px;text-align:center;margin-bottom:10px;background:rgba(63,185,80,.05)">
+              <div style="font-size:20px;margin-bottom:5px">✅</div>
+              <div style="font-size:11px;font-weight:700;color:var(--ok)">taskManager_semana.xlsx</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px">245 KB · listo para analizar</div>
+            </div>
+            <div style="background:var(--blue);border-radius:6px;padding:9px;text-align:center;font-size:12px;font-weight:800;color:#fff">▶ Analizar y publicar</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--muted)">
+          El botón azul se activa solo cuando <strong style="color:var(--text)">nombre + site + archivo</strong> están completos.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8 — PASO 5: ANALIZAR ── -->
+  <div class="slide bg-step" data-slide="7">
+    <div class="two-col" style="max-width:1040px">
+      <div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div class="step-num green">5</div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:4px">Paso 5</div>
+            <h2>Clic en <span class="accent-green">"Analizar y publicar"</span></h2>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="sub" style="margin-bottom:18px">Este es el último paso. El tablero procesa el Excel y publica los resultados para que todos puedan verlos.</p>
+        <div class="instruction-list">
+          <div class="instruction">
+            <div class="instruction-num ok">1</div>
+            <div class="instruction-body"><strong>Hacé clic en "▶ Analizar y publicar"</strong><span>El tablero empieza a procesar el archivo automáticamente</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num ok">2</div>
+            <div class="instruction-body"><strong>Esperá la barra de progreso</strong><span>Tarda entre 5 y 15 segundos según el tamaño del archivo</span></div>
+          </div>
+          <div class="instruction">
+            <div class="instruction-num ok">3</div>
+            <div class="instruction-body"><strong>Mensaje de confirmación</strong><span>Aparece "✓ Datos publicados" en verde. ¡Listo!</span></div>
+          </div>
+        </div>
+        <div class="highlight green" style="margin-top:14px">
+          <div class="highlight-title">✅ Una vez publicado</div>
+          <div style="font-size:13px;color:var(--muted)">Los datos quedan disponibles en tiempo real para todos los líderes y el manager. Se sincronizan automáticamente.</div>
+        </div>
+      </div>
+      <div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#f85149"></div>
+            <div class="mock-dot" style="background:#d29922"></div>
+            <div class="mock-dot" style="background:#3fb950"></div>
+            <div class="mock-url">procesando…</div>
+          </div>
+          <div class="mock-body">
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:5px">Procesando Excel…</div>
+              <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden">
+                <div style="height:6px;width:85%;background:linear-gradient(90deg,var(--blue),var(--ok));border-radius:3px"></div>
+              </div>
+              <div style="font-size:10px;color:var(--muted);margin-top:4px;font-family:var(--mono)">Publicando… 85%</div>
+            </div>
+            <div style="background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:16px;margin-bottom:4px">✅</div>
+              <div style="font-size:12px;font-weight:700;color:var(--ok)">✓ Datos publicados</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:4px">24 operarios · todos pueden ver el resultado</div>
+            </div>
+            <div style="margin-top:10px">
+              <div class="mock-tabs">
+                <div class="mock-tab on">📊 Resumen</div>
+                <div class="mock-tab">👤 Por Operario</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px">
+                <div style="background:var(--surface);border-radius:7px;padding:9px;text-align:center"><div style="font-weight:900;font-size:18px;color:var(--blue)">79%</div><div style="font-size:9px;color:var(--muted)">Cumplimiento</div></div>
+                <div style="background:var(--surface);border-radius:7px;padding:9px;text-align:center"><div style="font-weight:900;font-size:18px;color:var(--ok)">19</div><div style="font-size:9px;color:var(--muted)">OK</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 9 — VER RESULTADOS ── -->
+  <div class="slide bg-dark" data-slide="8">
+    <div style="max-width:1000px;width:100%">
+      <div class="eyebrow">Ver resultados</div>
+      <h2 style="margin-bottom:20px">Qué podés ver en cada <span class="accent-blue">pestaña</span></h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:2px solid var(--blue)">
+          <div style="font-size:22px;margin-bottom:8px">📊</div>
+          <div style="font-weight:800;font-size:13px;margin-bottom:6px">Resumen</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6">% cumplimiento general, ranking de sites por país, cargas de hoy, tendencia 7 días</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:2px solid var(--purple,#a371f7)">
+          <div style="font-size:22px;margin-bottom:8px">👤</div>
+          <div style="font-weight:800;font-size:13px;margin-bottom:6px">Por Operario</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6">Detalle individual: inicio turno, post break, bipeos acumulados y % cumplimiento</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:2px solid var(--ok)">
+          <div style="font-size:22px;margin-bottom:8px">📋</div>
+          <div style="font-weight:800;font-size:13px;margin-bottom:6px">Historial</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6">Todas las cargas realizadas: quién cargó, cuándo, desde qué site y resultado</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:2px solid var(--warn)">
+          <div style="font-size:22px;margin-bottom:8px">🔍</div>
+          <div style="font-weight:800;font-size:13px;margin-bottom:6px">Filtros</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.6">Filtrá por fecha, site o turno para enfocarte en lo que necesitás ver</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <table class="table-mock">
+          <thead><tr><th>Operario</th><th>Site</th><th>Turno</th><th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Rodríguez N.</strong></td>
+              <td><span style="background:rgba(0,158,227,.15);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">ARBA02</span></td>
+              <td style="color:var(--muted)">☀ Mañana</td>
+              <td><span style="background:rgba(63,185,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">OK</span></td>
+              <td style="color:var(--ok);font-weight:700">9/6</td>
+              <td><span style="background:rgba(63,185,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">OK</span></td>
+              <td style="color:var(--ok);font-weight:700">7/6</td>
+              <td><strong style="color:var(--ok)">100%</strong></td>
+            </tr>
+            <tr>
+              <td><strong>García M.</strong></td>
+              <td><span style="background:rgba(0,158,227,.15);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">ARBA02</span></td>
+              <td style="color:var(--muted)">☀ Mañana</td>
+              <td><span style="background:rgba(248,81,73,.15);color:var(--red);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">Desvío</span></td>
+              <td style="color:var(--red);font-weight:700">3/6</td>
+              <td><span style="background:rgba(63,185,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">OK</span></td>
+              <td style="color:var(--ok);font-weight:700">8/6</td>
+              <td><strong style="color:var(--warn)">50%</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 10 — TIPS ── -->
+  <div class="slide bg-tips" data-slide="9">
+    <div style="max-width:900px;width:100%;text-align:center;margin-bottom:24px">
+      <div class="eyebrow" style="justify-content:center">Buenas prácticas</div>
+      <h2>Tips para <span class="accent-green">usar bien</span> el tablero</h2>
+    </div>
+    <div class="tips-grid">
+      <div class="tip-card green">
+        <div class="tip-icon">🕐</div>
+        <strong>Cargá siempre después del turno</strong>
+        <p>Hacé la carga al finalizar el turno o antes de las 3 hs de que termine. Así los datos reflejan el día correcto.</p>
+      </div>
+      <div class="tip-card blue">
+        <div class="tip-icon">✍️</div>
+        <strong>Usá siempre el mismo nombre</strong>
+        <p>Escribí tu nombre exactamente igual cada vez. "Gonzalo", "gonzalo" y "Gonzalo F." son registros distintos en el historial.</p>
+      </div>
+      <div class="tip-card yellow">
+        <div class="tip-icon">📁</div>
+        <strong>Excel de la semana actual</strong>
+        <p>Exportá el Excel el mismo día de la carga. No uses archivos viejos, las fechas del análisis dependen del contenido del archivo.</p>
+      </div>
+      <div class="tip-card red">
+        <div class="tip-icon">🚫</div>
+        <strong>Rutas excluidas</strong>
+        <p>Los operarios con rutas "full", "off" o "pickit" se excluyen automáticamente del control. No afectan el % de cumplimiento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 11 — CIERRE ── -->
+  <div class="slide" style="background:linear-gradient(135deg,#060d09,#0a1a0d,#0d1117)" data-slide="10">
+    <div style="text-align:center;max-width:640px">
+      <div style="font-size:52px;margin-bottom:18px">🚀</div>
+      <div class="eyebrow" style="justify-content:center">Mercadito Dash · Fast Start Control</div>
+      <h2 style="margin-bottom:12px">¡Listo para<br><span class="accent-green">tu primera carga!</span></h2>
+      <p class="sub" style="margin:0 auto 24px;text-align:center;max-width:460px">Recordá: nombre, site, Excel del día → Analizar y publicar. En 5 minutos tenés los datos en el tablero.</p>
+      <a class="close-link" href="https://gonzaflorez.github.io/Fast-Start---MP/mercadito_dash.html" target="_blank">
+        Abrir Mercadito Dash →
+      </a>
+      <div style="margin-top:28px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+        <span class="badge badge-blue">⏱ 5 min por carga</span>
+        <span class="badge badge-green">✓ Sin instalación</span>
+        <span class="badge badge-green">✓ Desde cualquier dispositivo</span>
+      </div>
+      <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08)">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">Gonzalo Florez</div>
+        <div style="font-size:11px;color:var(--muted)">Analista Sr. Mejora Continua · Logística Inversa · Mercado Libre ARG</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<div class="nav">
+  <button class="nav-btn" onclick="go(-1)">‹</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <button class="nav-btn" onclick="go(1)">›</button>
+  <span class="slide-counter" id="counter">1 / 11</span>
+</div>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dotsWrap=document.getElementById('nav-dots');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+let cur=0;
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='nav-dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsWrap.appendChild(d);
+});
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),400);
+  cur=Math.max(0,Math.min(n,slides.length-1));
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  counter.textContent=`${cur+1} / ${slides.length}`;
+  progress.style.width=`${((cur+1)/slides.length)*100}%`;
+}
+function go(dir){goTo(cur+dir);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)go(dx>0?1:-1);},{passive:true});
+progress.style.width=`${(1/slides.length)*100}%`;
+</script>
+</body>
+</html>
