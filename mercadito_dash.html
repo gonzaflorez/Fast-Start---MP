@@ -718,15 +718,18 @@ function calcStats(raw){
 }
 
 // ── JSONBIN ──────────────────────────────────────────────────────
+const CACHE_KEY='meli_dash_entries_cache';
+function cacheSave(entries){try{localStorage.setItem(CACHE_KEY,JSON.stringify(entries));}catch(e){}}
+function cacheLoad(){try{const c=localStorage.getItem(CACHE_KEY);return c?JSON.parse(c):null;}catch(e){return null;}}
+
 function fetchBin(){
   return fetch(`${JBIN_URL}/latest`,{headers:{'X-Master-Key':JBIN_KEY}})
     .then(r=>r.json())
     .then(d=>{
       const rec=d.record||{};
-      return {
-        entries:Array.isArray(rec.entries)?rec.entries:[],
-        config:rec.config||null
-      };
+      const entries=Array.isArray(rec.entries)?rec.entries:[];
+      cacheSave(entries);
+      return {entries,config:rec.config||null};
     });
 }
 
@@ -741,12 +744,23 @@ function saveEntry(leader,site,fecha,hora,raw){
     id:`${site}_${leader.replace(/\s+/g,'_')}_${fecha.replace(/\//g,'-')}`,
     lider:leader,site,fecha,hora,ts:Date.now(),stats,operarios
   };
+  // Optimistic: update local state immediately
+  const rest=allEntries.filter(e=>e.id!==entry.id);
+  rest.push(entry);
+  rest.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  allEntries=rest.slice(0,60);
+  cacheSave(allEntries);
+  renderAll();
+  // Async sync to JSONBin (GET latest first to avoid overwriting concurrent uploads)
   fetchBin().then(({entries,config})=>{
-    const rest=entries.filter(e=>e.id!==entry.id);
-    rest.push(entry);
-    rest.sort((a,b)=>(b.ts||0)-(a.ts||0));
-    return putBin({entries:rest.slice(0,60),config:config||null});
-  }).then(()=>loadAndRender()).catch(()=>{});
+    const merged=entries.filter(e=>e.id!==entry.id);
+    merged.push(entry);
+    merged.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    const final=merged.slice(0,60);
+    return putBin({entries:final,config:config||null}).then(()=>{
+      allEntries=final;cacheSave(final);renderAll();
+    });
+  }).catch(()=>{});
 }
 
 // ── CONFIG SAVE ──────────────────────────────────────────────────
@@ -964,18 +978,28 @@ function requirePin(action){
 function deleteEntry(id){
   requirePin(()=>{
     if(!confirm('¿Eliminar esta carga del historial?')) return;
+    // Optimistic update
+    allEntries=allEntries.filter(e=>e.id!==id);
+    cacheSave(allEntries);
+    renderAll();
+    // Async sync
     fetchBin().then(({entries,config})=>{
       return putBin({entries:entries.filter(e=>e.id!==id),config:config||null});
-    }).then(()=>loadAndRender()).catch(()=>{});
+    }).catch(()=>{});
   });
 }
 
 function clearHistorial(){
   requirePin(()=>{
     if(!confirm('¿Borrar TODO el historial? Esta acción no se puede deshacer.')) return;
+    // Optimistic update
+    allEntries=[];
+    cacheSave([]);
+    renderAll();
+    // Async sync
     fetchBin().then(({config})=>{
       return putBin({entries:[],config:config||null});
-    }).then(()=>loadAndRender()).catch(()=>{});
+    }).catch(()=>{});
   });
 }
 
@@ -1513,14 +1537,15 @@ function changePin(){
 
 // ── LOAD ─────────────────────────────────────────────────────────
 function loadAndRender(){
-  document.getElementById('status-pill').textContent='Cargando…';
+  document.getElementById('status-pill').textContent='Actualizando…';
   fetchBin()
     .then(({entries,config})=>{
       allEntries=entries;
       applyConfig(config);
       renderAll();
+      document.getElementById('status-pill').textContent=`${entries.length} análisis`;
     })
-    .catch(()=>{document.getElementById('status-pill').textContent='Error al conectar';});
+    .catch(()=>{document.getElementById('status-pill').textContent='Sin conexión (caché local)';});
 }
 
 // ── PROGRESS / ALERTS ────────────────────────────────────────────
@@ -1529,9 +1554,15 @@ function showAlert(type,msg){['info','error','success'].forEach(t=>{const el=doc
 
 // ── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Try localStorage config as fallback
-  const saved=localStorage.getItem('meli_dash_config');
-  if(saved){try{applyConfig(JSON.parse(saved));}catch(e){}}
+  // Mostrar caché instantáneamente mientras se actualiza en background
+  const savedConfig=localStorage.getItem('meli_dash_config');
+  if(savedConfig){try{applyConfig(JSON.parse(savedConfig));}catch(e){}}
+  const cachedEntries=cacheLoad();
+  if(cachedEntries&&cachedEntries.length){
+    allEntries=cachedEntries;
+    renderAll();
+    document.getElementById('status-pill').textContent='Actualizando…';
+  }
 
   loadAndRender();
 
