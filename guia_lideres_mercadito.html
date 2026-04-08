@@ -8,9 +8,9 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07101a;--surface:#0f1f2e;--surface2:#162535;--border:#1e3a4e;
-  --text:#ddeeff;--muted:#6b8aa0;
-  --blue:#06c9d4;--ok:#3fb950;--red:#f85149;--warn:#e8a427;--yellow:#ffe600;
+  --bg:#0c0b1a;--surface:#14112a;--surface2:#1d1a3a;--border:#302c5a;
+  --text:#ede8ff;--muted:#7a72a8;
+  --blue:#a855f7;--ok:#34d399;--red:#f87171;--warn:#fbbf24;--yellow:#ffd60a;
   --font:'Plus Jakarta Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--font);color:var(--text)}
@@ -33,16 +33,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var
 .nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 6px;transition:color .15s;line-height:1}
 .nav-btn:hover{color:var(--text)}
 .slide-counter{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:36px;text-align:center}
-.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--ok));transition:width .4s;z-index:200}
+.progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#a855f7,#ec4899,#f97316);transition:width .4s;z-index:200}
 
 /* BACKGROUNDS */
-.bg-cover{background:linear-gradient(135deg,#030a12,#05131f,#07101a)}
-.bg-cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 75% 40%,rgba(6,201,212,.12),transparent)}
+.bg-cover{background:linear-gradient(135deg,#060410,#0e0a20,#0c0b1a)}
+.bg-cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 75% 40%,rgba(168,85,247,.18),transparent)}
 .bg-dark{background:var(--bg)}
-.bg-step{background:linear-gradient(160deg,#040c14,#07101a)}
-.bg-step::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 15% 50%,rgba(6,201,212,.07),transparent)}
-.bg-tips{background:linear-gradient(160deg,#050c0a,#07101a)}
-.bg-tips::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 85% 40%,rgba(63,185,80,.08),transparent)}
+.bg-step{background:linear-gradient(160deg,#08061a,#0c0b1a)}
+.bg-step::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 15% 50%,rgba(168,85,247,.1),transparent)}
+.bg-tips{background:linear-gradient(160deg,#07090e,#0c0b1a)}
+.bg-tips::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 85% 40%,rgba(52,211,153,.1),transparent)}
 
 /* TYPOGRAPHY */
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px}
@@ -128,7 +128,7 @@ h2{font-size:clamp(26px,3.5vw,44px);font-weight:900;line-height:1.1;letter-spaci
 .tip-card.red{border-color:rgba(248,81,73,.3)}
 
 /* CLOSE */
-.close-link{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#03101a;font-weight:900;font-size:15px;padding:14px 32px;border-radius:40px;margin-top:22px;text-decoration:none;transition:transform .15s}
+.close-link{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;font-weight:900;font-size:15px;padding:14px 32px;border-radius:40px;margin-top:22px;text-decoration:none;transition:transform .15s}
 .close-link:hover{transform:translateY(-2px)}
 
 @media(max-width:900px){.two-col{grid-template-columns:1fr;gap:20px}.tips-grid{grid-template-columns:1fr}.slide{padding:40px 24px}}
@@ -653,7 +653,7 @@ h2{font-size:clamp(26px,3.5vw,44px);font-weight:900;line-height:1.1;letter-spaci
   </div>
 
   <!-- ── SLIDE 11 — CIERRE ── -->
-  <div class="slide" style="background:linear-gradient(135deg,#030a12,#041420,#07101a)" data-slide="10">
+  <div class="slide" style="background:linear-gradient(135deg,#060410,#0f0824,#0c0b1a)" data-slide="10">
     <div style="text-align:center;max-width:640px">
       <div style="font-size:52px;margin-bottom:18px">🚀</div>
       <div class="eyebrow" style="justify-content:center">Mercadito Dash · Fast Start Control</div>
