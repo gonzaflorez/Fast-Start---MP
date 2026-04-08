@@ -43,6 +43,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .filter-select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);outline:none;cursor:pointer}
 .filter-select:focus{border-color:var(--mp-blue)}
 .status-pill{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:auto}
+.btn-demo{padding:5px 12px;border:1px dashed var(--warning);border-radius:6px;font-size:11px;font-weight:600;background:transparent;color:var(--warning);cursor:pointer;transition:all .15s}.btn-demo:hover{background:rgba(210,153,34,.1)}.btn-demo.active{background:rgba(210,153,34,.15)}
 
 /* MAIN */
 main{max-width:1400px;margin:0 auto;padding:22px 20px}
@@ -291,6 +292,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <option value="Tarde">Tarde</option>
   </select>
   <button class="btn-secondary" onclick="loadAndRender()">↻</button>
+  <button class="btn-demo" id="btn-demo" onclick="toggleDemo()" title="Cargar datos de demostración">🎬 Demo</button>
   <span class="status-pill" id="status-pill"></span>
 </div>
 
@@ -1662,6 +1664,86 @@ function changePin(){
   const a=document.getElementById('pin-alert');
   a.textContent='✓ PIN actualizado';a.classList.add('show');
   setTimeout(()=>a.classList.remove('show'),2500);
+}
+
+// ── DEMO ─────────────────────────────────────────────────────────
+let demoActive=false;
+let realEntries=[];
+
+function toggleDemo(){
+  if(!demoActive){
+    realEntries=[...allEntries];
+    allEntries=generateDemoData();
+    demoActive=true;
+    document.getElementById('btn-demo').classList.add('active');
+    document.getElementById('btn-demo').textContent='✕ Salir demo';
+    document.getElementById('status-pill').textContent='🎬 MODO DEMO';
+  } else {
+    allEntries=realEntries;
+    demoActive=false;
+    document.getElementById('btn-demo').classList.remove('active');
+    document.getElementById('btn-demo').textContent='🎬 Demo';
+    document.getElementById('status-pill').textContent=`${allEntries.length} análisis`;
+  }
+  renderAll();
+}
+
+function generateDemoData(){
+  const SITES=[
+    {site:'ARBA02',lider:'Gonzalo Florez',pais:'ARG',rate:.87},
+    {site:'ARBA04',lider:'Gian',pais:'ARG',rate:.74},
+    {site:'MLC01', lider:'Matías Bravo',pais:'CHI',rate:.92},
+    {site:'MCO02', lider:'Julián Arévalo',pais:'COL',rate:.68},
+  ];
+  const NAMES={
+    ARBA02:['Rodríguez N.','García M.','López S.','Martínez A.','González F.','Fernández R.','Pérez D.','Sánchez E.','Torres L.','Ramírez C.','Díaz P.','Herrera V.'],
+    ARBA04:['Ruiz M.','Flores K.','Morales V.','Ortiz J.','Castro I.','Ramos T.','Vargas H.','Moreno B.','Gutiérrez A.','Ibáñez L.'],
+    MLC01: ['Muñoz C.','Rojas F.','Herrera S.','Medina P.','Reyes J.','Fuentes D.','Espinoza R.','Contreras L.','Vidal M.','Bravo T.'],
+    MCO02: ['Gómez A.','Jiménez C.','Suárez F.','Mendoza V.','Aguilar J.','Mora D.','Silva P.','León M.','Vega T.','Parra R.'],
+  };
+  const today=new Date();
+  const entries=[];
+  const rnd=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+  const pad=n=>String(n).padStart(2,'0');
+
+  for(let d=6;d>=0;d--){
+    const date=new Date(today);date.setDate(date.getDate()-d);
+    const dateStr=fmtDate(date);
+    SITES.forEach(({site,lider,rate})=>{
+      if(d>0&&Math.random()<0.15) return; // skip ~15% of days
+      ['Mañana','Tarde'].forEach((turno,ti)=>{
+        if(ti===1&&Math.random()<0.25) return; // algunas veces sin turno tarde
+        const names=NAMES[site];
+        const numOps=rnd(8,names.length);
+        const ops=names.slice(0,numOps).map(usuario=>{
+          const okI=Math.random()<rate,okPB=Math.random()<rate;
+          return {
+            usuario,fecha:dateStr,turno,ruta:'RUTA-'+rnd(100,999),
+            inicio:okI?'OK':'Desvío',postBreak:okPB?'OK':'Desvío',
+            inicioAcum:okI?rnd(6,12):rnd(1,5),
+            postBreakAcum:okPB?rnd(6,12):rnd(1,5),
+            pct:((okI?1:0)+(okPB?1:0))*50
+          };
+        });
+        const ok=ops.filter(o=>o.inicio==='OK').length+ops.filter(o=>o.postBreak==='OK').length;
+        const dev=ops.filter(o=>o.inicio==='Desvío').length+ops.filter(o=>o.postBreak==='Desvío').length;
+        const pct=ok+dev>0?Math.round(ok/(ok+dev)*100):0;
+        const hora=turno==='Mañana'?`08:${pad(rnd(0,59))}`:`16:${pad(rnd(0,59))}`;
+        entries.push({
+          id:`DEMO_${site}_${dateStr.replace(/\//g,'-')}_${turno}`,
+          lider,site,fecha:dateStr,hora,
+          ts:date.getTime()+(ti*8*3600000)+rnd(0,3600000),
+          stats:{
+            ok,dev,pct,usuarios:ops.length,
+            manana:turno==='Mañana'?{ok,dev,pct}:{ok:0,dev:0,pct:0},
+            tarde: turno==='Tarde'? {ok,dev,pct}:{ok:0,dev:0,pct:0},
+          },
+          operarios:ops
+        });
+      });
+    });
+  }
+  return entries.sort((a,b)=>b.ts-a.ts);
 }
 
 // ── LOAD ─────────────────────────────────────────────────────────
