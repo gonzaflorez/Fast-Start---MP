@@ -379,9 +379,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div class="table-title">👤 Detalle por Operario</div>
         <span class="table-count" id="ops-count">—</span>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Ruta</span>
+          <select class="filter-select" id="f-ruta" style="font-size:11px;padding:4px 8px" onchange="renderAll()">
+            <option value="">Todas</option>
+          </select>
           <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Líder</span>
-          <select class="filter-select" id="f-lider" style="font-size:11px;padding:4px 8px">
+          <select class="filter-select" id="f-lider" style="font-size:11px;padding:4px 8px" onchange="renderAll()">
             <option value="">Todos</option>
           </select>
         </div>
@@ -546,6 +550,20 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div>
 
 </main>
+
+<!-- FICHA INDIVIDUAL -->
+<div id="ficha-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;padding:20px;overflow-y:auto" onclick="if(event.target===this)closeFicha()">
+  <div style="max-width:620px;margin:40px auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+    <div style="background:var(--surface2);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
+      <div>
+        <div id="ficha-nombre" style="font-weight:800;font-size:17px"></div>
+        <div id="ficha-meta" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+      </div>
+      <button onclick="closeFicha()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div style="padding:20px 22px" id="ficha-body"></div>
+  </div>
+</div>
 
 <script>
 // ── CONSTANTES ───────────────────────────────────────────────────
@@ -737,14 +755,20 @@ function buildOperarios(raw){
   const map=new Map();
   raw.filter(r=>r.estado!=='Excluido'&&!isExcRuta(r)).forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
-    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:false,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
     const op=map.get(k);
     if(r.tipo==='Inicio'){op.inicio=r.estado;op.inicioAcum=r.acumulados;}
     if(r.tipo==='Post Break'){op.postBreak=r.estado;op.postBreakAcum=r.acumulados;}
   });
+  raw.filter(r=>r.estado==='Excluido'||isExcRuta(r)).forEach(r=>{
+    const k=`${r.usuario}||${r.fecha}||${r.turno}`;
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:true,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null,pct:null});
+  });
   return Array.from(map.values()).map(op=>{
-    const ctrl=[op.inicio,op.postBreak].filter(Boolean);
-    op.pct=ctrl.length>0?Math.round(ctrl.filter(c=>c==='OK').length/ctrl.length*100):0;
+    if(!op.excluido){
+      const ctrl=[op.inicio,op.postBreak].filter(Boolean);
+      op.pct=ctrl.length>0?Math.round(ctrl.filter(c=>c==='OK').length/ctrl.length*100):0;
+    }
     return op;
   });
 }
@@ -833,7 +857,7 @@ function saveConfig(){
 }
 
 // ── FILTERS ──────────────────────────────────────────────────────
-function getFilters(){ return {fecha:document.getElementById('f-fecha').value,site:document.getElementById('f-site').value,turno:document.getElementById('f-turno').value}; }
+function getFilters(){ return {fecha:document.getElementById('f-fecha').value,site:document.getElementById('f-site').value,turno:document.getElementById('f-turno').value,ruta:document.getElementById('f-ruta')?.value||'',lider:document.getElementById('f-lider')?.value||''}; }
 
 function applyFilters(entries){
   const f=getFilters();
@@ -1055,33 +1079,64 @@ function renderTopOfensores(entries){
 
 function renderOps(entries){
   const f=getFilters();
-  const excl=getGlobal().excluidas||[];
-  let ops=entries.flatMap(e=>e.operarios
-    .filter(o=>o.estado!=='Excluido'&&!excl.some(ex=>o.ruta&&o.ruta.toLowerCase().includes(ex.toLowerCase())))
-    .map(o=>({...o,site:e.site,lider:e.lider})));
-  if(f.turno) ops=ops.filter(o=>o.turno===f.turno);
-  // populate lider filter
-  const liderSel = document.getElementById('f-lider');
-  if(liderSel){
-    const lideres=[...new Set(entries.flatMap(e=>e.lider))].sort();
-    const cur=liderSel.value;
-    liderSel.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===cur?' selected':''}>${l}</option>`).join('');
-    if(cur) ops=ops.filter(o=>o.lider===cur);
+  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider})));
+  // Populate ruta filter
+  const rutaSel=document.getElementById('f-ruta');
+  if(rutaSel){
+    const rutas=[...new Set(allOps.map(o=>o.ruta||'').filter(Boolean))].sort();
+    const curR=rutaSel.value;
+    rutaSel.innerHTML='<option value="">Todas</option>'+rutas.map(r=>`<option${r===curR?' selected':''}>${r}</option>`).join('');
   }
-  ops.sort((a,b)=>b.pct-a.pct);
-  document.getElementById('ops-count').textContent=`${ops.length} registros`;
-  if(!ops.length){document.getElementById('ops-body').innerHTML=`<tr><td colspan="9"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;return;}
-  document.getElementById('ops-body').innerHTML=ops.map(o=>rowOp(o)).join('');
+  // Populate lider filter
+  const liderSel=document.getElementById('f-lider');
+  if(liderSel){
+    const lideres=[...new Set(entries.map(e=>e.lider))].sort();
+    const curL=liderSel.value;
+    liderSel.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===curL?' selected':''}>${l}</option>`).join('');
+  }
+  // Apply filters
+  let ops=allOps;
+  if(f.turno) ops=ops.filter(o=>o.turno===f.turno);
+  if(f.ruta) ops=ops.filter(o=>o.ruta&&o.ruta.toLowerCase().includes(f.ruta.toLowerCase()));
+  if(f.lider) ops=ops.filter(o=>o.lider===f.lider);
+  // Trend: último pct conocido vs anterior por usuario+site
+  const trendMap=new Map();
+  [...allEntries].sort((a,b)=>(a.ts||0)-(b.ts||0)).forEach(e=>{
+    e.operarios?.forEach(o=>{
+      if(o.excluido||o.pct==null) return;
+      const k=`${o.usuario}||${e.site}`;
+      const prev=trendMap.get(k);
+      trendMap.set(k,{prev:prev?.cur??null,cur:o.pct});
+    });
+  });
+  // Separate active vs excluded
+  const active=ops.filter(o=>!o.excluido).map(o=>{
+    const t=trendMap.get(`${o.usuario}||${o.site}`);
+    const delta=t?.prev!=null?o.pct-t.prev:null;
+    return {...o,trend:delta==null?null:delta>0?'up':delta<0?'down':'same',trendDelta:delta};
+  }).sort((a,b)=>b.pct-a.pct);
+  const excluded=ops.filter(o=>o.excluido).sort((a,b)=>a.usuario.localeCompare(b.usuario));
+  document.getElementById('ops-count').textContent=`${active.length} operarios · ${excluded.length} excluidos`;
+  if(!active.length&&!excluded.length){
+    document.getElementById('ops-body').innerHTML=`<tr><td colspan="10"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;
+    return;
+  }
+  let rows=active.map(o=>rowOp(o)).join('');
+  if(excluded.length){
+    rows+=`<tr><td colspan="10" style="padding:8px 14px;background:rgba(125,133,144,.05);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-top:2px solid var(--border)">🚫 Excluidos (${excluded.length})</td></tr>`;
+    rows+=excluded.map(o=>rowOpExcluido(o)).join('');
+  }
+  document.getElementById('ops-body').innerHTML=rows;
 }
 
 
 function rowOp(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
-  const ctrl=[o.inicio,o.postBreak].filter(Boolean);
   const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
   const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
+  const trendHtml=o.trend==='up'?`<span style="color:var(--ok);font-size:11px;margin-left:5px">↑${o.trendDelta}%</span>`:o.trend==='down'?`<span style="color:var(--desvio);font-size:11px;margin-left:5px">↓${Math.abs(o.trendDelta)}%</span>`:o.trend==='same'?`<span style="color:var(--text-muted);font-size:11px;margin-left:5px">→</span>`:'';
   return `<tr>
-    <td><strong>${o.usuario}</strong></td>
+    <td><strong style="cursor:pointer;color:var(--mp-blue)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
@@ -1090,7 +1145,19 @@ function rowOp(o){
     <td>${bipI}</td>
     <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
     <td>${bipP}</td>
-    <td><strong style="color:${pctColor(o.pct)}">${o.pct}%</strong></td>
+    <td><strong style="color:${pctColor(o.pct)}">${o.pct}%</strong>${trendHtml}</td>
+  </tr>`;
+}
+
+function rowOpExcluido(o){
+  return `<tr style="opacity:.45">
+    <td><strong style="cursor:pointer;color:var(--text-muted)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
+    <td><span class="badge badge-site">${o.site}</span></td>
+    <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
+    <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
+    <td colspan="4"><span class="badge badge-exc">Excluido</span></td>
+    <td>—</td>
   </tr>`;
 }
 
@@ -1921,6 +1988,76 @@ document.addEventListener('DOMContentLoaded',()=>{
     reader.readAsArrayBuffer(currentFile);
   });
 });
+
+// ── FICHA INDIVIDUAL ─────────────────────────────────────────────
+function openFicha(usuario, site){
+  const entries=[...allEntries]
+    .filter(e=>e.site===site&&e.operarios?.some(o=>o.usuario===usuario))
+    .sort((a,b)=>(b.ts||0)-(a.ts||0))
+    .slice(0,12);
+  if(!entries.length) return;
+  document.getElementById('ficha-nombre').textContent=usuario;
+  document.getElementById('ficha-meta').textContent=`Site: ${site} · ${entries.length} carga${entries.length!==1?'s':''}`;
+  const rows=entries.map(e=>{
+    const op=e.operarios.find(o=>o.usuario===usuario);
+    if(!op) return '';
+    if(op.excluido) return `<tr style="opacity:.5"><td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha}</td><td colspan="4"><span class="badge badge-exc">Excluido</span><span style="font-size:11px;color:var(--text-muted);margin-left:8px">${op.ruta||''}</span></td></tr>`;
+    const ib=bClass(op.inicio),pb=bClass(op.postBreak);
+    return `<tr>
+      <td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha}</td>
+      <td style="font-size:12px">${op.turno==='Mañana'?'☀':'🌙'} ${op.turno}</td>
+      <td>${op.inicio?`<span class="badge ${ib}">${op.inicio}</span>`:'—'}</td>
+      <td>${op.postBreak?`<span class="badge ${pb}">${op.postBreak}</span>`:'—'}</td>
+      <td><strong style="color:${pctColor(op.pct)}">${op.pct??'—'}%</strong></td>
+    </tr>`;
+  }).join('');
+  const active=entries.filter(e=>{const op=e.operarios.find(o=>o.usuario===usuario);return op&&!op.excluido&&op.pct!=null;});
+  const avgPct=active.length?Math.round(active.reduce((s,e)=>{const op=e.operarios.find(o=>o.usuario===usuario);return s+(op?.pct||0);},0)/active.length):null;
+  const lastEntry=entries[0];
+  const lastOp=lastEntry?.operarios.find(o=>o.usuario===usuario);
+  const feedbackLines=[];
+  if(lastOp&&!lastOp.excluido){
+    feedbackLines.push(`Hola! Feedback Fast Start — ${usuario} (${lastEntry.fecha})`);
+    if(lastOp.inicio) feedbackLines.push(`• Inicio de turno: ${lastOp.inicio}${lastOp.inicioAcum!=null?` (${lastOp.inicioAcum}/${getGlobal().target} bipeos)`:''}`);
+    if(lastOp.postBreak) feedbackLines.push(`• Post break: ${lastOp.postBreak}${lastOp.postBreakAcum!=null?` (${lastOp.postBreakAcum}/${getGlobal().target} bipeos)`:''}`);
+    feedbackLines.push(`• Cumplimiento del día: ${lastOp.pct??'—'}%`);
+    if(avgPct!=null) feedbackLines.push(`• Promedio últimas ${active.length} cargas: ${avgPct}%`);
+  }
+  document.getElementById('ficha-body').innerHTML=`
+    ${avgPct!=null?`<div style="display:flex;gap:12px;margin-bottom:16px">
+      <div style="background:var(--surface2);border-radius:10px;padding:14px 22px;text-align:center">
+        <div style="font-size:30px;font-weight:800;color:${pctColor(avgPct)}">${avgPct}%</div>
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px">Promedio</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px 22px;text-align:center">
+        <div style="font-size:30px;font-weight:800;color:var(--text)">${active.length}</div>
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px">Cargas</div>
+      </div>
+    </div>`:''}
+    <div class="table-scroll" style="margin-bottom:14px">
+      <table><thead><tr>
+        <th>Fecha</th><th>Turno</th><th>Inicio</th><th>Post Break</th><th>% Cumpl.</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    ${feedbackLines.length?`<div style="background:var(--surface2);border-radius:8px;padding:14px 16px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px">📋 Texto para feedback</div>
+      <pre id="ficha-feedback" style="font-family:var(--mono);font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.6">${feedbackLines.join('\n')}</pre>
+      <button id="btn-copy-ficha" onclick="copyFicha()" style="margin-top:10px;padding:6px 14px;background:var(--mp-blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">📋 Copiar feedback</button>
+    </div>`:''}
+  `;
+  document.getElementById('ficha-modal').style.display='block';
+}
+
+function closeFicha(){document.getElementById('ficha-modal').style.display='none';}
+
+function copyFicha(){
+  const txt=document.getElementById('ficha-feedback')?.textContent;
+  if(!txt) return;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.getElementById('btn-copy-ficha');
+    if(btn){btn.textContent='✓ Copiado!';setTimeout(()=>btn.textContent='📋 Copiar feedback',2000);}
+  });
+}
 </script>
 </body>
 </html>
