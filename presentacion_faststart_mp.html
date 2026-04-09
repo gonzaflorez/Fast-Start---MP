@@ -170,6 +170,22 @@ h3{font-size:clamp(18px,2vw,26px);font-weight:800}
 
 /* ── DIVIDER ── */
 .divider{width:48px;height:3px;background:var(--blue);border-radius:2px;margin:18px 0}
+
+/* ── PRINT ── */
+@media print{
+  html,body{overflow:visible!important;height:auto!important;background:#0d1117!important}
+  .deck{position:relative!important;height:auto!important;width:100%!important}
+  .nav,.progress{display:none!important}
+  .slide{
+    position:relative!important;inset:auto!important;
+    opacity:1!important;pointer-events:all!important;
+    transform:none!important;
+    width:100vw;height:100vh;
+    page-break-after:always;
+    break-after:page;
+    display:flex!important;
+  }
+}
 </style>
 </head>
 <body>
