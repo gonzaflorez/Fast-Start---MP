@@ -524,9 +524,22 @@ function descargarSlide() {
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
-    width: 1280,
-    height: 720,
-    logging: false
+    logging: false,
+    onclone: function(clonedDoc) {
+      var b = clonedDoc.body;
+      b.style.margin = '0';
+      b.style.padding = '0';
+      b.style.background = '#fff';
+      var bar = clonedDoc.querySelector('.btn-bar');
+      if (bar) bar.style.display = 'none';
+      var s = clonedDoc.querySelector('.slide');
+      s.style.position = 'absolute';
+      s.style.top = '0';
+      s.style.left = '0';
+      s.style.width = '1280px';
+      s.style.height = '720px';
+      s.style.overflow = 'hidden';
+    }
   }).then(function(canvas) {
     const link = document.createElement('a');
     link.download = 'FastStart_Monthly_Review_Abril2026.png';
