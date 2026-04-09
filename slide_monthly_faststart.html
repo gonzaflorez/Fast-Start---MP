@@ -7,12 +7,40 @@
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
-    html, body {
+    html {
       width: 1280px;
-      height: 720px;
-      overflow: hidden;
-      background: #fff;
+      background: #d0d0d0;
+    }
+    body {
+      width: 1280px;
+      background: #d0d0d0;
       font-family: 'Segoe UI', Arial, sans-serif;
+      padding-bottom: 12px;
+    }
+
+    .btn-bar {
+      width: 1280px;
+      background: #222;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-download {
+      background: #ffe600;
+      color: #1a1a1a;
+      font-weight: 800;
+      font-size: 0.78rem;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 20px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+    }
+    .btn-download:hover { background: #ffd000; }
+    .btn-note {
+      font-size: 0.65rem;
+      color: #888;
     }
 
     .slide {
@@ -247,6 +275,12 @@
   </style>
 </head>
 <body>
+
+<div class="btn-bar">
+  <button class="btn-download" onclick="descargarSlide()">⬇ Descargar PNG para Slides</button>
+  <span class="btn-note">Exporta la slide en alta resolución (2560×1440 px) · Ideal para pegar en Google Slides sin pixelado</span>
+</div>
+
 <div class="slide">
 
   <!-- HEADER -->
@@ -408,5 +442,35 @@
   </div>
 
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function descargarSlide() {
+  const btn = document.querySelector('.btn-download');
+  btn.textContent = 'Generando...';
+  btn.disabled = true;
+
+  const slide = document.querySelector('.slide');
+  html2canvas(slide, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    width: 1280,
+    height: 720,
+    logging: false
+  }).then(function(canvas) {
+    const link = document.createElement('a');
+    link.download = 'FastStart_Monthly_Review_Abril2026.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = '⬇ Descargar PNG para Slides';
+    btn.disabled = false;
+  }).catch(function(err) {
+    alert('Error al generar imagen: ' + err);
+    btn.textContent = '⬇ Descargar PNG para Slides';
+    btn.disabled = false;
+  });
+}
+</script>
 </body>
 </html>
