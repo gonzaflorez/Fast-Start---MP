@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>[MP] FastStart Control — Monthly Review</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0e0f1e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* SLIDE WRAPPER */
+    .slide {
+      width: 100%;
+      max-width: 1100px;
+      background: #13152e;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #1e2260;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: linear-gradient(90deg, #2d3277 0%, #1a1d50 100%);
+      border-bottom: 3px solid #ffe600;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .mp-badge {
+      background: #ffe600;
+      color: #1a1a2e;
+      font-weight: 900;
+      font-size: 0.72rem;
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+    .topbar-left h1 {
+      font-size: 1.15rem;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stage {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #181b38;
+      color: #555e90;
+      border: 1px solid #2e3368;
+    }
+    .stage.done { background: #2d3277; color: #8090cc; border-color: #3a3f7a; }
+    .stage.active {
+      background: #ffe600;
+      color: #1a1a2e;
+      border-color: #ffe600;
+      box-shadow: 0 0 10px rgba(255,230,0,0.3);
+    }
+    .stage-arrow { color: #2e3368; font-size: 0.65rem; }
+
+    /* BODY GRID */
+    .body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    /* LEFT */
+    .left {
+      padding: 28px 28px 24px 32px;
+      border-right: 1px solid #1e2260;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #ffe600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .problema p {
+      font-size: 0.82rem;
+      color: #7a88bb;
+      line-height: 1.65;
+    }
+    .problema p strong { color: #c0c8f0; }
+
+    .qhicimos p {
+      font-size: 0.82rem;
+      color: #7a88bb;
+      line-height: 1.65;
+    }
+    .qhicimos p strong { color: #c0c8f0; }
+
+    .nextsteps ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nextsteps ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #7a88bb;
+      line-height: 1.5;
+    }
+    .nextsteps ul li .arr { color: #3483fa; font-weight: 700; flex-shrink: 0; }
+    .nextsteps ul li .arr.y { color: #ffe600; }
+
+    /* DIVIDER */
+    .divider { border: none; border-top: 1px solid #1e2260; margin: 0; }
+
+    /* RIGHT */
+    .right {
+      padding: 28px 32px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .kpi {
+      background: #0e1028;
+      border: 1px solid #1e2260;
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      text-align: center;
+    }
+    .kpi.highlight { border-color: rgba(255,230,0,0.3); background: rgba(255,230,0,0.04); }
+    .kpi .val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffe600;
+      line-height: 1;
+    }
+    .kpi .val.blue { color: #3483fa; }
+    .kpi .val.green { color: #00c878; }
+    .kpi .lbl {
+      font-size: 0.68rem;
+      color: #555e90;
+      margin-top: 5px;
+      line-height: 1.35;
+    }
+
+    /* STATUS */
+    .status-box {
+      background: rgba(0,200,120,0.05);
+      border: 1px solid rgba(0,200,120,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .status-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .status-body strong {
+      display: block;
+      font-size: 0.88rem;
+      color: #00c878;
+      margin-bottom: 3px;
+    }
+    .status-body span { font-size: 0.77rem; color: #7a88bb; line-height: 1.5; }
+
+    /* FEEDBACK */
+    .feedback-box {
+      background: rgba(52,131,250,0.05);
+      border: 1px solid rgba(52,131,250,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .feedback-box .quote {
+      font-size: 0.8rem;
+      color: #8090bb;
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .feedback-box .quote strong { color: #c0cfff; font-style: normal; }
+    .feedback-box .author {
+      font-size: 0.7rem;
+      color: #3483fa;
+      font-weight: 700;
+    }
+
+    /* LINKS */
+    .links-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0e1028;
+      border: 1px solid #2e3368;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.75rem;
+      color: #7a88bb;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .link-btn:hover { border-color: #ffe600; color: #ffe600; background: rgba(255,230,0,0.04); }
+    .link-btn .icon { font-size: 0.9rem; }
+
+    /* FOOTER */
+    .footer {
+      background: #0e1028;
+      border-top: 1px solid #1e2260;
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      font-size: 0.7rem;
+      color: #2e3470;
+    }
+    .footer-left strong { color: #444c80; }
+    .footer-right {
+      font-size: 0.68rem;
+      color: #2e3470;
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="mp-badge">[MP]</span>
+      <h1>FastStart Control — Mercado Pago</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="stage done">0.IDEA</span><span class="stage-arrow">›</span>
+      <span class="stage done">1.PLAN</span><span class="stage-arrow">›</span>
+      <span class="stage done">2.DIAGNÓSTICO</span><span class="stage-arrow">›</span>
+      <span class="stage done">3.DISEÑO</span><span class="stage-arrow">›</span>
+      <span class="stage active">4.IMPLEMENT</span><span class="stage-arrow">›</span>
+      <span class="stage">5.SUSTENT.</span><span class="stage-arrow">›</span>
+      <span class="stage">6.FINALIZADO</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <div class="problema">
+        <div class="section-label">🔍 Dolor / Problema</div>
+        <p>
+          Las mesas de MP arrancan el turno sin métricas de ritmo desde el <strong>primer minuto</strong>.
+          No había forma de saber si el equipo llegaba al target de bipeos al inicio del turno y post break —
+          generando <strong>tiempo improductivo no visible</strong> en MLA.
+        </p>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="qhicimos">
+        <div class="section-label">🛠 Qué hicimos</div>
+        <p>
+          Desarrollamos una <strong>herramienta standalone en HTML</strong> — sin IT, sin servidores, $0 de infraestructura —
+          que mide el arranque del turno y el ritmo post break en tiempo real.
+          Ya está <strong>corriendo en Arba02</strong> y lista para escalar a toda la región sin cambios.
+          Onboarding de líderes incluido.
+        </p>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="nextsteps">
+        <div class="section-label">🔜 Próximos pasos</div>
+        <ul>
+          <li><span class="arr y">›</span> Coordinar onboarding por país con Alfredo Onofre y Eric Roa</li>
+          <li><span class="arr">›</span> Escalar herramienta a COL y CHI (sin cambios técnicos)</li>
+          <li><span class="arr">›</span> Plan de comunicación y entrenamiento para TLs LATAM</li>
+          <li><span class="arr">›</span> Validar saving real en ARG post-implementación completa</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+      <!-- KPIs -->
+      <div>
+        <div class="section-label">📊 Números que importan</div>
+        <div class="kpi-grid">
+          <div class="kpi highlight">
+            <div class="val">2,14%</div>
+            <div class="lbl">Tiempo improductivo identificado en MLA</div>
+          </div>
+          <div class="kpi highlight">
+            <div class="val green">$0</div>
+            <div class="lbl">Infraestructura — 100% standalone HTML</div>
+          </div>
+          <div class="kpi">
+            <div class="val">~$14K</div>
+            <div class="lbl">Ahorro proyectado anual ARG (USD)</div>
+          </div>
+          <div class="kpi">
+            <div class="val blue">~$83K</div>
+            <div class="lbl">Potencial LATAM si escalamos a la región</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS -->
+      <div class="status-box">
+        <div class="status-icon">🟢</div>
+        <div class="status-body">
+          <strong>Live en Arba02 — listo para escalar</strong>
+          <span>
+            La herramienta ya corre en producción. Soporta todos los países sin cambios.
+            Impulsado por <strong style="color:#c0cfff;">Florencia Tamagno</strong> desde el inicio.
+          </span>
+        </div>
+      </div>
+
+      <!-- FEEDBACK SEBAS -->
+      <div class="feedback-box">
+        <div class="quote">
+          "<strong>¡Qué buen trabajo!</strong> Me encantan estos datos, es clave tener esto para gestionar una operación.
+          A cero costo — es todo ganancia si lo ejecutamos. <strong>Avancemos en lo inmediato.</strong>"
+        </div>
+        <div class="author">— Sebastián Marquart · Manager Logística Inversa</div>
+      </div>
+
+      <!-- LINKS -->
+      <div>
+        <div class="section-label">🔗 Recursos</div>
+        <div class="links-row">
+          <a class="link-btn" href="https://gonzaflorez.github.io/Fast-Start---MP/presentacion_faststart_mp.html" target="_blank">
+            <span class="icon">📋</span> Presentación del proyecto
+          </a>
+          <a class="link-btn" href="https://gonzaflorez.github.io/mercadito-dash/mercadito_dash.html" target="_blank">
+            <span class="icon">⚡</span> Herramienta
+          </a>
+          <a class="link-btn" href="https://gonzaflorez.github.io/mercadito-dash/guia_lideres_mercadito.html" target="_blank">
+            <span class="icon">📖</span> Guía para líderes
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      <strong>Gonzalo Florez</strong> · Analista Sr. Mejora Continua · Logística Inversa · Fulfillment Argentina
+    </div>
+    <div class="footer-right">Mercado Libre · Monthly Review · Abril 2026</div>
+  </div>
+
+</div>
+
+</body>
+</html>
