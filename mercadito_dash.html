@@ -389,10 +389,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <div class="table-scroll">
       <table><thead><tr>
-        <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th>
+        <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th><th>Ruta</th>
         <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th>
       </tr></thead><tbody id="ops-body">
-        <tr><td colspan="9"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
+        <tr><td colspan="10"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
       </tbody></table>
     </div>
   </div>
@@ -696,24 +696,34 @@ function processXLSX(wb,siteCfg){
     if(!controles.some(c=>minDia>=c.rango.ini&&minDia<=c.rango.fin)) continue;
     const dateKey=fmtDate(dt);
     const key=`${usuario}||${dateKey}`;
-    if(!byUserDay.has(key)) byUserDay.set(key,{usuario,fecha:dateKey,ruta,bipeos:[]});
+    if(!byUserDay.has(key)) byUserDay.set(key,{usuario,fecha:dateKey,rutas:new Set(ruta?[ruta]:[]),bipeos:[]});
     const entry=byUserDay.get(key);
     entry.bipeos.push(dt);
-    if(ruta) entry.ruta=ruta;
+    if(ruta) entry.rutas.add(ruta);
   }
   if(byUserDay.size===0) throw new Error('No se encontraron registros en el horario de turnos.');
   setProgress(90,'Calculando controles…');
   const results=[];
-  byUserDay.forEach(({usuario,fecha,ruta,bipeos})=>{
+  byUserDay.forEach(({usuario,fecha,rutas,bipeos})=>{
     bipeos.sort((a,b)=>a-b);
-    const isExc=excluidas.some(ex=>ruta.toLowerCase().includes(ex.toLowerCase()));
+    const isExc=excluidas.some(ex=>[...rutas].some(r=>r.toLowerCase().includes(ex.toLowerCase())));
+    const rutaDisplay=[...rutas].join(', ');
+    // Turno dominante: si el operario tiene bipeos en >1 turno, usar solo el de mayor cantidad
+    const contTurno={};
     controles.forEach(ctrl=>{
+      const n=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin;}).length;
+      if(!contTurno[ctrl.turno]||n>contTurno[ctrl.turno]) contTurno[ctrl.turno]=n;
+    });
+    const turnosConBipeos=Object.keys(contTurno).filter(t=>contTurno[t]>0);
+    const dominante=turnosConBipeos.length>1?turnosConBipeos.sort((a,b)=>contTurno[b]-contTurno[a])[0]:null;
+    const ctrlFiltrados=dominante?controles.filter(c=>c.turno===dominante):controles;
+    ctrlFiltrados.forEach(ctrl=>{
       const enRango=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin;});
       if(enRango.length===0) return;
       const enVentana=enRango.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.contarDesde&&m<=ctrl.corteMin;});
       const acum=enVentana.length;
       const estado=isExc?'Excluido':acum>=target?'OK':'Desvío';
-      results.push({usuario,fecha,turno:ctrl.turno,tipo:ctrl.tipo,acumulados:acum,estado});
+      results.push({usuario,fecha,ruta:rutaDisplay,turno:ctrl.turno,tipo:ctrl.tipo,acumulados:acum,estado});
     });
   });
   if(results.length===0) throw new Error('No se generaron resultados.');
@@ -727,7 +737,7 @@ function buildOperarios(raw){
   const map=new Map();
   raw.filter(r=>r.estado!=='Excluido'&&!isExcRuta(r)).forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
-    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
     const op=map.get(k);
     if(r.tipo==='Inicio'){op.inicio=r.estado;op.inicioAcum=r.acumulados;}
     if(r.tipo==='Post Break'){op.postBreak=r.estado;op.postBreakAcum=r.acumulados;}
@@ -1075,6 +1085,7 @@ function rowOp(o){
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
     <td>${o.inicio?`<span class="badge ${ib}">${o.inicio}</span>`:'—'}</td>
     <td>${bipI}</td>
     <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
