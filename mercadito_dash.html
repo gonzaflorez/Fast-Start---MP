@@ -402,10 +402,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <div class="table-scroll" id="ops-table-scroll">
       <table id="ops-table"><thead><tr>
-        <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th><th>Ruta</th>
+        <th>Operario</th><th>TL</th><th>Site</th><th>Fecha</th><th>Turno</th><th>Ruta</th>
         <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th><th>Nota</th><th></th>
       </tr></thead><tbody id="ops-body">
-        <tr><td colspan="12"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
+        <tr><td colspan="13"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
       </tbody></table>
     </div>
   </div>
@@ -424,7 +424,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <div class="table-scroll">
       <table><thead><tr>
-        <th>Fecha carga</th><th>Hora</th><th>Líder</th><th>Site</th><th>País</th>
+        <th>Fecha carga</th><th>Hora</th><th>Cargado por</th><th>Site</th><th>País</th>
         <th>Fecha operación</th><th>Operarios</th><th>% Cumpl.</th><th>OK</th><th>Desvíos</th><th></th>
       </tr></thead><tbody id="hist-body"></tbody></table>
     </div>
@@ -436,7 +436,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="setup-card">
     <div class="section-title">📂 Cargar análisis del día</div>
     <div class="setup-grid">
-      <div class="field"><label>👤 Tu nombre (Líder)</label><input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/></div>
+      <div class="field"><label>👤 Tu nombre (quién carga)</label><input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/></div>
       <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02" oninput="updateConfigPreview()"/></div>
     </div>
     <div class="upload-zone" id="drop-zone">
@@ -663,9 +663,10 @@ function processXLSX(wb,siteCfg){
   const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const hdrs=headers.map(norm);
   const findCol=(...kws)=>{for(const kw of kws){const i=hdrs.findIndex(h=>h===kw||h.includes(kw));if(i>=0)return i;}return -1;};
-  const iU=findCol('usuario asignado','usuario ult mod','operador','usuario creacion','usuario','user','operator');
+  const iU=findCol('usuario asignado','usuario ult mod','operador','usuario','user','operator');
   const iF=findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
   const iR=findCol('nombre ruta','ruta','route');
+  const iC=findCol('usuario creacion','usuario creación','team leader','tl');
   if(iU<0||iF<0) throw new Error(`No se encontraron columnas.\nHeaders: ${hdrs.slice(0,25).join(' | ')}`);
   const cfg=siteCfg;
   if(!cfg) throw new Error('Este site no está configurado.\nPedile al Manager que lo configure antes de cargar.');
@@ -676,9 +677,11 @@ function processXLSX(wb,siteCfg){
   const byUserDay=new Map();
   for(let r=1;r<=nRows;r++){
     const cellU=sheet[enc({r,c:iU})],cellF=sheet[enc({r,c:iF})],cellR=iR>=0?sheet[enc({r,c:iR})]:null;
+    const cellC=iC>=0?sheet[enc({r,c:iC})]:null;
     const usuario=String(cellU?cellU.v:'').trim();
     const fechaRaw=cellF?cellF.v:'';
     const ruta=String(cellR?cellR.v:'').trim();
+    const tl=String(cellC?cellC.v:'').trim();
     if(!usuario||!fechaRaw) continue;
     const dt=parseDate(fechaRaw);
     if(!dt) continue;
@@ -686,15 +689,16 @@ function processXLSX(wb,siteCfg){
     if(!controles.some(c=>minDia>=c.rango.ini&&minDia<=c.rango.fin)) continue;
     const dateKey=fmtDate(dt);
     const key=`${usuario}||${dateKey}`;
-    if(!byUserDay.has(key)) byUserDay.set(key,{usuario,fecha:dateKey,rutas:new Set(ruta?[ruta]:[]),bipeos:[]});
+    if(!byUserDay.has(key)) byUserDay.set(key,{usuario,fecha:dateKey,rutas:new Set(ruta?[ruta]:[]),bipeos:[],lider:tl});
     const entry=byUserDay.get(key);
     entry.bipeos.push(dt);
     if(ruta) entry.rutas.add(ruta);
+    if(tl&&!entry.lider) entry.lider=tl;
   }
   if(byUserDay.size===0) throw new Error('No se encontraron registros en el horario de turnos.');
   setProgress(90,'Calculando controles…');
   const results=[];
-  byUserDay.forEach(({usuario,fecha,rutas,bipeos})=>{
+  byUserDay.forEach(({usuario,fecha,rutas,bipeos,lider})=>{
     bipeos.sort((a,b)=>a-b);
     const isExc=excluidas.some(ex=>[...rutas].some(r=>r.toLowerCase().includes(ex.toLowerCase())));
     const rutaDisplay=[...rutas].join(', ');
@@ -713,7 +717,7 @@ function processXLSX(wb,siteCfg){
       const enVentana=enRango.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.contarDesde&&m<=ctrl.corteMin;});
       const acum=enVentana.length;
       const estado=isExc?'Excluido':acum>=target?'OK':'Desvío';
-      results.push({usuario,fecha,ruta:rutaDisplay,turno:ctrl.turno,tipo:ctrl.tipo,acumulados:acum,estado});
+      results.push({usuario,fecha,ruta:rutaDisplay,turno:ctrl.turno,tipo:ctrl.tipo,acumulados:acum,estado,lider:lider||''});
     });
   });
   if(results.length===0) throw new Error('No se generaron resultados.');
@@ -725,14 +729,14 @@ function buildOperarios(raw){
   const map=new Map();
   raw.filter(r=>r.estado!=='Excluido').forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
-    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:false,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',lider:r.lider||'',excluido:false,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
     const op=map.get(k);
     if(r.tipo==='Inicio'){op.inicio=r.estado;op.inicioAcum=r.acumulados;}
     if(r.tipo==='Post Break'){op.postBreak=r.estado;op.postBreakAcum=r.acumulados;}
   });
   raw.filter(r=>r.estado==='Excluido').forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
-    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:true,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null,pct:null});
+    if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',lider:r.lider||'',excluido:true,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null,pct:null});
   });
   return Array.from(map.values()).map(op=>{
     if(!op.excluido){
@@ -1052,7 +1056,7 @@ function renderTopOfensores(entries){
 
 function renderOps(entries){
   const f=getFilters();
-  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider,_entryId:e.id,_target:e.target||6})));
+  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:o.lider||e.lider||'—',cargadoPor:e.lider,_entryId:e.id,_target:e.target||6})));
   // Populate ruta filter
   const rutaSel=document.getElementById('f-ruta');
   if(rutaSel){
@@ -1063,7 +1067,7 @@ function renderOps(entries){
   // Populate lider filter
   const liderSel=document.getElementById('f-lider');
   if(liderSel){
-    const lideres=[...new Set(entries.map(e=>e.lider))].sort();
+    const lideres=[...new Set(allOps.map(o=>o.lider).filter(Boolean))].sort();
     const curL=liderSel.value;
     liderSel.innerHTML='<option value="">Todos</option>'+lideres.map(l=>`<option${l===curL?' selected':''}>${l}</option>`).join('');
   }
@@ -1091,12 +1095,12 @@ function renderOps(entries){
   const excluded=ops.filter(o=>o.excluido).sort((a,b)=>a.usuario.localeCompare(b.usuario));
   document.getElementById('ops-count').textContent=`${active.length} operarios · ${excluded.length} excluidos`;
   if(!active.length&&!excluded.length){
-    document.getElementById('ops-body').innerHTML=`<tr><td colspan="12"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;
+    document.getElementById('ops-body').innerHTML=`<tr><td colspan="13"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;
     return;
   }
   let rows=active.map(o=>rowOp(o)).join('');
   if(excluded.length){
-    rows+=`<tr><td colspan="12" style="padding:8px 14px;background:rgba(125,133,144,.05);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-top:2px solid var(--border)">🚫 Excluidos (${excluded.length})</td></tr>`;
+    rows+=`<tr><td colspan="13" style="padding:8px 14px;background:rgba(125,133,144,.05);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-top:2px solid var(--border)">🚫 Excluidos (${excluded.length})</td></tr>`;
     rows+=excluded.map(o=>rowOpExcluido(o)).join('');
   }
   document.getElementById('ops-body').innerHTML=rows;
@@ -1112,6 +1116,7 @@ function rowOp(o){
   const eid=o._entryId||'';
   return `<tr>
     <td><strong style="cursor:pointer;color:var(--mp-blue)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
+    <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${o.lider||'—'}</td>
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td><button class="act-btn" title="Cambiar turno" onclick="cambiarTurno('${eid}','${o.usuario}','${o.turno}')">${o.turno==='Mañana'?'☀':'🌙'}</button> ${o.turno}</td>
@@ -1132,6 +1137,7 @@ function rowOpExcluido(o){
   const manualBadge=o._excluido_manual?'<span style="font-size:10px;color:var(--warning);margin-left:6px">manual</span>':'';
   return `<tr style="opacity:.45">
     <td><strong style="cursor:pointer;color:var(--text-muted)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
+    <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${o.lider||'—'}</td>
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
