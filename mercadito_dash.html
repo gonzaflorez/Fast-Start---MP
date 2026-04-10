@@ -2019,8 +2019,9 @@ function patchOperario(entryId, usuario, turno, patch){
   const op=entry.operarios.find(o=>o.usuario===usuario&&o.turno===turno);
   if(!op) return;
   Object.assign(op,patch);
-  cacheSave(allEntries);
   renderAll();
+  if(entryId?.startsWith('DEMO_')) return; // en modo demo no tocar JSONBin
+  cacheSave(allEntries);
   fetchBin().then(({entries,config})=>{
     const merged=entries.map(e=>e.id===entryId?{...e,operarios:entry.operarios}:e);
     return putBin({entries:merged,config:config||null}).then(()=>{allEntries=merged;cacheSave(merged);});
