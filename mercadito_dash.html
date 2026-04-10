@@ -116,6 +116,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .btn-warning:hover{opacity:.85}
 .btn-danger{background:var(--desvio);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer}
 .btn-danger-sm{background:transparent;color:var(--desvio);border:1px solid var(--desvio);border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;opacity:.7;transition:opacity .15s}.btn-danger-sm:hover{opacity:1}
+.act-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;opacity:.5;transition:all .15s;line-height:1}.act-btn:hover{opacity:1;background:rgba(255,255,255,.07)}
+.nota-cell{font-size:11px;color:var(--text-muted);cursor:pointer;padding:2px 5px;border-radius:4px;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .15s}.nota-cell:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.ruta-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(0,158,227,.12);color:var(--mp-blue);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin:3px}
+.ruta-tag button{background:none;border:none;cursor:pointer;color:var(--mp-blue);font-size:12px;line-height:1;padding:0;opacity:.7}.ruta-tag button:hover{opacity:1}
 
 /* ALERTS */
 .alert{padding:10px 14px;border-radius:7px;font-size:12px;margin-top:12px;display:none}
@@ -394,9 +398,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="table-scroll">
       <table><thead><tr>
         <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th><th>Ruta</th>
-        <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th>
+        <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th><th>Nota</th><th></th>
       </tr></thead><tbody id="ops-body">
-        <tr><td colspan="10"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
+        <tr><td colspan="12"><div class="empty-state"><div class="icon">👤</div><p>Sin datos.</p></div></td></tr>
       </tbody></table>
     </div>
   </div>
@@ -428,7 +432,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="section-title">📂 Cargar análisis del día</div>
     <div class="setup-grid">
       <div class="field"><label>👤 Tu nombre (Líder)</label><input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/></div>
-      <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02"/></div>
+      <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02" oninput="renderRutasSite()"/></div>
     </div>
     <div class="upload-zone" id="drop-zone">
       <input type="file" id="file-input" accept=".xlsx,.xls"/>
@@ -452,6 +456,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <span id="cfg-exc-lbl">Excluidos: full, off, pickit</span><br>
       <span id="cfg-horarios-lbl"></span>
     </div>
+  </div>
+
+  <div class="setup-card">
+    <div class="section-title">🛣️ Rutas excluidas para mi site</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Agregá las rutas que no deben controlarse en tu site. Solo aplica a tu site, no afecta a los demás.</p>
+    <div id="mis-rutas-tags" style="margin-bottom:10px;min-height:28px"></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="mis-rutas-input" placeholder="Nombre de ruta (ej: pickit, full...)" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);outline:none" onkeydown="if(event.key==='Enter')addRutaSite()"/>
+      <button class="btn-secondary" onclick="addRutaSite()">+ Agregar</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Ingresá el site en el campo de arriba para ver y editar sus rutas.</div>
   </div>
 </div>
 
@@ -1079,7 +1094,7 @@ function renderTopOfensores(entries){
 
 function renderOps(entries){
   const f=getFilters();
-  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider})));
+  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider,_entryId:e.id})));
   // Populate ruta filter
   const rutaSel=document.getElementById('f-ruta');
   if(rutaSel){
@@ -1118,12 +1133,12 @@ function renderOps(entries){
   const excluded=ops.filter(o=>o.excluido).sort((a,b)=>a.usuario.localeCompare(b.usuario));
   document.getElementById('ops-count').textContent=`${active.length} operarios · ${excluded.length} excluidos`;
   if(!active.length&&!excluded.length){
-    document.getElementById('ops-body').innerHTML=`<tr><td colspan="10"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;
+    document.getElementById('ops-body').innerHTML=`<tr><td colspan="12"><div class="empty-state"><p>Sin datos.</p></div></td></tr>`;
     return;
   }
   let rows=active.map(o=>rowOp(o)).join('');
   if(excluded.length){
-    rows+=`<tr><td colspan="10" style="padding:8px 14px;background:rgba(125,133,144,.05);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-top:2px solid var(--border)">🚫 Excluidos (${excluded.length})</td></tr>`;
+    rows+=`<tr><td colspan="12" style="padding:8px 14px;background:rgba(125,133,144,.05);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-top:2px solid var(--border)">🚫 Excluidos (${excluded.length})</td></tr>`;
     rows+=excluded.map(o=>rowOpExcluido(o)).join('');
   }
   document.getElementById('ops-body').innerHTML=rows;
@@ -1135,29 +1150,37 @@ function rowOp(o){
   const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
   const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
   const trendHtml=o.trend==='up'?`<span style="color:var(--ok);font-size:11px;margin-left:5px">↑${o.trendDelta}%</span>`:o.trend==='down'?`<span style="color:var(--desvio);font-size:11px;margin-left:5px">↓${Math.abs(o.trendDelta)}%</span>`:o.trend==='same'?`<span style="color:var(--text-muted);font-size:11px;margin-left:5px">→</span>`:'';
+  const notaHtml=o.nota?`<span class="nota-cell" title="${o.nota}" onclick="editarNota('${o._entryId}','${o.usuario}','${o.turno}',this)">${o.nota}</span>`:`<span class="nota-cell" style="color:var(--border)" onclick="editarNota('${o._entryId}','${o.usuario}','${o.turno}',this)">+</span>`;
+  const eid=o._entryId||'';
   return `<tr>
     <td><strong style="cursor:pointer;color:var(--mp-blue)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
-    <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
+    <td><button class="act-btn" title="Cambiar turno" onclick="cambiarTurno('${eid}','${o.usuario}','${o.turno}')">${o.turno==='Mañana'?'☀':'🌙'}</button> ${o.turno}</td>
     <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
     <td>${o.inicio?`<span class="badge ${ib}">${o.inicio}</span>`:'—'}</td>
     <td>${bipI}</td>
     <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
     <td>${bipP}</td>
     <td><strong style="color:${pctColor(o.pct)}">${o.pct}%</strong>${trendHtml}</td>
+    <td>${notaHtml}</td>
+    <td><button class="act-btn" title="Excluir este operario hoy" onclick="excluirOp('${eid}','${o.usuario}','${o.turno}')">🚫</button></td>
   </tr>`;
 }
 
 function rowOpExcluido(o){
+  const eid=o._entryId||'';
+  const notaHtml=o.nota?`<span class="nota-cell" title="${o.nota}" onclick="editarNota('${eid}','${o.usuario}','${o.turno}',this)">${o.nota}</span>`:`<span class="nota-cell" style="color:var(--border)" onclick="editarNota('${eid}','${o.usuario}','${o.turno}',this)">+</span>`;
+  const manualBadge=o._excluido_manual?'<span style="font-size:10px;color:var(--warning);margin-left:6px">manual</span>':'';
   return `<tr style="opacity:.45">
     <td><strong style="cursor:pointer;color:var(--text-muted)" onclick="openFicha('${o.usuario}','${o.site}')">${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
     <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
-    <td colspan="4"><span class="badge badge-exc">Excluido</span></td>
-    <td>—</td>
+    <td colspan="4"><span class="badge badge-exc">Excluido</span>${manualBadge}</td>
+    <td>${notaHtml}</td>
+    <td><button class="act-btn" title="Reactivar operario" onclick="reactivarOp('${eid}','${o.usuario}','${o.turno}')">✅</button></td>
   </tr>`;
 }
 
@@ -1989,6 +2012,82 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 
+// ── PATCH OPERARIO (edición in-place en JSONBin) ─────────────────
+function patchOperario(entryId, usuario, turno, patch){
+  const entry=allEntries.find(e=>e.id===entryId);
+  if(!entry) return;
+  const op=entry.operarios.find(o=>o.usuario===usuario&&o.turno===turno);
+  if(!op) return;
+  Object.assign(op,patch);
+  cacheSave(allEntries);
+  renderAll();
+  fetchBin().then(({entries,config})=>{
+    const merged=entries.map(e=>e.id===entryId?{...e,operarios:entry.operarios}:e);
+    return putBin({entries:merged,config:config||null}).then(()=>{allEntries=merged;cacheSave(merged);});
+  }).catch(()=>{});
+}
+
+function excluirOp(entryId,usuario,turno){
+  patchOperario(entryId,usuario,turno,{excluido:true,_excluido_manual:true});
+}
+function reactivarOp(entryId,usuario,turno){
+  patchOperario(entryId,usuario,turno,{excluido:false,_excluido_manual:false});
+}
+function cambiarTurno(entryId,usuario,turno){
+  const nuevoTurno=turno==='Mañana'?'Tarde':'Mañana';
+  patchOperario(entryId,usuario,turno,{turno:nuevoTurno});
+}
+function editarNota(entryId,usuario,turno,el){
+  const actual=el.title||'';
+  const nota=prompt('Nota / motivo (dejá vacío para borrar):',actual);
+  if(nota===null) return;
+  patchOperario(entryId,usuario,turno,{nota:nota.trim()||undefined});
+}
+
+// ── RUTAS POR SITE (sin PIN) ──────────────────────────────────────
+function getSiteCarga(){return (document.getElementById('leader-site')?.value||'').toUpperCase().trim();}
+
+function renderRutasSite(){
+  const site=getSiteCarga();
+  if(!site){document.getElementById('mis-rutas-tags').innerHTML='<span style="font-size:11px;color:var(--text-muted)">Ingresá tu site arriba para ver sus rutas.</span>';return;}
+  const g=getGlobal();
+  const siteRutas=(CONFIG.sites[site]?.excluidas)||[];
+  const globalRutas=g.excluidas||[];
+  const tags=[
+    ...globalRutas.map(r=>`<span class="ruta-tag" style="opacity:.5" title="Global">${r} <span style="font-size:9px">(global)</span></span>`),
+    ...siteRutas.filter(r=>!globalRutas.includes(r)).map(r=>`<span class="ruta-tag">${r} <button onclick="removeRutaSite('${r}')">✕</button></span>`)
+  ].join('');
+  document.getElementById('mis-rutas-tags').innerHTML=tags||'<span style="font-size:11px;color:var(--text-muted)">Sin rutas extra para este site.</span>';
+}
+
+function addRutaSite(){
+  const site=getSiteCarga();
+  if(!site){alert('Ingresá tu site primero.');return;}
+  const inp=document.getElementById('mis-rutas-input');
+  const val=inp.value.trim().toLowerCase();
+  if(!val) return;
+  if(!CONFIG.sites[site]) CONFIG.sites[site]={};
+  const rutas=CONFIG.sites[site].excluidas||(CONFIG.sites[site].excluidas=[]);
+  if(!rutas.includes(val)) rutas.push(val);
+  inp.value='';
+  renderRutasSite();
+  fetchBin().then(({entries,config})=>{
+    const merged=Object.assign({},config||{},{global:CONFIG.global,sites:CONFIG.sites});
+    return putBin({entries,config:merged});
+  }).catch(()=>{});
+}
+
+function removeRutaSite(ruta){
+  const site=getSiteCarga();
+  if(!site||!CONFIG.sites[site]) return;
+  CONFIG.sites[site].excluidas=(CONFIG.sites[site].excluidas||[]).filter(r=>r!==ruta);
+  renderRutasSite();
+  fetchBin().then(({entries,config})=>{
+    const merged=Object.assign({},config||{},{global:CONFIG.global,sites:CONFIG.sites});
+    return putBin({entries,config:merged});
+  }).catch(()=>{});
+}
+
 // ── FICHA INDIVIDUAL ─────────────────────────────────────────────
 function openFicha(usuario, site){
   const entries=[...allEntries]
@@ -2001,14 +2100,14 @@ function openFicha(usuario, site){
   const rows=entries.map(e=>{
     const op=e.operarios.find(o=>o.usuario===usuario);
     if(!op) return '';
-    if(op.excluido) return `<tr style="opacity:.5"><td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha}</td><td colspan="4"><span class="badge badge-exc">Excluido</span><span style="font-size:11px;color:var(--text-muted);margin-left:8px">${op.ruta||''}</span></td></tr>`;
+    if(op.excluido) return `<tr style="opacity:.5"><td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha}</td><td colspan="4"><span class="badge badge-exc">Excluido</span><span style="font-size:11px;color:var(--text-muted);margin-left:8px">${op.ruta||''}</span>${op.nota?`<span style="font-size:11px;color:var(--warning);margin-left:8px">📝 ${op.nota}</span>`:''}</td></tr>`;
     const ib=bClass(op.inicio),pb=bClass(op.postBreak);
     return `<tr>
       <td style="font-family:var(--mono);color:var(--text-muted)">${e.fecha}</td>
       <td style="font-size:12px">${op.turno==='Mañana'?'☀':'🌙'} ${op.turno}</td>
       <td>${op.inicio?`<span class="badge ${ib}">${op.inicio}</span>`:'—'}</td>
       <td>${op.postBreak?`<span class="badge ${pb}">${op.postBreak}</span>`:'—'}</td>
-      <td><strong style="color:${pctColor(op.pct)}">${op.pct??'—'}%</strong></td>
+      <td><strong style="color:${pctColor(op.pct)}">${op.pct??'—'}%</strong>${op.nota?`<div style="font-size:10px;color:var(--warning);margin-top:3px">📝 ${op.nota}</div>`:''}</td>
     </tr>`;
   }).join('');
   const active=entries.filter(e=>{const op=e.operarios.find(o=>o.usuario===usuario);return op&&!op.excluido&&op.pct!=null;});
