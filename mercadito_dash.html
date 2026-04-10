@@ -702,14 +702,16 @@ function processXLSX(wb,siteCfg){
     bipeos.sort((a,b)=>a-b);
     const isExc=excluidas.some(ex=>[...rutas].some(r=>r.toLowerCase().includes(ex.toLowerCase())));
     const rutaDisplay=[...rutas].join(', ');
-    // Turno dominante: si el operario tiene bipeos en >1 turno, usar solo el de mayor cantidad
+    // Turno dominante: siempre asignar al turno con MÁS bipeos.
+    // Usa < en el límite superior para evitar que un bip en el boundary cuente en dos turnos.
     const contTurno={};
     controles.forEach(ctrl=>{
-      const n=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin;}).length;
-      if(!contTurno[ctrl.turno]||n>contTurno[ctrl.turno]) contTurno[ctrl.turno]=n;
+      if(!contTurno[ctrl.turno]) contTurno[ctrl.turno]=0;
+      const n=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<ctrl.rango.fin;}).length;
+      if(n>contTurno[ctrl.turno]) contTurno[ctrl.turno]=n;
     });
-    const turnosConBipeos=Object.keys(contTurno).filter(t=>contTurno[t]>0);
-    const dominante=turnosConBipeos.length>1?turnosConBipeos.sort((a,b)=>contTurno[b]-contTurno[a])[0]:null;
+    const turnosOrdenados=Object.entries(contTurno).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);
+    const dominante=turnosOrdenados.length>0?turnosOrdenados[0][0]:null;
     const ctrlFiltrados=dominante?controles.filter(c=>c.turno===dominante):controles;
     ctrlFiltrados.forEach(ctrl=>{
       const enRango=bipeos.filter(b=>{const m=toMin(b.getHours(),b.getMinutes());return m>=ctrl.rango.ini&&m<=ctrl.rango.fin;});
