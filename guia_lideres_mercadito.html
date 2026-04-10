@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- v5 guia completa 2026-04-10 -->
+<!-- v6 guia onboarding formal 2026-04-10 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Guía Líderes · Mercadito Dash</title>
+<title>Onboarding Líderes · Mercadito Dash · Fast Start Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -20,7 +20,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#fffdf0;font-family:
   position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:52px 72px;
   opacity:0;pointer-events:none;transform:translateX(60px);
-  transition:opacity .4s ease,transform .4s ease;
+  transition:opacity .4s ease,transform .4s ease;overflow:hidden;
 }
 .slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
 .slide.exit{opacity:0;transform:translateX(-60px)}
@@ -31,7 +31,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#fffdf0;font-family:
 .nav-dot.active{background:var(--blue);width:20px;border-radius:4px}
 .nav-btn{background:none;border:none;color:#888;cursor:pointer;font-size:18px;padding:2px 6px;transition:color .15s;line-height:1}
 .nav-btn:hover{color:var(--text)}
-.slide-counter{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:36px;text-align:center}
+.slide-counter{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:40px;text-align:center}
 .progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--yellow),#ffa500,var(--blue));transition:width .4s;z-index:200}
 
 .bg-cover{background:linear-gradient(135deg,#fff8c0,#fffdf0,#fffce8)}
@@ -43,27 +43,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:#fffdf0;font-family:
 .bg-tips::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 90% 40%,rgba(0,166,80,.06),transparent)}
 .bg-action{background:#f0f4ff}
 .bg-action::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 10% 50%,rgba(45,50,119,.06),transparent)}
+.bg-roles{background:#f8f5ff}
 
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .eyebrow::before{content:'';width:20px;height:3px;background:var(--yellow);border-radius:1px}
-h1{font-size:clamp(34px,5vw,60px);font-weight:900;line-height:1.08;letter-spacing:-.02em;color:var(--text)}
-h2{font-size:clamp(24px,3.2vw,42px);font-weight:900;line-height:1.1;letter-spacing:-.02em;color:var(--text)}
+h1{font-size:clamp(32px,4.5vw,58px);font-weight:900;line-height:1.08;letter-spacing:-.02em;color:var(--text)}
+h2{font-size:clamp(22px,2.8vw,38px);font-weight:900;line-height:1.12;letter-spacing:-.02em;color:var(--text);word-break:break-word;overflow-wrap:break-word}
 .accent{color:var(--blue)}
 .accent-green{color:var(--ok)}
-.sub{font-size:clamp(13px,1.3vw,16px);color:var(--muted);line-height:1.7}
-.divider{width:40px;height:4px;background:var(--yellow);border-radius:2px;margin:16px 0}
+.sub{font-size:clamp(12px,1.2vw,15px);color:var(--muted);line-height:1.7}
+.divider{width:40px;height:4px;background:var(--yellow);border-radius:2px;margin:14px 0}
 
 .step-num{width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 6px rgba(45,50,119,.12)}
 .step-num.green{background:var(--ok);box-shadow:0 0 0 6px rgba(0,166,80,.12)}
 .step-num.yellow{background:var(--yellow);color:var(--text);box-shadow:0 0 0 6px rgba(255,230,0,.25)}
 
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:44px;width:100%;max-width:1080px;align-items:center}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1080px;align-items:start}
 
-.instruction-list{display:flex;flex-direction:column;gap:10px}
-.instruction{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e8e0c0;border-radius:12px;padding:14px 18px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.instruction-list{display:flex;flex-direction:column;gap:9px}
+.instruction{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e8e0c0;border-radius:12px;padding:12px 16px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .instruction-num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .instruction-num.ok{background:var(--ok)}
-.instruction-body strong{display:block;font-size:13px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.instruction-body strong{display:block;font-size:13px;font-weight:700;margin-bottom:2px;color:var(--text)}
 .instruction-body span{font-size:12px;color:var(--muted);line-height:1.55}
 .instruction-tag{position:absolute;top:10px;right:12px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
 .tag-req{background:rgba(192,57,43,.1);color:var(--red)}
@@ -74,22 +75,16 @@ h2{font-size:clamp(24px,3.2vw,42px);font-weight:900;line-height:1.1;letter-spaci
 .mock-dot{width:9px;height:9px;border-radius:50%}
 .mock-url{font-size:10px;color:#7d8590;font-family:var(--mono);background:#0d1117;padding:3px 10px;border-radius:20px;flex:1;text-align:center}
 .mock-body{padding:14px}
-.mock-tabs{display:flex;gap:3px;margin-bottom:12px}
 .mock-tab{padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;color:#7d8590;background:#161b22}
 .mock-tab.on{color:#e6edf3;background:#21262d;border-bottom:2px solid #009ee3}
-.mock-field{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px 12px;margin-bottom:8px}
-.mock-field-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7d8590;margin-bottom:5px}
-.mock-field-val{font-size:12px;font-weight:600;color:#e6edf3}
-.mock-upload{border:2px dashed #30363d;border-radius:8px;padding:18px;text-align:center;margin-bottom:10px}
-.mock-btn{display:block;background:#009ee3;color:#fff;font-weight:700;font-size:11px;padding:8px 18px;border-radius:8px;text-align:center;width:fit-content;margin:0 auto}
 
-.highlight{padding:16px 20px;border-radius:12px;margin-top:0}
+.highlight{padding:14px 18px;border-radius:12px}
 .highlight.blue{background:#eef4ff;border:1px solid rgba(45,50,119,.2)}
 .highlight.green{background:#edfff5;border:1px solid rgba(0,166,80,.25)}
 .highlight.yellow{background:#fffde0;border:2px solid rgba(255,230,0,.6)}
 .highlight.red{background:#fff3f0;border:1px solid rgba(192,57,43,.25)}
 .highlight.grey{background:#f5f5f5;border:1px solid #ddd}
-.highlight-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.highlight-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px}
 .highlight.blue .highlight-title{color:var(--blue)}
 .highlight.green .highlight-title{color:var(--ok)}
 .highlight.yellow .highlight-title{color:var(--warn)}
@@ -101,359 +96,938 @@ h2{font-size:clamp(24px,3.2vw,42px);font-weight:900;line-height:1.1;letter-spaci
 .badge-green{background:rgba(0,166,80,.1);color:var(--ok);border:1px solid rgba(0,166,80,.2)}
 .badge-red{background:rgba(192,57,43,.1);color:var(--red);border:1px solid rgba(192,57,43,.2)}
 .badge-warn{background:rgba(224,120,0,.1);color:var(--warn);border:1px solid rgba(224,120,0,.2)}
-.badge-grey{background:#f0f0f0;color:#888;border:1px solid #ddd}
 
 .table-mock{width:100%;border-collapse:collapse;font-size:11px}
 .table-mock th{padding:7px 10px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--yellow);background:#fff8d0}
-.table-mock td{padding:8px 10px;border-bottom:1px solid #f0e8c0;vertical-align:middle;color:var(--text)}
+.table-mock td{padding:7px 10px;border-bottom:1px solid #f0e8c0;vertical-align:middle;color:var(--text)}
 
 .tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:900px}
-.tip-card{background:#fff;border:1px solid #e0d8b0;border-radius:12px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.tip-icon{font-size:28px;margin-bottom:10px}
-.tip-card strong{display:block;font-size:14px;font-weight:800;margin-bottom:6px;color:var(--text)}
+.tip-card{background:#fff;border:1px solid #e0d8b0;border-radius:12px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tip-icon{font-size:26px;margin-bottom:8px}
+.tip-card strong{display:block;font-size:13px;font-weight:800;margin-bottom:5px;color:var(--text)}
 .tip-card p{font-size:12px;color:var(--muted);line-height:1.6}
 .tip-card.green{border-left:4px solid var(--ok)}
 .tip-card.blue{border-left:4px solid var(--blue)}
 .tip-card.yellow{border-left:4px solid var(--yellow)}
 .tip-card.red{border-left:4px solid var(--red)}
 
-/* action buttons mock */
-.action-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:14px;cursor:pointer;flex-shrink:0}
-.action-btn.exc{background:rgba(192,57,43,.15)}
-.action-btn.shift{background:rgba(45,50,119,.15)}
-.action-btn.note{background:rgba(255,165,0,.15)}
+.action-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:13px;flex-shrink:0}
 
-.close-link{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);color:var(--text);font-weight:900;font-size:15px;padding:14px 32px;border-radius:40px;margin-top:22px;text-decoration:none;transition:transform .15s;box-shadow:0 4px 20px rgba(255,230,0,.4)}
+.close-link{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);color:var(--text);font-weight:900;font-size:15px;padding:14px 32px;border-radius:40px;margin-top:20px;text-decoration:none;transition:transform .15s;box-shadow:0 4px 20px rgba(255,230,0,.4)}
 .close-link:hover{transform:translateY(-2px)}
 
-@media(max-width:900px){.two-col{grid-template-columns:1fr;gap:20px}.tips-grid{grid-template-columns:1fr}.slide{padding:40px 24px}}
+.role-card{border-radius:14px;padding:22px 24px}
+.role-card.leader{background:#fffce0;border:2px solid var(--yellow)}
+.role-card.manager{background:#f0f4ff;border:2px solid rgba(45,50,119,.3)}
+.role-card-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.role-card.leader .role-card-title{color:var(--warn)}
+.role-card.manager .role-card-title{color:var(--blue)}
+.role-item{font-size:12px;color:var(--muted);padding:4px 0;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+
+.col-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f0e8c0}
+.col-row:last-child{border-bottom:none}
+.col-name{font-size:11px;font-weight:700;color:var(--blue);min-width:110px;flex-shrink:0}
+.col-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+@media(max-width:900px){.two-col{grid-template-columns:1fr;gap:20px}.tips-grid{grid-template-columns:1fr}.slide{padding:36px 20px}}
 </style>
 </head>
 <body>
 <div class="progress" id="progress"></div>
 <div class="deck" id="deck">
 
-  <!-- ── SLIDE 1 — COVER ── -->
-  <div class="slide bg-cover active" data-slide="0">
-    <div style="max-width:860px;width:100%">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
-        <div style="background:var(--blue);color:#fff;font-weight:900;font-size:11px;letter-spacing:.15em;padding:4px 11px;border-radius:6px;text-transform:uppercase">MP</div>
-        <span style="color:var(--muted);font-size:13px;font-weight:600">Logística Inversa · Guía para Líderes</span>
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — PORTADA
+═══════════════════════════════════════════════ -->
+<div class="slide bg-cover active" data-slide="0">
+  <div style="max-width:860px;width:100%">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:30px">
+      <div style="background:var(--blue);color:#fff;font-weight:900;font-size:11px;letter-spacing:.15em;padding:4px 11px;border-radius:6px;text-transform:uppercase">Logística Inversa · ARG</div>
+      <span style="color:var(--muted);font-size:13px;font-weight:600">Fulfillment · Mercado Libre</span>
+    </div>
+    <div class="eyebrow">Mercadito Dash — Fast Start Control</div>
+    <h1>Guía de Onboarding<br>para <span class="accent">Líderes</span></h1>
+    <div class="divider"></div>
+    <p class="sub" style="max-width:580px;margin-bottom:28px">Manual de uso completo del tablero de control de Fast Start. Cobertura integral: carga de datos, visualización, acciones sobre operarios, historial y buenas prácticas operativas.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="badge badge-blue">16 slides</span>
+      <span class="badge badge-green">✓ Sin instalación</span>
+      <span class="badge badge-green">✓ Funciona desde PC o celular</span>
+      <span class="badge badge-warn">Navegá con ‹ › o teclas del teclado</span>
+    </div>
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid rgba(45,50,119,.12)">
+      <div style="font-size:12px;font-weight:700;color:var(--text)">Gonzalo Florez</div>
+      <div style="font-size:11px;color:var(--muted)">Analista Sr. Mejora Continua · Logística Inversa · Mercado Libre ARG</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — ¿QUÉ ES EL TABLERO?
+═══════════════════════════════════════════════ -->
+<div class="slide bg-dark" data-slide="1">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Contexto operativo</div>
+    <h2 style="margin-bottom:6px">¿Qué es <span class="accent">Mercadito Dash</span> y para qué sirve?</h2>
+    <p class="sub" style="margin-bottom:22px;max-width:720px">Es una herramienta de control operativo que analiza el Excel de exportación del sistema INVAS y calcula automáticamente si cada operario cumplió el <strong style="color:var(--text)">target de bipeos</strong> en los dos momentos clave del turno: inicio y post-break.</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--yellow)">
+        <div style="font-size:22px;margin-bottom:8px">📂</div>
+        <div style="font-weight:800;font-size:12px;margin-bottom:4px">Carga</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Subís el Excel del INVAS y publicás los resultados del día</div>
       </div>
-      <div style="position:absolute;right:72px;top:50%;transform:translateY(-50%);opacity:.07;font-size:200px;font-weight:900;line-height:1;pointer-events:none;color:var(--blue)">📋</div>
-      <div class="eyebrow">Mercadito Dash — Fast Start Control</div>
-      <h1>Cómo usar<br>el <span class="accent">tablero</span></h1>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--blue)">
+        <div style="font-size:22px;margin-bottom:8px">📊</div>
+        <div style="font-weight:800;font-size:12px;margin-bottom:4px">Resumen</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Tarjetas KPI con % de cumplimiento por site y turno</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid #a371f7">
+        <div style="font-size:22px;margin-bottom:8px">👤</div>
+        <div style="font-weight:800;font-size:12px;margin-bottom:4px">Por Operario</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Tabla detallada con estado, acciones e historial individual</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--ok)">
+        <div style="font-size:22px;margin-bottom:8px">📋</div>
+        <div style="font-weight:800;font-size:12px;margin-bottom:4px">Historial</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Registro de todas las cargas realizadas por todos los líderes</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--warn)">
+        <div style="font-size:22px;margin-bottom:8px">⚙</div>
+        <div style="font-weight:800;font-size:12px;margin-bottom:4px">Manager</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Panel de configuración exclusivo para el Manager (no disponible para líderes)</div>
+      </div>
+    </div>
+    <div class="highlight blue" style="margin-top:16px">
+      <div class="highlight-title">💡 Propósito</div>
+      <div style="font-size:13px;color:var(--muted)">Dar visibilidad en tiempo real del desempeño en Fast Start de todos los operarios, por turno y site, sin depender de reportes manuales ni hojas de cálculo propias.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — ROLES: LÍDER vs MANAGER
+═══════════════════════════════════════════════ -->
+<div class="slide bg-roles" data-slide="2">
+  <div style="max-width:960px;width:100%">
+    <div class="eyebrow">Roles y permisos</div>
+    <h2 style="margin-bottom:6px">¿Qué puede hacer cada uno?</h2>
+    <p class="sub" style="margin-bottom:22px">El tablero tiene dos niveles de acceso. Como <strong style="color:var(--text)">Líder</strong>, tenés autonomía sobre la carga y la gestión diaria. La configuración de targets y turnos corresponde exclusivamente al <strong style="color:var(--text)">Manager</strong>.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+      <div class="role-card leader">
+        <div class="role-card-title">👷 Líder (vos)</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Cargar el Excel del INVAS y publicar resultados</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Ver la tabla de operarios y el resumen</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Excluir operarios puntualmente (por el día)</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Corregir el turno asignado a un operario</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Agregar notas con motivo o contexto</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Ver ficha individual e historial de cada operario</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Consultar el historial general de cargas</div>
+        <div class="role-item"><span style="color:var(--red)">🚫</span> Acceder al panel de configuración (Manager)</div>
+      </div>
+      <div class="role-card manager">
+        <div class="role-card-title">⚙ Manager (solo él)</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Configurar el target de bipeos por site</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Definir horarios de turnos (inicio/fin Mañana, Tarde, Noche)</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Establecer tolerancias de inicio y post-break</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Agregar o quitar rutas excluidas de forma permanente</div>
+        <div class="role-item"><span style="color:var(--ok)">✅</span> Dar de alta nuevos sites</div>
+        <div style="margin-top:10px;background:rgba(45,50,119,.06);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--blue)">Si tu site no está configurado todavía → avisale al Manager antes de intentar cargar.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — ANTES DE EMPEZAR
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="3">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+        <div class="step-num yellow">0</div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:4px">Paso previo</div>
+          <h2>Lo que necesitás tener listo</h2>
+        </div>
+      </div>
       <div class="divider"></div>
-      <p class="sub" style="max-width:540px;margin-bottom:28px">Guía completa: cargar el Excel, publicar resultados, ver la tabla, excluir operarios, agregar notas y mucho más.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <span class="badge badge-blue">⏱ 5 min por carga</span>
-        <span class="badge badge-green">✓ Sin instalación</span>
-        <span class="badge badge-green">✓ Desde celular o PC</span>
-        <span class="badge badge-warn">14 slides · navegá con las flechas ‹ ›</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 2 — QUÉ ES ── -->
-  <div class="slide bg-dark" data-slide="1">
-    <div style="max-width:1000px;width:100%">
-      <div class="eyebrow">¿Qué es?</div>
-      <h2 style="margin-bottom:8px">El tablero que mide el <span class="accent">Fast Start</span></h2>
-      <p class="sub" style="margin-bottom:24px;max-width:700px">Mercadito Dash analiza el Excel del INVAS y calcula automáticamente si cada operario llegó al <strong style="color:var(--text)">target de bipeos</strong> al inicio del turno y después del break.</p>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--yellow)">
-          <div style="font-size:22px;margin-bottom:8px">📂</div>
-          <div style="font-weight:800;font-size:12px;margin-bottom:4px">Carga</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">Subís el Excel del INVAS y publicás los resultados</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--blue)">
-          <div style="font-size:22px;margin-bottom:8px">📊</div>
-          <div style="font-weight:800;font-size:12px;margin-bottom:4px">Resumen</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">% cumplimiento, operarios OK vs Desvío</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid #a371f7">
-          <div style="font-size:22px;margin-bottom:8px">👤</div>
-          <div style="font-weight:800;font-size:12px;margin-bottom:4px">Por Operario</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">Tabla detallada con acciones: excluir, cambiar turno, notas</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--ok)">
-          <div style="font-size:22px;margin-bottom:8px">📋</div>
-          <div style="font-weight:800;font-size:12px;margin-bottom:4px">Historial</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">Todas las cargas realizadas por todos los líderes</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid var(--warn)">
-          <div style="font-size:22px;margin-bottom:8px">👆</div>
-          <div style="font-weight:800;font-size:12px;margin-bottom:4px">Ficha</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">Clic en el nombre → historial del operario</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 3 — ANTES DE EMPEZAR ── -->
-  <div class="slide bg-step" data-slide="2">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-          <div class="step-num yellow">0</div>
-          <div>
-            <div class="eyebrow" style="margin-bottom:4px">Antes de empezar</div>
-            <h2>Lo que necesitás<br>tener listo</h2>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="highlight yellow" style="margin-bottom:12px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="highlight yellow">
           <div class="highlight-title">📁 El Excel del INVAS</div>
-          <div style="font-size:13px;line-height:1.8;color:var(--muted)">Entrá a <strong style="color:var(--text)">INVAS</strong> → Gestión de Tareas → <strong style="color:var(--text)">Exportar</strong><br>Formato: <strong style="color:var(--text)">.xlsx</strong> · Exportalo el mismo día</div>
+          <div style="font-size:13px;line-height:1.8;color:var(--muted)">Accedé al sistema <strong style="color:var(--text)">INVAS</strong> → Gestión de Tareas → <strong style="color:var(--text)">Exportar</strong><br>Formato requerido: <strong style="color:var(--text)">.xlsx</strong><br>Exportar el mismo día del turno a analizar.</div>
         </div>
         <div class="highlight blue">
           <div class="highlight-title">🌐 El link del tablero</div>
-          <div style="font-size:12px;font-family:var(--mono);color:var(--blue);word-break:break-all;margin-bottom:6px">gonzaflorez.github.io/mercadito-dash/mercadito_dash.html</div>
-          <div style="font-size:12px;color:var(--muted)">⭐ Guardalo en favoritos. Funciona desde celular o PC.</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--blue);word-break:break-all;margin-bottom:6px;padding:6px 8px;background:rgba(45,50,119,.05);border-radius:6px">gonzaflorez.github.io/mercadito-dash/mercadito_dash.html</div>
+          <div style="font-size:12px;color:var(--muted)">Se recomienda guardar en favoritos. Funciona desde cualquier navegador, PC o celular.</div>
         </div>
       </div>
-      <div>
-        <div class="highlight red" style="margin-bottom:12px">
-          <div class="highlight-title">⚠ Si el tablero te dice "Site no configurado"</div>
-          <div style="font-size:13px;color:var(--muted)">Significa que tu site todavía no fue configurado por el Manager.<br><strong style="color:var(--text)">Solución: avisale al Manager para que lo configure.</strong> No podés cargar hasta que esté listo.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="highlight red">
+        <div class="highlight-title">⚠ Si el tablero muestra "Site no configurado"</div>
+        <div style="font-size:13px;color:var(--muted)">El site aún no fue configurado por el Manager. No es posible cargar hasta que el Manager lo configure con target, turnos y tolerancias.<br><strong style="color:var(--text);margin-top:6px;display:block">Acción requerida: contactar al Manager.</strong></div>
+      </div>
+      <div class="highlight green">
+        <div class="highlight-title">✅ Cómo verificar que el site está activo</div>
+        <div style="font-size:13px;color:var(--muted)">Al escribir el código de site en el formulario de carga, debajo aparece el resumen de configuración:<br><strong style="color:var(--ok)">"Target: X bipeos · Turnos: Mañana 06:00–14:00 · Tarde 14:00–22:00"</strong><br>Si eso se ve → el site está listo.</div>
+      </div>
+      <div class="highlight grey">
+        <div class="highlight-title">📱 Acceso desde celular</div>
+        <div style="font-size:13px;color:var(--muted)">Menú del navegador → <strong style="color:var(--text)">"Agregar a pantalla de inicio"</strong> para instalarlo como acceso directo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — CARGA: PASOS 1 y 2
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="4">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+        <div class="step-num">1</div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:4px">Pasos 1 y 2</div>
+          <h2>Abrir el tablero y navegar a la pestaña Carga</h2>
         </div>
-        <div class="highlight green">
-          <div class="highlight-title">✅ Cómo saber si el site está OK</div>
-          <div style="font-size:13px;color:var(--muted)">Cuando escribís tu site en el campo de carga, abajo aparece:<br><strong style="color:var(--ok)">"Target: X bipeos · Turnos: Mañana, Tarde…"</strong><br>Si lo ves → podés cargar.</div>
+      </div>
+      <div class="divider"></div>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body">
+            <strong>Abrir el link en el navegador</strong>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--blue)">gonzaflorez.github.io/mercadito-dash/mercadito_dash.html</span>
+          </div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body">
+            <strong>Hacer clic en la pestaña "📂 Carga"</strong>
+            <span>Se encuentra en el menú superior del tablero. El formulario de carga se despliega automáticamente.</span>
+          </div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">3</div>
+          <div class="instruction-body">
+            <strong>Verificar que el tablero ya tiene datos del día</strong>
+            <span>Si otros líderes ya cargaron, los datos del día se muestran en las pestañas Resumen y Por Operario en tiempo real.</span>
+          </div>
+        </div>
+      </div>
+      <div class="highlight blue" style="margin-top:12px">
+        <div class="highlight-title">🔄 Actualización automática</div>
+        <div style="font-size:13px;color:var(--muted)">El tablero sincroniza datos de todos los sites y líderes. Lo que publicás se ve de inmediato para todos los que tengan el tablero abierto.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">gonzaflorez.github.io/mercadito-dash/</div>
+        </div>
+        <div class="mock-body">
+          <div style="display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap">
+            <div class="mock-tab">📊 Resumen</div>
+            <div class="mock-tab">👤 Por Operario</div>
+            <div class="mock-tab">📋 Historial</div>
+            <div class="mock-tab on" style="border-bottom-color:var(--yellow);color:var(--yellow)">📂 Carga</div>
+            <div class="mock-tab" style="color:var(--warn)">⚙ Manager</div>
+          </div>
+          <div style="background:rgba(255,230,0,.1);border:1px solid rgba(255,230,0,.4);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-size:18px;margin-bottom:5px">📂</div>
+            <div style="font-size:12px;font-weight:700;color:#e6edf3">Cargar análisis del día</div>
+            <div style="font-size:10px;color:#7d8590;margin-top:3px">Completá el formulario y subí el Excel del INVAS</div>
+          </div>
+          <div style="margin-top:10px;background:#161b22;border-radius:6px;padding:8px;font-size:10px;color:#7d8590;text-align:center">📊 El tablero ya muestra datos de 2 cargas del día de hoy</div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 4 — PASOS 1-2 ── -->
-  <div class="slide bg-step" data-slide="3">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-          <div class="step-num">1</div>
-          <div>
-            <div class="eyebrow" style="margin-bottom:4px">Paso 1 y 2</div>
-            <h2>Abrí el tablero<br>y andá a <span class="accent">Carga</span></h2>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body"><strong>Abrí el link en el navegador</strong><span style="font-family:var(--mono);font-size:10px;color:var(--blue)">gonzaflorez.github.io/mercadito-dash/mercadito_dash.html</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body"><strong>Hacé clic en la pestaña "📂 Carga"</strong><span>Está arriba en el menú del tablero</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">3</div>
-            <div class="instruction-body"><strong>Se abre el formulario</strong><span>Ahí vas a poner tu nombre, site y el Excel</span></div>
-          </div>
-        </div>
-        <div class="highlight green" style="margin-top:14px">
-          <div class="highlight-title">📱 Tip celular</div>
-          <div style="font-size:13px;color:var(--muted)">Menú del navegador → <strong style="color:var(--text)">"Agregar a pantalla de inicio"</strong> para tenerlo como app.</div>
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 — CARGA: PASOS 3-4-5 (FIX: sin corte)
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="5">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+        <div class="step-num green">3</div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:4px">Pasos 3, 4 y 5</div>
+          <h2>Completar el formulario y publicar</h2>
         </div>
       </div>
-      <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">gonzaflorez.github.io/mercadito-dash/mercadito_dash.html</div>
-          </div>
-          <div class="mock-body">
-            <div class="mock-tabs" style="margin-bottom:14px">
-              <div class="mock-tab">📊 Resumen</div>
-              <div class="mock-tab">👤 Por Operario</div>
-              <div class="mock-tab">📋 Historial</div>
-              <div class="mock-tab on" style="border-bottom-color:var(--yellow);color:var(--yellow)">📂 Carga</div>
-              <div class="mock-tab" style="color:var(--warn)">⚙ Manager</div>
-            </div>
-            <div style="background:rgba(255,230,0,.1);border:1px solid rgba(255,230,0,.4);border-radius:8px;padding:12px;text-align:center">
-              <div style="font-size:16px;margin-bottom:5px">📂</div>
-              <div style="font-size:12px;font-weight:700;color:var(--text)">Cargar análisis del día</div>
-              <div style="font-size:10px;color:var(--muted);margin-top:3px">Completá los campos y subí el Excel</div>
-            </div>
+      <div class="divider"></div>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num ok">A</div>
+          <div class="instruction-body">
+            <strong>Tu nombre — campo "Quién carga"</strong>
+            <span>Nombre completo, con el mismo criterio siempre. Ejemplo: <strong style="color:var(--text)">Gonzalo Florez</strong>. Identifica quién realizó la carga en el historial.</span>
+            <span class="instruction-tag tag-req">Obligatorio</span>
           </div>
         </div>
-        <div style="margin-top:10px;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--muted);text-align:center">
-          🔄 El tablero ya muestra los datos cargados por otros líderes hoy
+        <div class="instruction">
+          <div class="instruction-num ok">B</div>
+          <div class="instruction-body">
+            <strong>Código de site</strong>
+            <span>Ingresá el código exacto del site. Ejemplo: <strong style="color:var(--text)">ARBA02</strong>. Al escribirlo, aparece la configuración activa de ese site.</span>
+            <span class="instruction-tag tag-req">Obligatorio</span>
+          </div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">C</div>
+          <div class="instruction-body">
+            <strong>Archivo Excel del INVAS</strong>
+            <span>Arrastrar el archivo al área indicada o hacer clic para seleccionarlo. Solo se acepta el formato exportado directamente del INVAS (.xlsx).</span>
+            <span class="instruction-tag tag-req">Obligatorio</span>
+          </div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">D</div>
+          <div class="instruction-body">
+            <strong>Hacer clic en "▶ Analizar y publicar"</strong>
+            <span>El sistema procesa el archivo y publica los resultados. El mensaje <strong style="color:var(--ok)">✓ Datos publicados — X operarios</strong> confirma la operación exitosa.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">📂 Carga</div>
+        </div>
+        <div class="mock-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:9px;font-weight:700;color:#7d8590;margin-bottom:4px">👤 Quién carga</div>
+              <div style="background:#0d1117;border:1.5px solid var(--blue);border-radius:7px;padding:8px 10px;font-size:11px;color:#e6edf3">Gonzalo Florez</div>
+            </div>
+            <div>
+              <div style="font-size:9px;font-weight:700;color:#7d8590;margin-bottom:4px">🏭 Site</div>
+              <div style="background:#0d1117;border:1.5px solid var(--blue);border-radius:7px;padding:8px 10px;font-size:11px;color:#e6edf3">ARBA02</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:#3fb950;margin-bottom:6px;font-weight:600">✓ Target: 6 bipeos · Mañana 06:00–14:00 · Tarde 14:00–22:00</div>
+          <div style="border:2px dashed rgba(63,185,80,.5);border-radius:8px;padding:10px;text-align:center;margin-bottom:8px;background:rgba(63,185,80,.04)">
+            <div style="font-size:16px;margin-bottom:3px">✅</div>
+            <div style="font-size:10px;font-weight:700;color:#3fb950">taskManager_semana.xlsx</div>
+            <div style="font-size:9px;color:#7d8590">245 KB · listo para analizar</div>
+          </div>
+          <div style="background:var(--blue);border-radius:6px;padding:8px;text-align:center;font-size:11px;font-weight:800;color:#fff">▶ Analizar y publicar</div>
+          <div style="margin-top:8px;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:6px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:#3fb950">✓ Datos publicados — 24 operarios</div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 5 — PASOS 3-4-5 FORMULARIO ── -->
-  <div class="slide bg-step" data-slide="4">
-    <div class="two-col" style="max-width:1040px">
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 — PESTAÑA RESUMEN
+═══════════════════════════════════════════════ -->
+<div class="slide bg-dark" data-slide="6">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Pestaña "📊 Resumen"</div>
+    <h2 style="margin-bottom:6px">Vista general del cumplimiento del día</h2>
+    <p class="sub" style="margin-bottom:16px;max-width:720px">La pestaña Resumen muestra el estado agregado de todas las cargas del día. Es el primer pantallazo que deben revisar los líderes al inicio del turno.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-          <div class="step-num">3</div>
-          <div>
-            <div class="eyebrow" style="margin-bottom:4px">Pasos 3, 4 y 5</div>
-            <h2>Completá, subí<br>y <span class="accent-green">publicá</span></h2>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num ok">A</div>
-            <div class="instruction-body">
-              <strong>Tu nombre (Líder)</strong>
-              <span>Ejemplo: <strong style="color:var(--text)">Gonzalo Florez</strong>. Usá siempre el mismo nombre.</span>
-              <span class="instruction-tag tag-req">Obligatorio</span>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="highlight blue">
+            <div class="highlight-title">📊 Tarjetas KPI — ¿qué muestran?</div>
+            <div style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px">
+              <div>→ <strong style="color:var(--text)">% Cumplimiento global</strong> — promedio de todos los operarios del día</div>
+              <div>→ <strong style="color:var(--text)">Operarios OK</strong> — llegaron al target en ambos controles</div>
+              <div>→ <strong style="color:var(--text)">En desvío</strong> — no alcanzaron el target en al menos un control</div>
+              <div>→ <strong style="color:var(--text)">Excluidos</strong> — no se contabilizan en el % de cumplimiento</div>
             </div>
           </div>
-          <div class="instruction">
-            <div class="instruction-num ok">B</div>
-            <div class="instruction-body">
-              <strong>Site</strong>
-              <span>El código de tu site. Ejemplo: <strong style="color:var(--text)">ARBA02</strong>. Lo podés ver abajo cuando lo escribís.</span>
-              <span class="instruction-tag tag-req">Obligatorio</span>
-            </div>
+          <div class="highlight green">
+            <div class="highlight-title">🔍 Segmentación disponible</div>
+            <div style="font-size:12px;color:var(--muted)">Los datos se pueden visualizar filtrados por <strong style="color:var(--text)">site</strong> y por <strong style="color:var(--text)">turno</strong> (Mañana, Tarde, Noche), permitiendo comparar el desempeño entre grupos.</div>
           </div>
-          <div class="instruction">
-            <div class="instruction-num ok">C</div>
-            <div class="instruction-body">
-              <strong>Arrastrá o seleccioná el Excel del INVAS</strong>
-              <span>El botón azul <strong style="color:var(--blue)">"▶ Analizar y publicar"</strong> se activa solo cuando está todo completo</span>
-              <span class="instruction-tag tag-req">Obligatorio</span>
-            </div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">D</div>
-            <div class="instruction-body">
-              <strong>Hacé clic en "▶ Analizar y publicar"</strong>
-              <span>Espera unos segundos y aparece <strong style="color:var(--ok)">✓ Datos publicados</strong>. ¡Listo!</span>
-            </div>
+          <div class="highlight yellow">
+            <div class="highlight-title">⏱ Frecuencia de actualización</div>
+            <div style="font-size:12px;color:var(--muted)">El resumen se actualiza con cada nueva carga publicada. No es necesario recargar la página manualmente.</div>
           </div>
         </div>
       </div>
       <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">📂 Carga</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Resumen del día — ARBA02 · Turno Mañana</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div style="background:#edfff5;border:1px solid rgba(0,166,80,.25);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:var(--ok)">83%</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Cumplimiento</div>
+            </div>
+            <div style="background:#fff8d0;border:1px solid rgba(255,230,0,.5);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:var(--warn)">24</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Operarios</div>
+            </div>
+            <div style="background:#edfff5;border:1px solid rgba(0,166,80,.2);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:var(--ok)">20</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">OK ✅</div>
+            </div>
+            <div style="background:#fff3f0;border:1px solid rgba(192,57,43,.2);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:var(--red)">4</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Desvío ❌</div>
+            </div>
           </div>
-          <div class="mock-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div style="background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:11px;color:#888;text-align:center">🔘 2 operarios excluidos (no cuentan en el %)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 — TABLA POR OPERARIO: COLUMNAS
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="7">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Pestaña "👤 Por Operario"</div>
+    <h2 style="margin-bottom:6px">La tabla: columnas y su significado</h2>
+    <p class="sub" style="margin-bottom:14px;max-width:700px">Cada fila representa un operario en un turno y fecha determinados. Las columnas muestran toda la información necesaria para gestionar el Fast Start.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="col-row">
+          <div class="col-name">Operario</div>
+          <div class="col-desc">Nombre del REP / operario. <strong>Clickeable</strong>: al hacer clic se abre su ficha individual con historial de los últimos días.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">TL</div>
+          <div class="col-desc">Team Leader responsable de ese operario. Se lee automáticamente del campo <em>USUARIO CREACION</em> del Excel del INVAS. Un TL puede tener varios REPs.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Site / Fecha</div>
+          <div class="col-desc">Código de site y fecha del análisis, extraídos del archivo cargado.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Turno</div>
+          <div class="col-desc">Asignado automáticamente según el horario de los bipeos: ☀ Mañana · 🌙 Tarde · 🌃 Noche. Corregible con el botón 🔄.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Ruta</div>
+          <div class="col-desc">Ruta de trabajo del operario (PPAL, SECD, PICKIT, etc.). Si la ruta está configurada como excluida en el Manager, el operario queda automáticamente excluido.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Inicio Turno</div>
+          <div class="col-desc">Estado del control de inicio: ✅ OK si alcanzó el target de bipeos en el período de inicio · ❌ Desvío si no lo alcanzó. Muestra también la cantidad de bipeos acumulados.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Post Break</div>
+          <div class="col-desc">Estado del control post-break: ✅ OK / ❌ Desvío. Mismo criterio que Inicio Turno, aplicado al período post-descanso.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">% Cumplimiento</div>
+          <div class="col-desc">Porcentaje de controles OK sobre el total. 100% = ambos OK · 50% = uno OK, uno en desvío · 0% = ambos en desvío.</div>
+        </div>
+        <div class="col-row">
+          <div class="col-name">Tend.</div>
+          <div class="col-desc">Tendencia comparada con cargas anteriores: ↑ mejoró · → estable · ↓ empeoró.</div>
+        </div>
+        <div class="col-row" style="border-bottom:none">
+          <div class="col-name">Acciones</div>
+          <div class="col-desc">Tres botones de gestión: 🚫 Excluir · 🔄 Cambiar turno · 📝 Agregar nota. Se detallan en los slides siguientes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 — COLORES Y ESTADOS DE LA TABLA
+═══════════════════════════════════════════════ -->
+<div class="slide bg-dark" data-slide="8">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Pestaña "👤 Por Operario"</div>
+    <h2 style="margin-bottom:6px">Colores, estados y tendencias</h2>
+    <p class="sub" style="margin-bottom:16px;max-width:700px">El tablero usa un sistema visual para que el estado de cada operario sea identificable de forma inmediata, sin necesidad de leer números.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px">
+      <table class="table-mock">
+        <thead><tr><th>Operario</th><th>TL</th><th>Turno</th><th>Inicio</th><th>Post Break</th><th>% Cumpl.</th><th>Tend.</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong style="cursor:pointer;text-decoration:underline;color:var(--blue)">Rodriguez N.</strong></td>
+            <td style="font-size:10px;color:var(--muted)">Florez G.</td>
+            <td>☀ Mañana</td>
+            <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK · 7/6</span></td>
+            <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK · 8/6</span></td>
+            <td><strong style="color:var(--ok)">100%</strong></td>
+            <td style="color:var(--ok);font-weight:700">↑</td>
+            <td style="display:flex;gap:4px"><span class="action-btn" style="background:rgba(192,57,43,.15)">🚫</span><span class="action-btn" style="background:rgba(45,50,119,.15)">🔄</span><span class="action-btn" style="background:rgba(255,165,0,.15)">📝</span></td>
+          </tr>
+          <tr>
+            <td><strong style="cursor:pointer;text-decoration:underline;color:var(--blue)">Garcia M.</strong></td>
+            <td style="font-size:10px;color:var(--muted)">Lopez K.</td>
+            <td>☀ Mañana</td>
+            <td><span style="background:rgba(192,57,43,.15);color:var(--red);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">❌ Desvío · 3/6</span></td>
+            <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK · 6/6</span></td>
+            <td><strong style="color:var(--warn)">50%</strong></td>
+            <td style="color:var(--muted)">→</td>
+            <td style="display:flex;gap:4px"><span class="action-btn" style="background:rgba(192,57,43,.15)">🚫</span><span class="action-btn" style="background:rgba(45,50,119,.15)">🔄</span><span class="action-btn" style="background:rgba(255,165,0,.15)">📝</span></td>
+          </tr>
+          <tr style="opacity:.5">
+            <td><strong>Perez L.</strong></td>
+            <td style="font-size:10px;color:#aaa">—</td>
+            <td style="color:#aaa">☀ Mañana</td>
+            <td colspan="4" style="color:#aaa;font-style:italic;font-size:11px">Excluido — ruta PICKIT (automático por configuración)</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="background:#edfff5;border:1px solid rgba(0,166,80,.2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--ok);margin-bottom:4px">✅ Verde — OK</div>
+        <div style="font-size:11px;color:var(--muted)">Alcanzó el target de bipeos en ese control. Número: bipeos acumulados / target.</div>
+      </div>
+      <div style="background:#fff3f0;border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">❌ Rojo — Desvío</div>
+        <div style="font-size:11px;color:var(--muted)">No alcanzó el target. Requiere atención del líder.</div>
+      </div>
+      <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">🔘 Gris — Excluido</div>
+        <div style="font-size:11px;color:var(--muted)">No se contabiliza en el % de cumplimiento. Puede ser manual o por ruta configurada.</div>
+      </div>
+      <div style="background:#eef4ff;border:1px solid rgba(45,50,119,.2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:4px">↑↓→ Tendencia</div>
+        <div style="font-size:11px;color:var(--muted)">Compara el % de hoy con el promedio de cargas anteriores del mismo operario.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 — ACCIÓN: EXCLUIR 🚫
+═══════════════════════════════════════════════ -->
+<div class="slide bg-action" data-slide="9">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div class="eyebrow">Acción sobre operario — 1 de 3</div>
+      <h2>🚫 Excluir un operario del análisis del día</h2>
+      <div class="divider"></div>
+      <p class="sub" style="margin-bottom:14px">Si un operario no debe ser controlado en la jornada actual (ausente, reasignado a otra tarea, día libre, etc.), puede ser excluido manualmente desde la tabla. La exclusión es individual para ese día y no afecta cargas anteriores ni futuras.</p>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body"><strong>Localizar al operario en la tabla</strong><span>Utilizar los filtros de site, turno o ruta si hay muchos operarios visibles.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body"><strong>Hacer clic en el botón 🚫 de su fila</strong><span>Se encuentra en la columna "Acciones", al final de la fila.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">3</div>
+          <div class="instruction-body"><strong>La fila pasa a estado gris — Excluido</strong><span>El operario queda fuera del cálculo de % de cumplimiento. Todos los que tengan el tablero abierto lo ven actualizado al instante.</span></div>
+        </div>
+      </div>
+      <div class="highlight yellow" style="margin-top:12px">
+        <div class="highlight-title">↩ Para reincluir al operario</div>
+        <div style="font-size:13px;color:var(--muted)">El mismo botón 🚫 funciona como toggle: un clic excluye, un segundo clic reincluye. No se requiere ninguna acción adicional.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">👤 Por Operario</div>
+        </div>
+        <div class="mock-body">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <tr style="background:#1a2332;color:#7d8590;font-size:9px">
+              <td style="padding:5px 8px">OPERARIO</td>
+              <td style="padding:5px 8px">TL</td>
+              <td style="padding:5px 8px">TURNO</td>
+              <td style="padding:5px 8px">INICIO</td>
+              <td style="padding:5px 8px">ACCIONES</td>
+            </tr>
+            <tr style="border-bottom:1px solid #21262d">
+              <td style="padding:7px 8px;color:#e6edf3;font-weight:600">Rodriguez N.</td>
+              <td style="padding:7px 8px;color:#7d8590;font-size:10px">Florez G.</td>
+              <td style="padding:7px 8px;color:#7d8590">☀ Mañana</td>
+              <td style="padding:7px 8px"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:2px 7px;border-radius:8px;font-size:10px">✅ OK</span></td>
+              <td style="padding:7px 8px;display:flex;gap:5px">
+                <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
+                <span style="background:rgba(45,50,119,.2);border-radius:5px;padding:4px 6px;font-size:12px">🔄</span>
+                <span style="background:rgba(255,165,0,.2);border-radius:5px;padding:4px 6px;font-size:12px">📝</span>
+              </td>
+            </tr>
+            <tr style="background:rgba(255,255,255,.03);opacity:.5">
+              <td style="padding:7px 8px;color:#7d8590;font-weight:600">Garcia M. <span style="font-size:9px;background:rgba(192,57,43,.2);color:#f85149;padding:1px 6px;border-radius:8px">Excluido</span></td>
+              <td style="padding:7px 8px;color:#555;font-size:10px">Lopez K.</td>
+              <td style="padding:7px 8px;color:#555">☀ Mañana</td>
+              <td style="padding:7px 8px;color:#555;font-style:italic;font-size:10px">excluido manualmente</td>
+              <td style="padding:7px 8px"><span style="background:rgba(192,57,43,.3);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(192,57,43,.4)">🚫</span></td>
+            </tr>
+          </table>
+          <div style="margin-top:10px;background:#161b22;border-radius:6px;padding:8px;font-size:10px;color:#7d8590;text-align:center">Garcia M. excluido → no se contabiliza en el % de cumplimiento del turno</div>
+        </div>
+      </div>
+      <div class="highlight red" style="margin-top:10px">
+        <div class="highlight-title">⚠ Exclusión manual vs automática</div>
+        <div style="font-size:12px;color:var(--muted)">Las rutas configuradas como excluidas en el Manager se excluyen <em>automáticamente</em> en cada carga. La exclusión manual 🚫 aplica solo al operario puntual, para ese día.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 11 — ACCIÓN: CAMBIAR TURNO 🔄
+═══════════════════════════════════════════════ -->
+<div class="slide bg-action" data-slide="10">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div class="eyebrow">Acción sobre operario — 2 de 3</div>
+      <h2>🔄 Corregir el turno asignado</h2>
+      <div class="divider"></div>
+      <p class="sub" style="margin-bottom:14px">El sistema asigna el turno automáticamente según el horario de la mayoría de los bipeos del operario. Si la asignación resultó incorrecta (por bipeos en el límite de turno, inicio tardío, etc.), puede corregirse manualmente.</p>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body"><strong>Identificar al operario con turno incorrecto</strong><span>Verificar la columna "Turno": ☀ Mañana, 🌙 Tarde, 🌃 Noche. Si no coincide con la realidad operativa, proceder a la corrección.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body"><strong>Hacer clic en el botón 🔄 de su fila</strong><span>El turno avanza al siguiente disponible en el ciclo: Mañana → Tarde → Noche → Mañana.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">3</div>
+          <div class="instruction-body"><strong>El cambio se guarda y sincroniza automáticamente</strong><span>No se requiere confirmación adicional. Todos los usuarios del tablero ven el turno actualizado de forma inmediata.</span></div>
+        </div>
+      </div>
+      <div class="highlight blue" style="margin-top:12px">
+        <div class="highlight-title">💡 ¿Cuándo usarlo?</div>
+        <div style="font-size:13px;color:var(--muted)">El sistema asigna siempre el turno con mayor concentración de bipeos. Si un operario tuvo un solo bipeo en otro horario por error, el sistema lo ignora. El botón 🔄 es para casos en que la asignación automática no refleja la realidad del operativo.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">👤 Por Operario</div>
+        </div>
+        <div class="mock-body">
+          <div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <div>
-                <div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">👤 Tu nombre</div>
-                <div style="background:var(--surface);border:1.5px solid var(--blue);border-radius:7px;padding:8px 10px;font-size:11px">Gonzalo Florez</div>
+                <div style="color:#e6edf3;font-weight:700;font-size:12px">Lopez K.</div>
+                <div style="color:#7d8590;font-size:10px">TL: Florez G.</div>
               </div>
+              <div style="display:flex;gap:5px">
+                <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
+                <span style="background:rgba(45,50,119,.4);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(45,50,119,.5)">🔄</span>
+                <span style="background:rgba(255,165,0,.2);border-radius:5px;padding:4px 6px;font-size:12px">📝</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <div style="color:#7d8590;font-size:11px;text-decoration:line-through">☀ Mañana</div>
+              <div style="color:#f0a500;font-size:14px">→</div>
+              <div style="color:#e6edf3;font-size:12px;font-weight:700">🌙 Tarde</div>
+            </div>
+            <div style="font-size:10px;color:rgba(63,185,80,.8)">✓ Turno actualizado y sincronizado</div>
+          </div>
+          <div style="background:#0d1117;border-radius:6px;padding:10px;font-size:11px;color:#7d8590;text-align:center;line-height:1.5">
+            El cambio queda registrado en el sistema.<br>
+            <span style="color:#3fb950;font-size:10px">Visible para todos los usuarios del tablero al instante.</span>
+          </div>
+        </div>
+      </div>
+      <div class="highlight grey" style="margin-top:10px">
+        <div class="highlight-title">📋 Lógica de asignación automática</div>
+        <div style="font-size:12px;color:var(--muted)">El sistema cuenta los bipeos en cada rango horario configurado y asigna al operario al turno con mayor cantidad. Un bipeo aislado en otro horario no modifica la asignación.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 12 — ACCIÓN: NOTAS 📝
+═══════════════════════════════════════════════ -->
+<div class="slide bg-action" data-slide="11">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div class="eyebrow">Acción sobre operario — 3 de 3</div>
+      <h2>📝 Registrar una nota o motivo</h2>
+      <div class="divider"></div>
+      <p class="sub" style="margin-bottom:14px">Las notas permiten registrar el contexto de un desvío o exclusión, dejando trazabilidad para el manager o para revisión futura. Una nota queda asociada al operario en ese día específico.</p>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body"><strong>Hacer clic en el botón 📝 de la fila del operario</strong><span>Se abre un campo de texto para ingresar el motivo o comentario.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body"><strong>Escribir el motivo o comentario</strong><span>Ejemplos: "Entrada tarde por problema de transporte", "Reasignado a tarea especial", "Operario en formación".</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">3</div>
+          <div class="instruction-body"><strong>Confirmar con "Aceptar"</strong><span>El ícono 📝 aparece en la fila. Pasando el cursor por encima se puede leer la nota. También queda registrada en la ficha individual del operario.</span></div>
+        </div>
+      </div>
+      <div class="highlight green" style="margin-top:12px">
+        <div class="highlight-title">📋 Visibilidad de las notas</div>
+        <div style="font-size:13px;color:var(--muted)">Las notas son visibles en: (1) la tabla principal — ícono 📝 al pasar el cursor, (2) la ficha individual del operario — historial con notas por fecha, (3) el historial general de cargas.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">👤 Por Operario · Nota</div>
+        </div>
+        <div class="mock-body">
+          <div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <div>
-                <div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px">🏭 Site</div>
-                <div style="background:var(--surface);border:1.5px solid var(--blue);border-radius:7px;padding:8px 10px;font-size:11px">ARBA02</div>
+                <div style="color:#e6edf3;font-weight:700;font-size:12px">Garcia M.</div>
+                <div style="color:#7d8590;font-size:10px">TL: Lopez K. · ❌ Desvío inicio</div>
+              </div>
+              <div style="display:flex;gap:5px">
+                <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
+                <span style="background:rgba(45,50,119,.2);border-radius:5px;padding:4px 6px;font-size:12px">🔄</span>
+                <span style="background:rgba(255,165,0,.4);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(255,165,0,.4)">📝</span>
               </div>
             </div>
-            <div style="font-size:9px;color:var(--ok);margin-bottom:6px;font-weight:600">✓ Target: 6 bipeos · Mañana: 06:00–14:00 · Tarde: 14:00–22:00</div>
-            <div style="border:2px dashed rgba(63,185,80,.5);border-radius:8px;padding:12px;text-align:center;margin-bottom:8px;background:rgba(63,185,80,.04)">
-              <div style="font-size:18px;margin-bottom:4px">✅</div>
-              <div style="font-size:10px;font-weight:700;color:var(--ok)">taskManager_semana.xlsx</div>
-              <div style="font-size:9px;color:var(--muted)">245 KB · listo para analizar</div>
+            <div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:8px;margin-bottom:8px">
+              <div style="font-size:9px;color:#7d8590;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em">Nota / Motivo</div>
+              <div style="font-size:11px;color:#e6edf3">Entrada tarde por problema de transporte</div>
             </div>
-            <div style="background:var(--blue);border-radius:6px;padding:8px;text-align:center;font-size:11px;font-weight:800;color:#fff">▶ Analizar y publicar</div>
-            <div style="margin-top:8px;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:6px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--ok)">✓ Datos publicados — 24 operarios</div>
+            <div style="font-size:10px;color:rgba(255,165,0,.8);display:flex;align-items:center;gap:5px"><span>📝</span> Nota guardada — visible en tabla y en ficha</div>
+          </div>
+          <div style="background:#0d1117;border-radius:6px;padding:8px">
+            <table style="width:100%;font-size:10px;border-collapse:collapse">
+              <tr>
+                <td style="padding:4px 6px;color:#e6edf3;font-weight:600">Garcia M. 📝</td>
+                <td style="padding:4px 6px;color:#7d8590">☀ Mañana</td>
+                <td style="padding:4px 6px"><span style="background:rgba(248,81,73,.2);color:#f85149;padding:1px 5px;border-radius:5px;font-size:9px">❌ Desvío</span></td>
+                <td style="padding:4px 6px;color:#f0a500;font-weight:700">50%</td>
+              </tr>
+            </table>
+            <div style="font-size:10px;color:#f0a500;padding:4px 6px;border-top:1px solid #21262d;margin-top:4px">📝 Entrada tarde por problema de transporte</div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 6 — LA TABLA (Por Operario) ── -->
-  <div class="slide bg-dark" data-slide="5">
-    <div style="max-width:1020px;width:100%">
-      <div class="eyebrow">Pestaña "👤 Por Operario"</div>
-      <h2 style="margin-bottom:8px">La tabla: qué significa cada cosa</h2>
-      <p class="sub" style="margin-bottom:14px;max-width:700px">Acá ves todos los operarios del día. Cada fila tiene colores, íconos y acciones que podés usar.</p>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px">
+<!-- ══════════════════════════════════════════════
+     SLIDE 13 — FICHA INDIVIDUAL
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="12">
+  <div class="two-col" style="max-width:1040px">
+    <div>
+      <div class="eyebrow">Ficha individual del operario</div>
+      <h2>Clic en el nombre → historial completo</h2>
+      <div class="divider"></div>
+      <p class="sub" style="margin-bottom:14px">Al hacer clic sobre el nombre de cualquier operario en la tabla, se abre su ficha individual con el historial de las últimas cargas. Permite distinguir si un desvío es puntual o recurrente.</p>
+      <div class="instruction-list">
+        <div class="instruction">
+          <div class="instruction-num">1</div>
+          <div class="instruction-body"><strong>El nombre aparece en azul y subrayado</strong><span>Es un enlace clickeable. Al hacer clic se despliega el panel lateral de ficha individual.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num">2</div>
+          <div class="instruction-body"><strong>Se muestran las últimas cargas</strong><span>Fecha · Turno · Estado de Inicio · Estado de Post Break · % Cumplimiento · Notas registradas.</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-num ok">3</div>
+          <div class="instruction-body"><strong>Se muestra el promedio de los últimos días</strong><span>Indicador rápido de tendencia acumulada del operario en las cargas más recientes.</span></div>
+        </div>
+      </div>
+      <div class="highlight blue" style="margin-top:12px">
+        <div class="highlight-title">📊 Criterio de interpretación</div>
+        <div style="font-size:13px;color:var(--muted)">Si el operario acumula varios días consecutivos con desvío → señal de alerta que requiere intervención. Si el desvío es aislado y tiene nota → probablemente sea un hecho puntual justificado.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mock">
+        <div class="mock-bar">
+          <div class="mock-dot" style="background:#f85149"></div>
+          <div class="mock-dot" style="background:#d29922"></div>
+          <div class="mock-dot" style="background:#3fb950"></div>
+          <div class="mock-url">Ficha: Garcia M. — ARBA02</div>
+        </div>
+        <div class="mock-body">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:36px;height:36px;background:rgba(45,50,119,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
+            <div>
+              <div style="color:#e6edf3;font-weight:800;font-size:13px">Garcia M.</div>
+              <div style="color:#7d8590;font-size:10px">TL: Lopez K. · Site: ARBA02 · 5 cargas registradas</div>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:10px">
+            <tr style="background:#161b22">
+              <td style="padding:4px 6px;color:#7d8590;font-weight:600">FECHA</td>
+              <td style="padding:4px 6px;color:#7d8590">TURNO</td>
+              <td style="padding:4px 6px;color:#7d8590">INICIO</td>
+              <td style="padding:4px 6px;color:#7d8590">PB</td>
+              <td style="padding:4px 6px;color:#7d8590">%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #21262d">
+              <td style="padding:4px 6px;color:#7d8590;font-family:monospace">10/04</td>
+              <td style="padding:4px 6px;color:#e6edf3">☀</td>
+              <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px;color:#f0a500;font-weight:700">50% <span style="font-size:9px;opacity:.7">📝</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid #21262d">
+              <td style="padding:4px 6px;color:#7d8590;font-family:monospace">09/04</td>
+              <td style="padding:4px 6px;color:#e6edf3">☀</td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #21262d">
+              <td style="padding:4px 6px;color:#7d8590;font-family:monospace">08/04</td>
+              <td style="padding:4px 6px;color:#e6edf3">☀</td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #21262d">
+              <td style="padding:4px 6px;color:#7d8590;font-family:monospace">07/04</td>
+              <td style="padding:4px 6px;color:#e6edf3">🌙</td>
+              <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
+              <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
+              <td style="padding:4px 6px;color:#f85149;font-weight:700">0%</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 6px;color:#7d8590;font-family:monospace">04/04</td>
+              <td style="padding:4px 6px;color:#e6edf3">☀</td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+              <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
+            </tr>
+          </table>
+          <div style="margin-top:8px;background:#161b22;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#7d8590">Promedio últimas 5 cargas</div>
+            <div style="font-size:20px;font-weight:900;color:#f0a500">70%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 14 — HISTORIAL DE CARGAS
+═══════════════════════════════════════════════ -->
+<div class="slide bg-dark" data-slide="13">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Pestaña "📋 Historial"</div>
+    <h2 style="margin-bottom:6px">Registro completo de todas las cargas</h2>
+    <p class="sub" style="margin-bottom:18px;max-width:720px">El Historial registra todas las cargas realizadas por todos los líderes, de todos los sites. Permite verificar que la carga del día fue publicada, y consultar datos de días anteriores.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+      <div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="highlight blue">
+            <div class="highlight-title">📋 Información registrada por cada carga</div>
+            <div style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px">
+              <div>→ Nombre del líder que realizó la carga</div>
+              <div>→ Site al que corresponde</div>
+              <div>→ Fecha y hora exacta de publicación</div>
+              <div>→ Cantidad de operarios incluidos</div>
+              <div>→ % de cumplimiento de esa carga</div>
+            </div>
+          </div>
+          <div class="highlight green">
+            <div class="highlight-title">✅ Casos de uso frecuentes</div>
+            <div style="font-size:12px;color:var(--muted)">
+              → Verificar que la carga propia del día fue publicada correctamente<br>
+              → Consultar qué cargaron otros líderes del mismo site<br>
+              → Revisar resultados de días anteriores<br>
+              → Controlar si todos los turnos tienen carga registrada
+            </div>
+          </div>
+          <div class="highlight yellow">
+            <div class="highlight-title">⚠ Una carga por turno y site</div>
+            <div style="font-size:12px;color:var(--muted)">Si se carga más de una vez el mismo site en el mismo día, se acumula. Se recomienda cargar una vez por turno y verificar en el historial antes de repetir.</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
         <table class="table-mock">
-          <thead><tr><th>Operario</th><th>Ruta</th><th>Turno</th><th>Inicio</th><th>Post Break</th><th>% Cumpl.</th><th>Tend.</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Fecha / Hora</th><th>Quién cargó</th><th>Site</th><th>Ops.</th><th>%</th></tr></thead>
           <tbody>
             <tr>
-              <td><strong style="cursor:pointer;text-decoration:underline;color:var(--blue)">Rodriguez N.</strong></td>
-              <td><span style="font-size:10px;background:#eef;padding:2px 6px;border-radius:8px">PPAL</span></td>
-              <td>☀ Mañana</td>
-              <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK</span></td>
-              <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK</span></td>
-              <td><strong style="color:var(--ok)">100%</strong></td>
-              <td style="color:var(--ok);font-weight:700">↑</td>
-              <td style="display:flex;gap:4px"><span class="action-btn exc">🚫</span><span class="action-btn shift">🔄</span><span class="action-btn note">📝</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px">10/04 09:32</span></td>
+              <td><strong>G. Florez</strong></td>
+              <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA02</span></td>
+              <td>24</td>
+              <td><strong style="color:var(--ok)">83%</strong></td>
             </tr>
             <tr>
-              <td><strong style="cursor:pointer;text-decoration:underline;color:var(--blue)">Garcia M.</strong></td>
-              <td><span style="font-size:10px;background:#eef;padding:2px 6px;border-radius:8px">SECD</span></td>
-              <td>☀ Mañana</td>
-              <td><span style="background:rgba(192,57,43,.15);color:var(--red);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">❌ Desvío</span></td>
-              <td><span style="background:rgba(0,166,80,.15);color:var(--ok);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">✅ OK</span></td>
-              <td><strong style="color:var(--warn)">50%</strong></td>
-              <td style="color:var(--muted)">→</td>
-              <td style="display:flex;gap:4px"><span class="action-btn exc">🚫</span><span class="action-btn shift">🔄</span><span class="action-btn note">📝</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px">10/04 07:15</span></td>
+              <td><strong>K. Rodriguez</strong></td>
+              <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA02</span></td>
+              <td>18</td>
+              <td><strong style="color:var(--warn)">72%</strong></td>
             </tr>
-            <tr style="opacity:.5">
-              <td><strong>Perez L.</strong></td>
-              <td><span style="font-size:10px;background:#f0f0f0;padding:2px 6px;border-radius:8px;color:#aaa">PICKIT</span></td>
-              <td style="color:#aaa">☀ Mañana</td>
-              <td colspan="4" style="color:#aaa;font-style:italic">Excluido (ruta pickit)</td>
-              <td></td>
+            <tr>
+              <td><span style="font-family:var(--mono);font-size:10px">09/04 22:10</span></td>
+              <td><strong>M. Gomez</strong></td>
+              <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA05</span></td>
+              <td>31</td>
+              <td><strong style="color:var(--ok)">90%</strong></td>
+            </tr>
+            <tr>
+              <td><span style="font-family:var(--mono);font-size:10px">09/04 14:05</span></td>
+              <td><strong>G. Florez</strong></td>
+              <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA02</span></td>
+              <td>22</td>
+              <td><strong style="color:var(--ok)">86%</strong></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-        <div style="background:#edfff5;border:1px solid rgba(0,166,80,.2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--ok);margin-bottom:4px">✅ Verde = OK</div>
-          <div style="font-size:11px;color:var(--muted)">Llegó al target de bipeos</div>
-        </div>
-        <div style="background:#fff3f0;border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">❌ Rojo = Desvío</div>
-          <div style="font-size:11px;color:var(--muted)">No llegó al target</div>
-        </div>
-        <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">🔘 Gris = Excluido</div>
-          <div style="font-size:11px;color:var(--muted)">No se cuenta en el %</div>
-        </div>
-        <div style="background:#eef4ff;border:1px solid rgba(45,50,119,.2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:4px">↑↓→ Tendencia</div>
-          <div style="font-size:11px;color:var(--muted)">Comparado con cargas anteriores</div>
-        </div>
-      </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 7 — FILTROS Y ZOOM ── -->
-  <div class="slide bg-step" data-slide="6">
-    <div class="two-col" style="max-width:1040px">
+<!-- ══════════════════════════════════════════════
+     SLIDE 15 — FILTROS Y ZOOM
+═══════════════════════════════════════════════ -->
+<div class="slide bg-tips" data-slide="14">
+  <div style="max-width:1020px;width:100%">
+    <div class="eyebrow">Herramientas de visualización</div>
+    <h2 style="margin-bottom:6px">Filtros y zoom de tabla</h2>
+    <p class="sub" style="margin-bottom:18px;max-width:700px">La tabla de operarios incluye filtros y control de zoom para facilitar el trabajo con múltiples sites, turnos y rutas en simultáneo.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div>
-        <div class="eyebrow">Filtros y zoom</div>
-        <h2>Filtrá y ajustá<br>la tabla a tu gusto</h2>
-        <div class="divider"></div>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body">
-              <strong>🔍 Filtro por ruta</strong>
-              <span>Arriba de la tabla hay un selector de ruta. Elegí "Pickit", "Full" o cualquier ruta para ver solo esos operarios.</span>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="highlight blue">
+            <div class="highlight-title">🔍 Filtros disponibles</div>
+            <div style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px">
+              <div><strong style="color:var(--text)">Por Site</strong> — para ver solo los operarios de un site específico</div>
+              <div><strong style="color:var(--text)">Por Turno</strong> — Mañana, Tarde o Noche</div>
+              <div><strong style="color:var(--text)">Por TL</strong> — para ver solo los REPs de un Team Leader particular</div>
+              <div><strong style="color:var(--text)">Por Ruta</strong> — para filtrar por ruta de trabajo (PPAL, SECD, etc.)</div>
             </div>
           </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body">
-              <strong>🔍 Filtro por site / turno</strong>
-              <span>También podés filtrar por site o por turno (Mañana, Tarde, Noche) para ver solo tu grupo.</span>
-            </div>
+          <div class="highlight green">
+            <div class="highlight-title">🔡 Control de zoom de tabla</div>
+            <div style="font-size:12px;color:var(--muted)">Hay una barra deslizante sobre la tabla. Arrastrarla hacia la izquierda reduce el tamaño del texto (se ven más filas y columnas), hacia la derecha lo agranda (más legible en pantallas grandes o en celular).</div>
           </div>
-          <div class="instruction">
-            <div class="instruction-num">3</div>
-            <div class="instruction-body">
-              <strong>🔡 Zoom de la tabla</strong>
-              <span>Hay un slider (barra deslizante) arriba de la tabla. Arrastralo a la izquierda para achicarlo y ver más columnas, o a la derecha para agrandarlo.</span>
-            </div>
+          <div class="highlight yellow">
+            <div class="highlight-title">⚡ Combinación recomendada</div>
+            <div style="font-size:12px;color:var(--muted)">Filtrar por turno + site, y ajustar el zoom al mínimo, para tener una vista completa de todos los operarios del grupo en pantalla sin necesidad de hacer scroll.</div>
           </div>
         </div>
       </div>
@@ -466,469 +1040,146 @@ h2{font-size:clamp(24px,3.2vw,42px);font-weight:900;line-height:1.1;letter-spaci
             <div class="mock-url">👤 Por Operario</div>
           </div>
           <div class="mock-body">
-            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-              <div style="background:#f0f0f0;border-radius:6px;padding:5px 10px;font-size:10px;color:var(--muted)">Todos los sites</div>
+            <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap">
+              <div style="background:#eef4ff;border:1px solid rgba(45,50,119,.2);border-radius:6px;padding:5px 10px;font-size:10px;color:var(--blue);font-weight:600">ARBA02 ✓</div>
               <div style="background:#eef4ff;border:1px solid rgba(45,50,119,.2);border-radius:6px;padding:5px 10px;font-size:10px;color:var(--blue);font-weight:600">☀ Mañana ✓</div>
-              <div style="background:#f0f0f0;border-radius:6px;padding:5px 10px;font-size:10px;color:var(--muted)">Todas las rutas</div>
+              <div style="background:#f0f0f0;border-radius:6px;padding:5px 10px;font-size:10px;color:#888">Todas las rutas</div>
+              <div style="background:#f0f0f0;border-radius:6px;padding:5px 10px;font-size:10px;color:#888">Todos los TL</div>
             </div>
             <div style="margin-bottom:10px">
-              <div style="font-size:9px;color:var(--muted);margin-bottom:4px">🔡 Zoom de tabla</div>
-              <div style="height:6px;background:#e0e0e0;border-radius:3px;position:relative">
-                <div style="position:absolute;left:60%;top:50%;transform:translateY(-50%);width:14px;height:14px;background:var(--blue);border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
-                <div style="height:6px;width:60%;background:var(--blue);border-radius:3px;opacity:.3"></div>
+              <div style="font-size:9px;color:#7d8590;margin-bottom:3px">🔡 Zoom de tabla</div>
+              <div style="height:6px;background:#21262d;border-radius:3px;position:relative">
+                <div style="position:absolute;left:40%;top:50%;transform:translateY(-50%);width:14px;height:14px;background:var(--blue);border-radius:50%;border:2px solid #0d1117;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>
+                <div style="height:6px;width:40%;background:rgba(45,50,119,.4);border-radius:3px"></div>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px"><span>Pequeño</span><span>Grande</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:#555;margin-top:2px"><span>Compacto</span><span>Grande</span></div>
             </div>
             <table style="width:100%;border-collapse:collapse;font-size:10px">
-              <tr style="background:#fff8d0">
-                <td style="padding:5px 7px;font-weight:700;color:var(--muted);font-size:9px">OPERARIO</td>
-                <td style="padding:5px 7px;font-weight:700;color:var(--muted);font-size:9px">INICIO</td>
-                <td style="padding:5px 7px;font-weight:700;color:var(--muted);font-size:9px">PB</td>
-                <td style="padding:5px 7px;font-weight:700;color:var(--muted);font-size:9px">%</td>
-              </tr>
-              <tr style="border-bottom:1px solid #f0e8c0">
-                <td style="padding:5px 7px;color:var(--blue);font-weight:600">Rodriguez N.</td>
-                <td style="padding:5px 7px;color:var(--ok);font-weight:700">✅</td>
-                <td style="padding:5px 7px;color:var(--ok);font-weight:700">✅</td>
-                <td style="padding:5px 7px;color:var(--ok);font-weight:700">100%</td>
-              </tr>
-              <tr>
-                <td style="padding:5px 7px;color:var(--blue);font-weight:600">Lopez K.</td>
-                <td style="padding:5px 7px;color:var(--ok);font-weight:700">✅</td>
-                <td style="padding:5px 7px;color:var(--red);font-weight:700">❌</td>
-                <td style="padding:5px 7px;color:var(--warn);font-weight:700">50%</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 8 — EXCLUIR OPERARIO ── -->
-  <div class="slide bg-action" data-slide="7">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div class="eyebrow">Autogestión — acción 1</div>
-        <h2>🚫 Excluir un operario<br><span style="font-size:clamp(18px,2vw,28px);font-weight:700;color:var(--muted)">por el día de hoy</span></h2>
-        <div class="divider"></div>
-        <p class="sub" style="margin-bottom:16px">Si un operario <strong style="color:var(--text)">no corresponde controlarlo hoy</strong> (está en otra tarea, es su día libre, etc.), podés excluirlo vos desde la tabla. <strong style="color:var(--text)">Sin PIN. Sin llamar a nadie.</strong></p>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body"><strong>Encontrá al operario en la tabla</strong><span>Usá los filtros si hay muchos</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body"><strong>Hacé clic en el botón 🚫</strong><span>Está al final de la fila, en la columna de acciones</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num ok">3</div>
-            <div class="instruction-body"><strong>La fila se pone gris</strong><span>El operario queda "Excluido" y <strong style="color:var(--text)">no cuenta en el % de cumplimiento</strong></span></div>
-          </div>
-        </div>
-        <div class="highlight yellow" style="margin-top:14px">
-          <div class="highlight-title">↩ Para reincluirlo</div>
-          <div style="font-size:13px;color:var(--muted)">El mismo botón 🚫 vuelve a activarlo. Hace toggle: clic → excluir, clic de nuevo → reincluir.</div>
-        </div>
-      </div>
-      <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">👤 Por Operario</div>
-          </div>
-          <div class="mock-body">
-            <table style="width:100%;border-collapse:collapse;font-size:11px">
-              <tr style="background:#1a2332;color:#7d8590;font-size:9px">
-                <td style="padding:5px 8px">OPERARIO</td>
-                <td style="padding:5px 8px">TURNO</td>
-                <td style="padding:5px 8px">INICIO</td>
-                <td style="padding:5px 8px">ACCIONES</td>
+              <tr style="background:#1a2332">
+                <td style="padding:4px 6px;color:#7d8590;font-weight:700;font-size:9px">OPERARIO</td>
+                <td style="padding:4px 6px;color:#7d8590;font-size:9px">TL</td>
+                <td style="padding:4px 6px;color:#7d8590;font-size:9px">INICIO</td>
+                <td style="padding:4px 6px;color:#7d8590;font-size:9px">PB</td>
+                <td style="padding:4px 6px;color:#7d8590;font-size:9px">%</td>
               </tr>
               <tr style="border-bottom:1px solid #21262d">
-                <td style="padding:7px 8px;color:#e6edf3;font-weight:600">Rodriguez N.</td>
-                <td style="padding:7px 8px;color:#7d8590">☀ Mañana</td>
-                <td style="padding:7px 8px"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:2px 7px;border-radius:8px;font-size:10px">✅ OK</span></td>
-                <td style="padding:7px 8px;display:flex;gap:5px">
-                  <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
-                  <span style="background:rgba(45,50,119,.2);border-radius:5px;padding:4px 6px;font-size:12px">🔄</span>
-                  <span style="background:rgba(255,165,0,.2);border-radius:5px;padding:4px 6px;font-size:12px">📝</span>
-                </td>
-              </tr>
-              <tr style="background:rgba(255,255,255,.03);opacity:.5">
-                <td style="padding:7px 8px;color:#7d8590;font-weight:600">Garcia M. <span style="font-size:9px;background:rgba(192,57,43,.2);color:#f85149;padding:1px 6px;border-radius:8px">Excluido</span></td>
-                <td style="padding:7px 8px;color:#555">☀ Mañana</td>
-                <td style="padding:7px 8px;color:#555;font-style:italic;font-size:10px">excluido manualmente</td>
-                <td style="padding:7px 8px">
-                  <span style="background:rgba(192,57,43,.3);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(192,57,43,.4)">🚫</span>
-                </td>
+                <td style="padding:4px 6px;color:#58a6ff">Rodriguez N.</td>
+                <td style="padding:4px 6px;color:#555;font-size:9px">Florez G.</td>
+                <td style="padding:4px 6px;color:#3fb950">✅</td>
+                <td style="padding:4px 6px;color:#3fb950">✅</td>
+                <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
               </tr>
               <tr style="border-bottom:1px solid #21262d">
-                <td style="padding:7px 8px;color:#e6edf3;font-weight:600">Perez L.</td>
-                <td style="padding:7px 8px;color:#7d8590">🌙 Tarde</td>
-                <td style="padding:7px 8px"><span style="background:rgba(248,81,73,.2);color:#f85149;padding:2px 7px;border-radius:8px;font-size:10px">❌ Desvío</span></td>
-                <td style="padding:7px 8px;display:flex;gap:5px">
-                  <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
-                  <span style="background:rgba(45,50,119,.2);border-radius:5px;padding:4px 6px;font-size:12px">🔄</span>
-                  <span style="background:rgba(255,165,0,.2);border-radius:5px;padding:4px 6px;font-size:12px">📝</span>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div style="margin-top:10px;background:var(--surface);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);text-align:center">
-          Garcia M. está excluido → no se cuenta en el % de cumplimiento del turno
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 9 — CAMBIAR TURNO ── -->
-  <div class="slide bg-action" data-slide="8">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div class="eyebrow">Autogestión — acción 2</div>
-        <h2>🔄 Cambiar el turno<br><span style="font-size:clamp(18px,2vw,28px);font-weight:700;color:var(--muted)">de un operario</span></h2>
-        <div class="divider"></div>
-        <p class="sub" style="margin-bottom:16px">El sistema asigna el turno automáticamente según la hora de los bipeos. Pero si quedó mal asignado, <strong style="color:var(--text)">podés corregirlo vos.</strong></p>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body"><strong>Encontrá al operario en la tabla</strong><span>Mirá la columna "Turno" — ☀ Mañana o 🌙 Tarde/Noche</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body"><strong>Si el turno está mal → clic en 🔄</strong><span>Cambia al siguiente turno disponible (Mañana → Tarde → Noche → Mañana…)</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num ok">3</div>
-            <div class="instruction-body"><strong>El cambio se guarda automáticamente</strong><span>No hace falta hacer nada más. Queda registrado.</span></div>
-          </div>
-        </div>
-        <div class="highlight blue" style="margin-top:14px">
-          <div class="highlight-title">💡 ¿Cuándo usarlo?</div>
-          <div style="font-size:13px;color:var(--muted)">El sistema asigna turno por horario de bipeos. Si el operario empezó tarde o el Excel tiene datos raros, puede quedar en el turno equivocado. Corregilo con este botón.</div>
-        </div>
-      </div>
-      <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">👤 Por Operario</div>
-          </div>
-          <div class="mock-body">
-            <div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:10px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                <div style="color:#e6edf3;font-weight:700;font-size:12px">Lopez K.</div>
-                <div style="display:flex;gap:5px">
-                  <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
-                  <span style="background:rgba(45,50,119,.4);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(45,50,119,.5)">🔄</span>
-                  <span style="background:rgba(255,165,0,.2);border-radius:5px;padding:4px 6px;font-size:12px">📝</span>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div style="color:#7d8590;font-size:10px;text-decoration:line-through">☀ Mañana</div>
-                <div style="color:#f0a500;font-size:12px">→</div>
-                <div style="color:#e6edf3;font-size:12px;font-weight:700">🌙 Tarde</div>
-              </div>
-              <div style="font-size:10px;color:rgba(63,185,80,.8);margin-top:5px">✓ Turno actualizado</div>
-            </div>
-            <div style="background:#0d1117;border-radius:6px;padding:10px;font-size:11px;color:#7d8590;text-align:center">
-              El cambio queda guardado en el sistema.<br>
-              <span style="color:#3fb950;font-size:10px">Todos los que abran el tablero lo ven actualizado.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 10 — NOTAS ── -->
-  <div class="slide bg-action" data-slide="9">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div class="eyebrow">Autogestión — acción 3</div>
-        <h2>📝 Agregar una nota<br><span style="font-size:clamp(18px,2vw,28px);font-weight:700;color:var(--muted)">a un operario</span></h2>
-        <div class="divider"></div>
-        <p class="sub" style="margin-bottom:16px">Si querés dejar un comentario o motivo sobre un operario (por ejemplo, por qué llegó tarde o por qué fue excluido), podés escribir una nota que queda visible en su fila y en su ficha.</p>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body"><strong>Clic en el botón 📝</strong><span>Al final de la fila del operario, columna "Acciones"</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body"><strong>Escribí el motivo o comentario</strong><span>Ejemplo: "Entrada tarde por problema de transporte"</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num ok">3</div>
-            <div class="instruction-body"><strong>Guardá con "Aceptar"</strong><span>Aparece el ícono 📝 en la fila. Si pasás el mouse encima, ves el texto.</span></div>
-          </div>
-        </div>
-        <div class="highlight green" style="margin-top:14px">
-          <div class="highlight-title">💡 Tip</div>
-          <div style="font-size:13px;color:var(--muted)">Las notas también se ven en la ficha individual del operario (cuando hacés clic en su nombre). Útil para dar contexto al manager.</div>
-        </div>
-      </div>
-      <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">👤 Por Operario</div>
-          </div>
-          <div class="mock-body">
-            <div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:8px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                <div style="color:#e6edf3;font-weight:700;font-size:12px">Garcia M.</div>
-                <div style="display:flex;gap:5px">
-                  <span style="background:rgba(192,57,43,.2);border-radius:5px;padding:4px 6px;font-size:12px">🚫</span>
-                  <span style="background:rgba(45,50,119,.2);border-radius:5px;padding:4px 6px;font-size:12px">🔄</span>
-                  <span style="background:rgba(255,165,0,.4);border-radius:5px;padding:4px 6px;font-size:12px;border:1px solid rgba(255,165,0,.4)">📝</span>
-                </div>
-              </div>
-              <div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:8px;margin-bottom:8px">
-                <div style="font-size:9px;color:#7d8590;margin-bottom:4px">NOTA / MOTIVO</div>
-                <div style="font-size:11px;color:#e6edf3">Entrada tarde por problema de transporte</div>
-              </div>
-              <div style="font-size:10px;color:rgba(255,165,0,.8);display:flex;align-items:center;gap:5px"><span>📝</span> Nota guardada — visible en la fila y en la ficha</div>
-            </div>
-            <div style="background:#0d1117;border-radius:6px;padding:8px">
-              <table style="width:100%;font-size:10px;border-collapse:collapse">
-                <tr>
-                  <td style="padding:4px 6px;color:#e6edf3;font-weight:600">Garcia M. 📝</td>
-                  <td style="padding:4px 6px;color:#7d8590">☀ Mañana</td>
-                  <td style="padding:4px 6px"><span style="background:rgba(248,81,73,.2);color:#f85149;padding:1px 5px;border-radius:5px;font-size:9px">❌ Desvío</span></td>
-                  <td style="padding:4px 6px;color:#f0a500;font-weight:700">50%</td>
-                </tr>
-              </table>
-              <div style="font-size:10px;color:#f0a500;padding:4px 6px;opacity:.7">📝 Entrada tarde por problema de transporte</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 11 — FICHA INDIVIDUAL ── -->
-  <div class="slide bg-step" data-slide="10">
-    <div class="two-col" style="max-width:1040px">
-      <div>
-        <div class="eyebrow">Ficha individual</div>
-        <h2>Clic en el nombre<br>→ <span class="accent-green">historial del operario</span></h2>
-        <div class="divider"></div>
-        <p class="sub" style="margin-bottom:16px">Hacé clic en el nombre de cualquier operario en la tabla y se abre su <strong style="color:var(--text)">historial de los últimos días</strong>. Muy útil para ver si el desvío es puntual o repetido.</p>
-        <div class="instruction-list">
-          <div class="instruction">
-            <div class="instruction-num">1</div>
-            <div class="instruction-body"><strong>El nombre aparece subrayado y en azul</strong><span>Es clickeable. Hacé clic y se abre el panel de ficha.</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num">2</div>
-            <div class="instruction-body"><strong>Ves las últimas cargas</strong><span>Fecha, turno, inicio turno, post break, % cumplimiento</span></div>
-          </div>
-          <div class="instruction">
-            <div class="instruction-num ok">3</div>
-            <div class="instruction-body"><strong>También ves las notas</strong><span>Si alguien dejó una nota en ese día, aparece con el ícono 📝</span></div>
-          </div>
-        </div>
-        <div class="highlight blue" style="margin-top:14px">
-          <div class="highlight-title">📊 Para qué sirve</div>
-          <div style="font-size:13px;color:var(--muted)">Si un operario tuvo desvío hoy, revisá la ficha. Si tuvo OK 5 días seguidos, puede ser algo puntual. Si tuvo desvío todos los días, es una señal de alerta.</div>
-        </div>
-      </div>
-      <div>
-        <div class="mock">
-          <div class="mock-bar">
-            <div class="mock-dot" style="background:#f85149"></div>
-            <div class="mock-dot" style="background:#d29922"></div>
-            <div class="mock-dot" style="background:#3fb950"></div>
-            <div class="mock-url">Ficha: Garcia M. — ARBA02</div>
-          </div>
-          <div class="mock-body">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="width:36px;height:36px;background:rgba(45,50,119,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
-              <div>
-                <div style="color:#e6edf3;font-weight:800;font-size:14px">Garcia M.</div>
-                <div style="color:#7d8590;font-size:10px">Site: ARBA02 · 5 cargas recientes</div>
-              </div>
-            </div>
-            <table style="width:100%;border-collapse:collapse;font-size:10px">
-              <tr style="background:#161b22">
-                <td style="padding:4px 6px;color:#7d8590;font-weight:600">FECHA</td>
-                <td style="padding:4px 6px;color:#7d8590">TURNO</td>
-                <td style="padding:4px 6px;color:#7d8590">INICIO</td>
-                <td style="padding:4px 6px;color:#7d8590">PB</td>
-                <td style="padding:4px 6px;color:#7d8590">%</td>
-              </tr>
-              <tr style="border-bottom:1px solid #21262d">
-                <td style="padding:4px 6px;color:#7d8590;font-family:monospace">10/04</td>
-                <td style="padding:4px 6px;color:#e6edf3">☀</td>
-                <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
-                <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
+                <td style="padding:4px 6px;color:#58a6ff">Garcia M.</td>
+                <td style="padding:4px 6px;color:#555;font-size:9px">Lopez K.</td>
+                <td style="padding:4px 6px;color:#f85149">❌</td>
+                <td style="padding:4px 6px;color:#3fb950">✅</td>
                 <td style="padding:4px 6px;color:#f0a500;font-weight:700">50%</td>
               </tr>
-              <tr style="border-bottom:1px solid #21262d">
-                <td style="padding:4px 6px;color:#7d8590;font-family:monospace">09/04</td>
-                <td style="padding:4px 6px;color:#e6edf3">☀</td>
-                <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
-                <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
-                <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
-              </tr>
-              <tr style="border-bottom:1px solid #21262d">
-                <td style="padding:4px 6px;color:#7d8590;font-family:monospace">08/04</td>
-                <td style="padding:4px 6px;color:#e6edf3">☀</td>
-                <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
-                <td style="padding:4px 6px"><span style="color:#3fb950">✅</span></td>
-                <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
-              </tr>
               <tr>
-                <td style="padding:4px 6px;color:#7d8590;font-family:monospace">07/04</td>
-                <td style="padding:4px 6px;color:#e6edf3">🌙</td>
-                <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
-                <td style="padding:4px 6px"><span style="color:#f85149">❌</span></td>
-                <td style="padding:4px 6px;color:#f85149;font-weight:700">0%</td>
+                <td style="padding:4px 6px;color:#58a6ff">Morales J.</td>
+                <td style="padding:4px 6px;color:#555;font-size:9px">Florez G.</td>
+                <td style="padding:4px 6px;color:#3fb950">✅</td>
+                <td style="padding:4px 6px;color:#3fb950">✅</td>
+                <td style="padding:4px 6px;color:#3fb950;font-weight:700">100%</td>
               </tr>
             </table>
-            <div style="margin-top:8px;background:#161b22;border-radius:6px;padding:8px;text-align:center">
-              <div style="font-size:10px;color:#7d8590">Promedio últimos 5 días</div>
-              <div style="font-size:18px;font-weight:900;color:#f0a500">62%</div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 12 — HISTORIAL ── -->
-  <div class="slide bg-dark" data-slide="11">
-    <div style="max-width:1000px;width:100%">
-      <div class="eyebrow">Pestaña "📋 Historial"</div>
-      <h2 style="margin-bottom:8px">Todas las cargas<br>de todos los líderes</h2>
-      <p class="sub" style="margin-bottom:20px;max-width:700px">En la pestaña <strong style="color:var(--text)">Historial</strong> ves un registro de todas las cargas realizadas: quién cargó, desde qué site, cuándo y con qué resultado.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
-        <div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div class="highlight blue">
-              <div class="highlight-title">📋 Qué ves en el historial</div>
-              <div style="font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:5px">
-                <div>→ Nombre del líder que cargó</div>
-                <div>→ Site</div>
-                <div>→ Fecha y hora de carga</div>
-                <div>→ Cantidad de operarios</div>
-                <div>→ % cumplimiento de esa carga</div>
-              </div>
-            </div>
-            <div class="highlight green">
-              <div class="highlight-title">✅ ¿Para qué sirve?</div>
-              <div style="font-size:13px;color:var(--muted)">Para verificar que ya cargaste el día, ver qué cargaron otros líderes de tu site, o revisar cargas anteriores.</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-          <table class="table-mock">
-            <thead><tr><th>Fecha</th><th>Líder</th><th>Site</th><th>Ops.</th><th>%</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span style="font-family:var(--mono);font-size:10px">10/04 09:32</span></td>
-                <td><strong>G. Florez</strong></td>
-                <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA02</span></td>
-                <td>24</td>
-                <td><strong style="color:var(--ok)">83%</strong></td>
-              </tr>
-              <tr>
-                <td><span style="font-family:var(--mono);font-size:10px">10/04 07:15</span></td>
-                <td><strong>K. Rodriguez</strong></td>
-                <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA02</span></td>
-                <td>18</td>
-                <td><strong style="color:var(--warn)">72%</strong></td>
-              </tr>
-              <tr>
-                <td><span style="font-family:var(--mono);font-size:10px">09/04 22:10</span></td>
-                <td><strong>M. Gomez</strong></td>
-                <td><span style="background:rgba(45,50,119,.1);color:var(--blue);padding:2px 6px;border-radius:8px;font-size:10px">ARBA05</span></td>
-                <td>31</td>
-                <td><strong style="color:var(--ok)">90%</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLIDE 13 — TIPS ── -->
-  <div class="slide bg-tips" data-slide="12">
-    <div style="max-width:900px;width:100%;text-align:center;margin-bottom:20px">
-      <div class="eyebrow" style="justify-content:center">Buenas prácticas</div>
-      <h2>Tips para <span class="accent-green">no cagarse</span> 😄</h2>
-    </div>
+<!-- ══════════════════════════════════════════════
+     SLIDE 16 — BUENAS PRÁCTICAS
+═══════════════════════════════════════════════ -->
+<div class="slide bg-step" data-slide="15">
+  <div style="max-width:960px;width:100%">
+    <div class="eyebrow">Estándares operativos</div>
+    <h2 style="margin-bottom:6px;text-align:center">Buenas prácticas para el uso del tablero</h2>
+    <div class="divider" style="margin:10px auto 18px"></div>
     <div class="tips-grid">
       <div class="tip-card green">
         <div class="tip-icon">✍️</div>
-        <strong>Usá siempre el mismo nombre</strong>
-        <p>"Gonzalo", "gonzalo" y "G. Florez" son registros distintos. Escribí igual cada vez para que el historial sea tuyo.</p>
+        <strong>Nombre consistente en cada carga</strong>
+        <p>Utilizar siempre el mismo nombre al cargar. "Gonzalo", "gonzalo" y "G. Florez" son registros distintos en el historial. La inconsistencia fragmenta el historial propio.</p>
       </div>
       <div class="tip-card blue">
         <div class="tip-icon">🕐</div>
-        <strong>Cargá el mismo día</strong>
-        <p>Exportá y cargá el Excel el mismo día del turno. El análisis usa las fechas del archivo, no la hora de carga.</p>
+        <strong>Cargar el mismo día del turno</strong>
+        <p>Exportar y cargar el Excel el mismo día que se quiere analizar. El sistema procesa las fechas del archivo, no la fecha de carga. Cargas tardías pueden generar inconsistencias.</p>
       </div>
       <div class="tip-card yellow">
         <div class="tip-icon">📁</div>
-        <strong>Excel del INVAS, no otro</strong>
-        <p>Solo funciona con el archivo que exporta el INVAS. No copies datos a mano ni uses formatos distintos.</p>
+        <strong>Usar exclusivamente el archivo del INVAS</strong>
+        <p>El tablero reconoce el formato estándar de exportación del INVAS. No se deben modificar columnas, filtros ni nombres de cabecera antes de subir el archivo.</p>
       </div>
       <div class="tip-card red">
+        <div class="tip-icon">📝</div>
+        <strong>Documentar desvíos con nota</strong>
+        <p>Si un operario tiene desvío por una razón justificada, registrar la nota correspondiente. Esto permite que el manager entienda el contexto sin necesidad de consultar al líder.</p>
+      </div>
+      <div class="tip-card blue">
         <div class="tip-icon">🔄</div>
-        <strong>Si algo sale mal → recargá</strong>
-        <p>Si el tablero tarda mucho o muestra error, hacé Ctrl+Shift+R para recargar sin caché. También podés volver a cargar el mismo Excel.</p>
+        <strong>Si el tablero no carga o muestra error</strong>
+        <p>Presionar <strong>Ctrl + Shift + R</strong> (Windows) o <strong>Cmd + Shift + R</strong> (Mac) para recargar sin caché. También puede volver a cargarse el mismo Excel sin problema.</p>
+      </div>
+      <div class="tip-card green">
+        <div class="tip-icon">📱</div>
+        <strong>Guardarlo como acceso directo</strong>
+        <p>Desde el navegador del celular: Menú → "Agregar a pantalla de inicio". El tablero funciona como una aplicación sin necesidad de instalar nada.</p>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── SLIDE 14 — CIERRE ── -->
-  <div class="slide" style="background:linear-gradient(135deg,#fff8b0,#fffce0,#fffdf0)" data-slide="13">
-    <div style="text-align:center;max-width:640px">
-      <div style="font-size:52px;margin-bottom:18px">🚀</div>
-      <div class="eyebrow" style="justify-content:center">Mercadito Dash · Fast Start Control</div>
-      <h2 style="margin-bottom:12px">¡Ya sabés todo!<br><span style="color:var(--ok)">Ahora a cargar.</span></h2>
-      <p class="sub" style="margin:0 auto 20px;max-width:480px">Nombre + site + Excel → Analizar y publicar.<br>Excluí, cambiá turnos, dejá notas. Todo desde la tabla, sin llamar a nadie.</p>
+<!-- ══════════════════════════════════════════════
+     SLIDE 17 — CIERRE
+═══════════════════════════════════════════════ -->
+<div class="slide" style="background:linear-gradient(135deg,#fff8b0,#fffce0,#fffdf0)" data-slide="16">
+  <div style="text-align:center;max-width:660px">
+    <div style="font-size:48px;margin-bottom:16px">✅</div>
+    <div class="eyebrow" style="justify-content:center">Mercadito Dash · Fast Start Control</div>
+    <h2 style="margin-bottom:10px">Onboarding completado</h2>
+    <p class="sub" style="margin:0 auto 22px;max-width:500px">Con este material tenés todo lo necesario para operar el tablero de forma autónoma. Para cualquier consulta sobre configuración de site o targets, contactar al Manager.</p>
 
-      <div style="display:flex;flex-direction:column;gap:8px;margin:0 auto 20px;max-width:440px;text-align:left">
-        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
-          <span style="font-size:18px">🚫</span>
-          <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Excluir operario</strong> — clic en 🚫 en su fila</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
-          <span style="font-size:18px">🔄</span>
-          <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Cambiar turno</strong> — clic en 🔄 en su fila</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
-          <span style="font-size:18px">📝</span>
-          <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Agregar nota</strong> — clic en 📝 en su fila</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
-          <span style="font-size:18px">👆</span>
-          <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Ver historial del operario</strong> — clic en su nombre</div>
-        </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 auto 22px;max-width:500px;text-align:left">
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">📂</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Cargar</strong> — nombre + site + Excel</div>
       </div>
-
-      <a class="close-link" href="https://gonzaflorez.github.io/mercadito-dash/mercadito_dash.html" target="_blank">
-        Abrir Mercadito Dash →
-      </a>
-      <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(45,50,119,.12)">
-        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">Gonzalo Florez</div>
-        <div style="font-size:11px;color:var(--muted)">Analista Sr. Mejora Continua · Logística Inversa · Mercado Libre ARG</div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">📊</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Resumen</strong> — KPIs del día</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">🚫</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Excluir</strong> — clic en 🚫 en la fila</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">🔄</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Turno</strong> — clic en 🔄 para corregir</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">📝</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Nota</strong> — clic en 📝 para registrar</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0d8b0;border-radius:10px;padding:10px 14px">
+        <span style="font-size:16px">👆</span>
+        <div style="font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Ficha</strong> — clic en el nombre del operario</div>
       </div>
     </div>
+
+    <a class="close-link" href="https://gonzaflorez.github.io/mercadito-dash/mercadito_dash.html" target="_blank">
+      Abrir Mercadito Dash →
+    </a>
+    <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(45,50,119,.12)">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">Gonzalo Florez</div>
+      <div style="font-size:11px;color:var(--muted)">Analista Sr. Mejora Continua · Logística Inversa · Mercado Libre ARG</div>
+    </div>
   </div>
+</div>
 
 </div><!-- /deck -->
 
@@ -936,7 +1187,7 @@ h2{font-size:clamp(24px,3.2vw,42px);font-weight:900;line-height:1.1;letter-spaci
   <button class="nav-btn" onclick="go(-1)">‹</button>
   <div class="nav-dots" id="nav-dots"></div>
   <button class="nav-btn" onclick="go(1)">›</button>
-  <span class="slide-counter" id="counter">1 / 14</span>
+  <span class="slide-counter" id="counter">1 / 17</span>
 </div>
 
 <script>
