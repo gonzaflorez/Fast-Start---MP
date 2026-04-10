@@ -380,9 +380,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div class="tab-panel" id="tab-operarios">
   <div class="table-wrap">
     <div class="table-header">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
         <div class="table-title">👤 Detalle por Operario</div>
         <span class="table-count" id="ops-count">—</span>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:8px">
+          <span style="font-size:11px">🔍</span>
+          <input type="range" id="ops-zoom" min="55" max="100" value="100" style="width:80px;accent-color:var(--mp-blue);cursor:pointer" oninput="zoomOpsTable(this.value)">
+          <span id="ops-zoom-val" style="font-size:10px;color:var(--text-muted);font-family:var(--mono);min-width:30px">100%</span>
+        </div>
         <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Ruta</span>
           <select class="filter-select" id="f-ruta" style="font-size:11px;padding:4px 8px" onchange="renderAll()">
@@ -395,8 +400,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
     </div>
-    <div class="table-scroll">
-      <table><thead><tr>
+    <div class="table-scroll" id="ops-table-scroll">
+      <table id="ops-table"><thead><tr>
         <th>Operario</th><th>Site</th><th>Fecha</th><th>Turno</th><th>Ruta</th>
         <th>Inicio Turno</th><th>Bipeos Inicio</th><th>Post Break</th><th>Bipeos PB</th><th>% Cumpl.</th><th>Nota</th><th></th>
       </tr></thead><tbody id="ops-body">
@@ -1157,7 +1162,7 @@ function rowOp(o){
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td><button class="act-btn" title="Cambiar turno" onclick="cambiarTurno('${eid}','${o.usuario}','${o.turno}')">${o.turno==='Mañana'?'☀':'🌙'}</button> ${o.turno}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.ruta||''}">${o.ruta||'—'}</td>
     <td>${o.inicio?`<span class="badge ${ib}">${o.inicio}</span>`:'—'}</td>
     <td>${bipI}</td>
     <td>${o.postBreak?`<span class="badge ${pb}">${o.postBreak}</span>`:'—'}</td>
@@ -1177,7 +1182,7 @@ function rowOpExcluido(o){
     <td><span class="badge badge-site">${o.site}</span></td>
     <td style="font-family:var(--mono);color:var(--text-muted)">${o.fecha}</td>
     <td>${o.turno==='Mañana'?'☀ Mañana':'🌙 Tarde'}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${o.ruta||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.ruta||''}">${o.ruta||'—'}</td>
     <td colspan="4"><span class="badge badge-exc">Excluido</span>${manualBadge}</td>
     <td>${notaHtml}</td>
     <td><button class="act-btn" title="Reactivar operario" onclick="reactivarOp('${eid}','${o.usuario}','${o.turno}')">✅</button></td>
@@ -2011,6 +2016,14 @@ document.addEventListener('DOMContentLoaded',()=>{
     reader.readAsArrayBuffer(currentFile);
   });
 });
+
+// ── ZOOM TABLA OPERARIOS ─────────────────────────────────────────
+function zoomOpsTable(val){
+  const tbl=document.getElementById('ops-table');
+  if(tbl) tbl.style.fontSize=val/100+'em';
+  const lbl=document.getElementById('ops-zoom-val');
+  if(lbl) lbl.textContent=val+'%';
+}
 
 // ── PATCH OPERARIO (edición in-place en JSONBin) ─────────────────
 function patchOperario(entryId, usuario, turno, patch){
