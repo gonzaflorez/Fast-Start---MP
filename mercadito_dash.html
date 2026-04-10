@@ -437,7 +437,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="section-title">📂 Cargar análisis del día</div>
     <div class="setup-grid">
       <div class="field"><label>👤 Tu nombre (Líder)</label><input type="text" id="leader-name" placeholder="Ej: Gonzalo Florez"/></div>
-      <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02" oninput="renderRutasSite()"/></div>
+      <div class="field"><label>🏭 Site</label><input type="text" id="leader-site" placeholder="Ej: ARBA02" oninput="updateConfigPreview()"/></div>
     </div>
     <div class="upload-zone" id="drop-zone">
       <input type="file" id="file-input" accept=".xlsx,.xls"/>
@@ -457,22 +457,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="setup-card" style="background:var(--surface2)">
     <div id="config-preview" style="font-size:12px;color:var(--text-muted);line-height:2">
       <strong style="color:var(--text)">Configuración activa</strong><br>
-      <span id="cfg-target-lbl">Target: 6 bipeos</span> ·
-      <span id="cfg-exc-lbl">Excluidos: full, off, pickit</span><br>
+      <span id="cfg-target-lbl">Ingresá tu site para ver la configuración</span><br>
       <span id="cfg-horarios-lbl"></span>
     </div>
   </div>
 
-  <div class="setup-card">
-    <div class="section-title">🛣️ Rutas excluidas para mi site</div>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Agregá las rutas que no deben controlarse en tu site. Solo aplica a tu site, no afecta a los demás.</p>
-    <div id="mis-rutas-tags" style="margin-bottom:10px;min-height:28px"></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input type="text" id="mis-rutas-input" placeholder="Nombre de ruta (ej: pickit, full...)" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);outline:none" onkeydown="if(event.key==='Enter')addRutaSite()"/>
-      <button class="btn-secondary" onclick="addRutaSite()">+ Agregar</button>
-    </div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Ingresá el site en el campo de arriba para ver y editar sus rutas.</div>
-  </div>
 </div>
 
 <!-- MANAGER -->
@@ -515,17 +504,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
     <!-- EXCLUSIONES + PIN + GUARDAR -->
     <div class="manager-grid">
-
-      <!-- EXCLUSIONES -->
-      <div class="manager-card">
-        <div class="manager-card-title">🚫 Rutas excluidas del control</div>
-        <div class="exc-list" id="exc-list"></div>
-        <div class="exc-add-wrap">
-          <input type="text" class="exc-add-input" id="exc-add-input" placeholder="Agregar ruta…" onkeydown="if(event.key==='Enter')addExclusion()"/>
-          <button class="btn-secondary" onclick="addExclusion()">+ Agregar</button>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Coincidencia parcial con nombre de ruta (sin distinción de mayúsculas)</div>
-      </div>
 
       <!-- CAMBIAR PIN -->
       <div class="manager-card">
@@ -590,18 +568,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 const JBIN_KEY = '$2a$10$wzK.Zh3LOZw0dK2./KvJmuCNJKaH.206v9Xsb5EmO/QEYujiRBUbm';
 const JBIN_RESULTS = '69d515ceaaba882197d28fe4';
 const JBIN_URL = `https://api.jsonbin.io/v3/b/${JBIN_RESULTS}`;
-const DEFAULT_GLOBAL = {
-  target: 6,
-  excluidas: ['full','off','pickit'],
-  toleranciaInicio: 0,
-  toleranciaPB: 0,
-  turnos: [
-    {nombre:'Mañana', activo:true,  inicioTurno:'06:00', finTurno:'14:00', inicioBreak:'09:00', finBreak:'09:30'},
-    {nombre:'Tarde',  activo:true,  inicioTurno:'14:00', finTurno:'22:00', inicioBreak:'17:00', finBreak:'17:30'},
-    {nombre:'Noche',  activo:false, inicioTurno:'22:00', finTurno:'06:00', inicioBreak:'02:00', finBreak:'02:30'},
-  ]
-};
-const DEFAULT_CONFIG = { global: JSON.parse(JSON.stringify(DEFAULT_GLOBAL)), sites:{} };
+const DEFAULT_CONFIG = { sites: {} };
+const DEFAULT_TURNOS_BLANK = [
+  {nombre:'Mañana',activo:false,inicioTurno:'',finTurno:'',inicioBreak:'',finBreak:''},
+  {nombre:'Tarde', activo:false,inicioTurno:'',finTurno:'',inicioBreak:'',finBreak:''},
+  {nombre:'Noche', activo:false,inicioTurno:'',finTurno:'',inicioBreak:'',finBreak:''},
+];
 
 // ── HELPERS ──────────────────────────────────────────────────────
 const timeToMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
@@ -615,7 +587,6 @@ const pctColor = p => p>=80?'var(--ok)':p>=40?'var(--warning)':'var(--desvio)';
 let allEntries = [];
 let currentFile = null;
 let CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-let CONTROLES = buildControles(CONFIG.global);
 let managerUnlocked = false;
 const bClass = v => v==='OK'?'badge-ok':v==='Desvío'?'badge-dev':'badge-exc';
 
@@ -653,35 +624,15 @@ function buildControles(cfg){
   }));
 }
 
-function getGlobal(){ return CONFIG.global||CONFIG; }
-
 function getEffectiveConfig(site){
-  const g=getGlobal();
-  if(!site) return g;
+  if(!site) return null;
   const key=(site||'').toUpperCase().trim();
-  const ov=(CONFIG.sites||{})[key];
-  if(!ov) return g;
-  const merged=Object.assign({},g,ov);
-  if(!ov.turnos) merged.turnos=g.turnos; // heredar turnos si no está sobreescrito
-  return merged;
+  return (CONFIG.sites||{})[key]||null;
 }
 
 function applyConfig(cfg){
   if(!cfg) return;
-  // Migrar formatos legacy al nuevo {global, sites}
-  if(!cfg.global){
-    const g=Object.assign(JSON.parse(JSON.stringify(DEFAULT_GLOBAL)),cfg);
-    delete g.sites;
-    cfg={global:g, sites:cfg.sites||{}};
-  }
-  CONFIG={
-    global:Object.assign(JSON.parse(JSON.stringify(DEFAULT_GLOBAL)), cfg.global||{}),
-    sites:cfg.sites||{}
-  };
-  if(!CONFIG.global.turnos||CONFIG.global.turnos.length<3){
-    CONFIG.global.turnos=JSON.parse(JSON.stringify(DEFAULT_GLOBAL.turnos));
-  }
-  CONTROLES=buildControles(CONFIG.global);
+  CONFIG={sites:cfg.sites||{}};
   updateConfigPreview();
 }
 
@@ -716,7 +667,8 @@ function processXLSX(wb,siteCfg){
   const iF=findCol('fecha inicio picking','fecha despacho','fecha inicio','fecha hora','datetime','timestamp','fecha','date');
   const iR=findCol('nombre ruta','ruta','route');
   if(iU<0||iF<0) throw new Error(`No se encontraron columnas.\nHeaders: ${hdrs.slice(0,25).join(' | ')}`);
-  const cfg=siteCfg||getGlobal();
+  const cfg=siteCfg;
+  if(!cfg) throw new Error('Este site no está configurado.\nPedile al Manager que lo configure antes de cargar.');
   const controles=buildControles(cfg);
   const excluidas=cfg.excluidas||[];
   const target=cfg.target||6;
@@ -770,17 +722,15 @@ function processXLSX(wb,siteCfg){
 
 // ── BUILD OPERARIOS (con bipeos) ─────────────────────────────────
 function buildOperarios(raw){
-  const excl=getGlobal().excluidas||[];
-  const isExcRuta=r=>excl.some(ex=>r.ruta&&r.ruta.toLowerCase().includes(ex.toLowerCase()));
   const map=new Map();
-  raw.filter(r=>r.estado!=='Excluido'&&!isExcRuta(r)).forEach(r=>{
+  raw.filter(r=>r.estado!=='Excluido').forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
     if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:false,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null});
     const op=map.get(k);
     if(r.tipo==='Inicio'){op.inicio=r.estado;op.inicioAcum=r.acumulados;}
     if(r.tipo==='Post Break'){op.postBreak=r.estado;op.postBreakAcum=r.acumulados;}
   });
-  raw.filter(r=>r.estado==='Excluido'||isExcRuta(r)).forEach(r=>{
+  raw.filter(r=>r.estado==='Excluido').forEach(r=>{
     const k=`${r.usuario}||${r.fecha}||${r.turno}`;
     if(!map.has(k)) map.set(k,{usuario:r.usuario,fecha:r.fecha,turno:r.turno,ruta:r.ruta||'',excluido:true,inicio:null,postBreak:null,inicioAcum:null,postBreakAcum:null,pct:null});
   });
@@ -831,9 +781,12 @@ function putBin(data){
 function saveEntry(leader,site,fecha,hora,raw){
   const operarios=buildOperarios(raw);
   const stats=calcStats(raw);
+  const siteCfg2=getEffectiveConfig(site)||{};
   const entry={
     id:`${site}_${leader.replace(/\s+/g,'_')}_${fecha.replace(/\//g,'-')}`,
-    lider:leader,site,fecha,hora,ts:Date.now(),stats,operarios
+    lider:leader,site,fecha,hora,ts:Date.now(),
+    target:siteCfg2.target||6,
+    stats,operarios
   };
   // Optimistic: update local state immediately
   const rest=allEntries.filter(e=>e.id!==entry.id);
@@ -857,7 +810,7 @@ function saveEntry(leader,site,fecha,hora,raw){
 // ── CONFIG SAVE ──────────────────────────────────────────────────
 function saveConfig(){
   saveCurrentTabToConfig();
-  const newCfg={global:CONFIG.global,sites:CONFIG.sites||{}};
+  const newCfg={sites:CONFIG.sites||{}};
   document.getElementById('cfg-loader').classList.add('show');
   document.getElementById('btn-save-config').disabled=true;
   fetchBin().then(({entries})=>{
@@ -1099,7 +1052,7 @@ function renderTopOfensores(entries){
 
 function renderOps(entries){
   const f=getFilters();
-  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider,_entryId:e.id})));
+  let allOps=entries.flatMap(e=>e.operarios.map(o=>({...o,site:e.site,lider:e.lider,_entryId:e.id,_target:e.target||6})));
   // Populate ruta filter
   const rutaSel=document.getElementById('f-ruta');
   if(rutaSel){
@@ -1152,8 +1105,8 @@ function renderOps(entries){
 
 function rowOp(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
-  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
-  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${(o._target||6)}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${(o._target||6)}</span>`:'—';
   const trendHtml=o.trend==='up'?`<span style="color:var(--ok);font-size:11px;margin-left:5px">↑${o.trendDelta}%</span>`:o.trend==='down'?`<span style="color:var(--desvio);font-size:11px;margin-left:5px">↓${Math.abs(o.trendDelta)}%</span>`:o.trend==='same'?`<span style="color:var(--text-muted);font-size:11px;margin-left:5px">→</span>`:'';
   const notaHtml=o.nota?`<span class="nota-cell" title="${o.nota}" onclick="editarNota('${o._entryId}','${o.usuario}','${o.turno}',this)">${o.nota}</span>`:`<span class="nota-cell" style="color:var(--border)" onclick="editarNota('${o._entryId}','${o.usuario}','${o.turno}',this)">+</span>`;
   const eid=o._entryId||'';
@@ -1191,8 +1144,8 @@ function rowOpExcluido(o){
 
 function rowTurnoFull(o){
   const ib=bClass(o.inicio),pb=bClass(o.postBreak);
-  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${getGlobal().target}</span>`:'—';
-  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${getGlobal().target}</span>`:'—';
+  const bipI=o.inicioAcum!==null&&o.inicioAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.inicio==='OK'?'var(--ok)':'var(--desvio)'}">${o.inicioAcum}/${(o._target||6)}</span>`:'—';
+  const bipP=o.postBreakAcum!==null&&o.postBreakAcum!==undefined?`<span style="font-family:var(--mono);font-size:11px;color:${o.postBreak==='OK'?'var(--ok)':'var(--desvio)'}">${o.postBreakAcum}/${(o._target||6)}</span>`:'—';
   return `<tr>
     <td><strong>${o.usuario}</strong></td>
     <td><span class="badge badge-site">${o.site}</span></td>
@@ -1396,17 +1349,21 @@ function renderTrendChart(entries){
 
 // ── MANAGER CONFIG UI ────────────────────────────────────────────
 const TURNO_ICONS = {Mañana:'☀',Tarde:'🌙',Noche:'🌚'};
-let currentSiteTab = 'global';
+let currentSiteTab = '';
 
 function renderSiteTabs(){
   const sites=Object.keys(CONFIG.sites||{});
   const bar=document.getElementById('site-tabs-bar');
   if(!bar) return;
-  bar.innerHTML=[
-    `<button class="site-tab-btn${currentSiteTab==='global'?' active':''}" onclick="switchSiteTab('global')">🌍 Global</button>`,
-    ...sites.map(s=>{const c=getCountry(s);return `<button class="site-tab-btn${currentSiteTab===s?' active':''}" onclick="switchSiteTab('${s}')">${c.flag} ${s}</button>`;}),
-    `<button class="site-tab-btn site-tab-add" onclick="promptAddSiteTab()">+ Agregar</button>`
-  ].join('');
+  if(!currentSiteTab&&sites.length) currentSiteTab=sites[0];
+  if(sites.length){
+    bar.innerHTML=[
+      ...sites.map(s=>{const c=getCountry(s);return `<button class="site-tab-btn${currentSiteTab===s?' active':''}" onclick="switchSiteTab('${s}')">${c.flag} ${s}</button>`;}),
+      `<button class="site-tab-btn site-tab-add" onclick="promptAddSiteTab()">+ Agregar</button>`
+    ].join('');
+  } else {
+    bar.innerHTML='<button class="site-tab-btn site-tab-add" onclick="promptAddSiteTab()">+ Agregar primer site</button>';
+  }
   renderActiveTabContent();
 }
 
@@ -1420,61 +1377,76 @@ function promptAddSiteTab(){
   const site=(prompt('Código del site (ej: ARBA02):')||'').trim().toUpperCase();
   if(!site) return;
   if(!CONFIG.sites) CONFIG.sites={};
-  if(!CONFIG.sites[site]) CONFIG.sites[site]={};
-  saveCurrentTabToConfig();
+  if(!CONFIG.sites[site]) CONFIG.sites[site]={
+    target:null,excluidas:[],toleranciaInicio:0,toleranciaPB:0,
+    turnos:JSON.parse(JSON.stringify(DEFAULT_TURNOS_BLANK))
+  };
   currentSiteTab=site;
   renderSiteTabs();
 }
 
 function deleteCurrentSiteTab(){
-  if(currentSiteTab==='global') return;
-  if(!confirm(`¿Eliminar configuración de ${currentSiteTab}? Pasará a usar la config global.`)) return;
+  if(!currentSiteTab) return;
+  if(!confirm(`¿Eliminar configuración de ${currentSiteTab}? Los líderes de ese site no podrán cargar hasta que se vuelva a configurar.`)) return;
   delete CONFIG.sites[currentSiteTab];
-  currentSiteTab='global';
+  const remaining=Object.keys(CONFIG.sites||{});
+  currentSiteTab=remaining.length?remaining[0]:'';
   renderSiteTabs();
 }
 
 function saveCurrentTabToConfig(){
   const c=document.getElementById('site-tab-content');
-  if(!c) return;
-  const target=parseInt(c.querySelector('.tab-target')?.value)||DEFAULT_GLOBAL.target;
+  if(!c||!currentSiteTab) return;
+  const target=parseInt(c.querySelector('.tab-target')?.value)||null;
   const tolI=parseInt(c.querySelector('.tab-tol-inicio')?.value)||0;
   const tolPB=parseInt(c.querySelector('.tab-tol-pb')?.value)||0;
-  let turnos=null;
-  const useGlobal=c.querySelector('.tab-use-global-turnos')?.checked;
-  if(currentSiteTab==='global'||!useGlobal){
-    turnos=Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
-      const inputs=b.querySelectorAll('.tab-turno-input');
-      return {nombre:b.dataset.nombre,activo:b.querySelector('.tab-turno-chk')?.checked||false,
-        inicioTurno:inputs[0]?.value||'',finTurno:inputs[1]?.value||'',inicioBreak:inputs[2]?.value||'',finBreak:inputs[3]?.value||''};
-    });
-  }
-  if(currentSiteTab==='global'){
-    CONFIG.global.target=target;
-    CONFIG.global.toleranciaInicio=tolI;
-    CONFIG.global.toleranciaPB=tolPB;
-    if(turnos) CONFIG.global.turnos=turnos;
-  } else {
-    if(!CONFIG.sites) CONFIG.sites={};
-    CONFIG.sites[currentSiteTab]={target,toleranciaInicio:tolI,toleranciaPB:tolPB,turnos:useGlobal?null:turnos};
-  }
+  const turnos=Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
+    const inputs=b.querySelectorAll('.tab-turno-input');
+    return {nombre:b.dataset.nombre,activo:b.querySelector('.tab-turno-chk')?.checked||false,
+      inicioTurno:inputs[0]?.value||'',finTurno:inputs[1]?.value||'',inicioBreak:inputs[2]?.value||'',finBreak:inputs[3]?.value||''};
+  });
+  if(!CONFIG.sites) CONFIG.sites={};
+  const existing=CONFIG.sites[currentSiteTab]||{};
+  CONFIG.sites[currentSiteTab]={...existing,target,toleranciaInicio:tolI,toleranciaPB:tolPB,turnos};
+}
+
+function addSiteExclusion(site,val){
+  val=(val||'').trim().toLowerCase();
+  if(!val||!site) return;
+  if(!CONFIG.sites[site]) CONFIG.sites[site]={target:null,excluidas:[],toleranciaInicio:0,toleranciaPB:0,turnos:JSON.parse(JSON.stringify(DEFAULT_TURNOS_BLANK))};
+  const exc=CONFIG.sites[site].excluidas||(CONFIG.sites[site].excluidas=[]);
+  if(!exc.includes(val)) exc.push(val);
+  const input=document.getElementById(`site-exc-input-${site}`);
+  if(input) input.value='';
+  renderSiteExcList(site);
+}
+
+function removeSiteExclusion(site,ruta){
+  if(!site||!CONFIG.sites[site]) return;
+  CONFIG.sites[site].excluidas=(CONFIG.sites[site].excluidas||[]).filter(r=>r!==ruta);
+  renderSiteExcList(site);
+}
+
+function renderSiteExcList(site){
+  const el=document.getElementById(`site-exc-list-${site}`);
+  if(!el) return;
+  const exc=(CONFIG.sites[site]?.excluidas)||[];
+  el.innerHTML=exc.map(r=>`<span class="exc-tag">${r}<button onclick="removeSiteExclusion('${site}','${r}')" title="Eliminar">✕</button></span>`).join('')
+    ||'<span style="font-size:11px;color:var(--text-muted)">Sin rutas excluidas</span>';
 }
 
 function renderActiveTabContent(){
   const c=document.getElementById('site-tab-content');
   if(!c) return;
-  const isGlobal=currentSiteTab==='global';
-  const g=CONFIG.global;
-  const cfg=isGlobal?g:(CONFIG.sites||{})[currentSiteTab]||{};
-  const target=cfg.target??g.target;
-  const tolI=cfg.toleranciaInicio??g.toleranciaInicio??0;
-  const tolPB=cfg.toleranciaPB??g.toleranciaPB??0;
-  const turnos=(!isGlobal&&!cfg.turnos)?null:(cfg.turnos||g.turnos||DEFAULT_GLOBAL.turnos);
-  const usesGlobal=!isGlobal&&!cfg.turnos;
-  const country=isGlobal?null:getCountry(currentSiteTab);
-  const hint=(f,v)=>isGlobal?'':` <span style="font-size:10px;color:var(--text-muted);display:block;text-align:center;margin-top:2px">Global: ${v}</span>`;
-  const turnosSource=usesGlobal?(g.turnos||DEFAULT_GLOBAL.turnos):(turnos||DEFAULT_GLOBAL.turnos);
-  const turnoHTML=turnosSource.map(t=>`
+  if(!currentSiteTab){c.innerHTML='';return;}
+  const cfg=(CONFIG.sites||{})[currentSiteTab]||{};
+  const target=cfg.target??'';
+  const tolI=cfg.toleranciaInicio??0;
+  const tolPB=cfg.toleranciaPB??0;
+  const turnos=cfg.turnos||JSON.parse(JSON.stringify(DEFAULT_TURNOS_BLANK));
+  const excluidas=cfg.excluidas||[];
+  const country=getCountry(currentSiteTab);
+  const turnoHTML=turnos.map(t=>`
     <div class="turno-block tab-turno-block" data-nombre="${t.nombre}">
       <div class="turno-block-header">
         <label class="turno-toggle">
@@ -1492,25 +1464,31 @@ function renderActiveTabContent(){
         </div>
       </div>
     </div>`).join('');
+  const siteKey=currentSiteTab;
+  const excTagsHtml=excluidas.map(r=>`<span class="exc-tag">${r}<button onclick="removeSiteExclusion('${siteKey}','${r}')" title="Eliminar">✕</button></span>`).join('');
   c.innerHTML=`
     <div style="display:flex;align-items:center;margin-bottom:14px;gap:10px">
-      ${!isGlobal?`<span class="badge-country">${country.flag} ${country.code}</span>`:''}
-      <span style="font-size:12px;color:var(--text-muted)">${isGlobal?'Configuración base para todos los sites sin override':'Override sobre la configuración global'}</span>
-      ${!isGlobal?`<button class="btn-danger" onclick="deleteCurrentSiteTab()" style="margin-left:auto;font-size:11px;padding:4px 10px">✕ Eliminar ${currentSiteTab}</button>`:''}
+      <span class="badge-country">${country.flag} ${country.code}</span>
+      <span style="font-size:12px;color:var(--text-muted)">${siteKey} — configuración independiente</span>
+      <button class="btn-danger" onclick="deleteCurrentSiteTab()" style="margin-left:auto;font-size:11px;padding:4px 10px">✕ Eliminar ${siteKey}</button>
     </div>
     <div class="tab-kpi-row">
-      <div class="field"><label>🎯 Target bipeos</label><input type="number" class="tab-target" min="1" max="30" value="${target}" oninput="updateTabDesc()"/>${hint('target',g.target)}</div>
-      <div class="field"><label>⏱ Tolerancia Inicio (min)</label><input type="number" class="tab-tol-inicio" min="0" max="120" value="${tolI}" oninput="updateTabDesc()"/>${hint('tolI',g.toleranciaInicio)}</div>
-      <div class="field"><label>⏱ Tolerancia Post Break (min)</label><input type="number" class="tab-tol-pb" min="0" max="120" value="${tolPB}" oninput="updateTabDesc()"/>${hint('tolPB',g.toleranciaPB)}</div>
+      <div class="field"><label>🎯 Target bipeos</label><input type="number" class="tab-target" min="1" max="30" value="${target}" placeholder="ej: 6" oninput="updateTabDesc()"/></div>
+      <div class="field"><label>⏱ Tolerancia Inicio (min)</label><input type="number" class="tab-tol-inicio" min="0" max="120" value="${tolI}" oninput="updateTabDesc()"/></div>
+      <div class="field"><label>⏱ Tolerancia Post Break (min)</label><input type="number" class="tab-tol-pb" min="0" max="120" value="${tolPB}" oninput="updateTabDesc()"/></div>
     </div>
-    ${!isGlobal?`<label class="turno-toggle" style="font-size:12px;margin-bottom:10px;display:flex;align-items:center">
-      <input type="checkbox" class="tab-use-global-turnos" ${usesGlobal?'checked':''} onchange="toggleTabTurnos(this)">
-      &nbsp;Usar turnos de la configuración global
-    </label>`:``}
-    <div class="tab-turno-container" style="${usesGlobal?'display:none':''}">
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">🚫 Rutas excluidas del control</label>
+      <div class="exc-list" id="site-exc-list-${siteKey}">${excTagsHtml||'<span style="font-size:11px;color:var(--text-muted)">Sin rutas excluidas</span>'}</div>
+      <div class="exc-add-wrap">
+        <input type="text" class="exc-add-input" id="site-exc-input-${siteKey}" placeholder="Agregar ruta… (ej: pickit, full)" onkeydown="if(event.key==='Enter')addSiteExclusion('${siteKey}',this.value)"/>
+        <button class="btn-secondary" onclick="addSiteExclusion('${siteKey}',document.getElementById('site-exc-input-${siteKey}').value)">+ Agregar</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Coincidencia parcial · sin distinción de mayúsculas</div>
+    </div>
+    <div class="tab-turno-container">
       ${turnoHTML}
     </div>
-    ${usesGlobal?`<div class="site-cfg-inherited">✓ Turnos heredados del Global (${(g.turnos||DEFAULT_GLOBAL.turnos).filter(t=>t.activo).map(t=>t.nombre).join(', ')})</div>`:''}
     <div class="config-desc" id="tab-desc"></div>
   `;
   updateTabDesc();
@@ -1525,24 +1503,14 @@ function handleTabTurnoChk(chk){
   updateTabDesc();
 }
 
-function toggleTabTurnos(chk){
-  const container=chk.closest('#site-tab-content').querySelector('.tab-turno-container');
-  const inherited=chk.closest('#site-tab-content').querySelector('.site-cfg-inherited');
-  container.style.display=chk.checked?'none':'block';
-  if(inherited) inherited.style.display=chk.checked?'block':'none';
-  updateTabDesc();
-}
-
 function updateTabDesc(){
   const c=document.getElementById('site-tab-content');
   const desc=document.getElementById('tab-desc');
   if(!c||!desc) return;
-  const target=parseInt(c.querySelector('.tab-target')?.value)||DEFAULT_GLOBAL.target;
+  const target=parseInt(c.querySelector('.tab-target')?.value)||6;
   const tolI=parseInt(c.querySelector('.tab-tol-inicio')?.value)||0;
   const tolPB=parseInt(c.querySelector('.tab-tol-pb')?.value)||0;
-  const useGlobal=c.querySelector('.tab-use-global-turnos')?.checked;
-  const turnosSource=useGlobal?(CONFIG.global.turnos||DEFAULT_GLOBAL.turnos):
-    Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
+  const turnosSource=Array.from(c.querySelectorAll('.tab-turno-block')).map(b=>{
       const inputs=b.querySelectorAll('.tab-turno-input');
       return {nombre:b.dataset.nombre,activo:b.querySelector('.tab-turno-chk')?.checked||false,
         inicioTurno:inputs[0]?.value,finTurno:inputs[1]?.value,finBreak:inputs[3]?.value};
@@ -1562,245 +1530,27 @@ function updateTabDesc(){
   else desc.classList.remove('show');
 }
 
-// ── LEGACY STUBS (compatibilidad) ─────────────────────────────────
-function renderTurnoBlocks(){
-  const g=getGlobal();
-  const tolI=g.toleranciaInicio||0;
-  const tolPB=g.toleranciaPB||0;
-  document.getElementById('cfg-tol-inicio').value=tolI;
-  document.getElementById('cfg-tol-pb').value=tolPB;
-  document.getElementById('turno-blocks').innerHTML=g.turnos.map(t=>{
-    const icon=TURNO_ICONS[t.nombre]||'🕐';
-    return `<div class="turno-block turno-block-data" data-nombre="${t.nombre}">
-      <div class="turno-block-header">
-        <label class="turno-toggle">
-          <input type="checkbox" class="turno-chk" ${t.activo?'checked':''} onchange="updateConfigDesc()">
-          ${icon} Turno ${t.nombre}
-        </label>
-        <span class="turno-badge">${t.activo?'Activo':'Inactivo'}</span>
-      </div>
-      <div class="turno-block-body" ${t.activo?'':'style="opacity:.4;pointer-events:none"'}>
-        <div class="turno-grid">
-          <div class="field"><label>Inicio Turno</label><input type="time" class="turno-time-input" value="${t.inicioTurno}" oninput="updateConfigDesc()"/></div>
-          <div class="field"><label>Fin Turno</label><input type="time" class="turno-time-input" value="${t.finTurno}" oninput="updateConfigDesc()"/></div>
-          <div class="field"><label>Inicio Break</label><input type="time" class="turno-time-input" value="${t.inicioBreak}" oninput="updateConfigDesc()"/></div>
-          <div class="field"><label>Fin Break (Post Break)</label><input type="time" class="turno-time-input" value="${t.finBreak}" oninput="updateConfigDesc()"/></div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  // Toggle disabled state cuando cambia el checkbox
-  document.querySelectorAll('.turno-chk').forEach(chk=>{
-    chk.addEventListener('change',()=>{
-      const body=chk.closest('.turno-block').querySelector('.turno-block-body');
-      const badge=chk.closest('.turno-block').querySelector('.turno-badge');
-      body.style.opacity=chk.checked?'1':'.4';
-      body.style.pointerEvents=chk.checked?'':'none';
-      badge.textContent=chk.checked?'Activo':'Inactivo';
-    });
-  });
-  updateConfigDesc();
-}
-
-function updateConfigDesc(){
-  const tolI=parseInt(document.getElementById('cfg-tol-inicio').value)||0;
-  const tolPB=parseInt(document.getElementById('cfg-tol-pb').value)||0;
-  const target=parseInt(document.getElementById('cfg-target').value)||CONFIG.target;
-  const desc=document.getElementById('config-desc');
-  const lines=[];
-  document.querySelectorAll('.turno-block-data').forEach(block=>{
-    const nombre=block.dataset.nombre;
-    const activo=block.querySelector('.turno-chk').checked;
-    if(!activo) return;
-    const inputs=block.querySelectorAll('.turno-time-input');
-    const inicioTurno=inputs[0]?.value||'';
-    const finTurno=inputs[1]?.value||'';
-    const finBreak=inputs[3]?.value||'';
-    if(!inicioTurno) return;
-    const icon=TURNO_ICONS[nombre]||'🕐';
-    const corteI=tolI>0?addMinutesStr(inicioTurno,tolI):null;
-    const cortePB=tolPB>0&&finBreak?addMinutesStr(finBreak,tolPB):null;
-    const frase1=corteI
-      ?`El operario debe acumular <strong>${target} bipeos</strong> entre las <strong>${inicioTurno}</strong> y las <strong>${corteI}</strong> (${tolI} min de tolerancia)`
-      :`El operario debe acumular <strong>${target} bipeos</strong> al iniciar turno a las <strong>${inicioTurno}</strong>`;
-    const frase2=finBreak?(cortePB
-      ?`Post Break: <strong>${target} bipeos</strong> entre las <strong>${finBreak}</strong> y las <strong>${cortePB}</strong> (${tolPB} min)`
-      :`Post Break: <strong>${target} bipeos</strong> al volver del break a las <strong>${finBreak}</strong>`):'';
-    lines.push(`<div class="desc-turno">${icon} Turno ${nombre} (${inicioTurno} – ${finTurno})</div>`);
-    lines.push(`<div class="desc-line">→ ${frase1}</div>`);
-    if(frase2) lines.push(`<div class="desc-line">→ ${frase2}</div>`);
-  });
-  if(lines.length){
-    desc.innerHTML=lines.join('');
-    desc.classList.add('show');
-  } else {
-    desc.classList.remove('show');
-  }
-}
-
-function renderExcList(){
-  document.getElementById('exc-list').innerHTML=(getGlobal().excluidas||[]).map(ex=>`
-    <span class="exc-tag">${ex}<button onclick="removeExclusion('${ex}')" title="Eliminar">✕</button></span>
-  `).join('');
-}
-
-function addExclusion(){
-  const input=document.getElementById('exc-add-input');
-  const val=input.value.trim().toLowerCase();
-  if(!val) return;
-  const exc=getGlobal().excluidas||(CONFIG.global.excluidas=[]);
-  if(!exc.includes(val)) exc.push(val);
-  input.value='';
-  renderExcList();
-}
-
-function removeExclusion(ex){
-  CONFIG.global.excluidas=(CONFIG.global.excluidas||CONFIG.excluidas||[]).filter(e=>e!==ex);
-  CONFIG.excluidas=CONFIG.global.excluidas;
-  renderExcList();
-}
-
-// ── SITE CONFIG FUNCTIONS ─────────────────────────────────────────
-function addSiteConfig(){
-  const input=document.getElementById('new-site-input');
-  const site=(input.value||'').trim().toUpperCase();
-  if(!site) return;
-  if(!(CONFIG.sites||{})[site]){
-    if(!CONFIG.sites) CONFIG.sites={};
-    const g=getGlobal();
-    CONFIG.sites[site]={target:g.target,toleranciaInicio:g.toleranciaInicio,toleranciaPB:g.toleranciaPB,turnos:null};
-  }
-  input.value='';
-  renderSiteConfigs();
-}
-
-function removeSiteConfig(site){
-  if(CONFIG.sites) delete CONFIG.sites[site];
-  renderSiteConfigs();
-}
-
-function renderSiteConfigs(){
-  const container=document.getElementById('site-config-list');
-  if(!container) return;
-  const sites=CONFIG.sites||{};
-  const keys=Object.keys(sites);
-  if(!keys.length){
-    container.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:10px 0">Sin configuraciones por site — todos usan la configuración global.</div>';
-    return;
-  }
-  const g=getGlobal();
-  container.innerHTML=keys.map(siteName=>{
-    const ov=sites[siteName]||{};
-    const c=getCountry(siteName);
-    const usaTurnos=!!ov.turnos;
-    const turnos=ov.turnos||g.turnos;
-    const turnoBlocks=turnos.map(t=>{
-      const icon=TURNO_ICONS[t.nombre]||'🕐';
-      return `<div class="turno-block" data-site-turno="${siteName}">
-        <div class="turno-block-header" style="padding:8px 12px">
-          <label class="turno-toggle" style="font-size:12px">
-            <input type="checkbox" class="site-turno-chk" ${t.activo?'checked':''}>
-            ${icon} ${t.nombre}
-          </label>
-        </div>
-        <div class="turno-block-body" style="padding:10px;${t.activo?'':'opacity:.4;pointer-events:none'}">
-          <div class="turno-grid">
-            <div class="field"><label>Inicio</label><input type="time" class="site-turno-input" value="${t.inicioTurno}"/></div>
-            <div class="field"><label>Fin</label><input type="time" class="site-turno-input" value="${t.finTurno}"/></div>
-            <div class="field"><label>Inicio Break</label><input type="time" class="site-turno-input" value="${t.inicioBreak}"/></div>
-            <div class="field"><label>Fin Break</label><input type="time" class="site-turno-input" value="${t.finBreak}"/></div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-    return `<div class="site-cfg-block" id="site-block-${siteName}">
-      <div class="site-cfg-header">
-        <strong style="font-size:14px">${siteName}</strong>
-        <span class="badge-country">${c.flag} ${c.code}</span>
-        <span style="font-size:11px;color:var(--ok);margin-left:4px">config custom</span>
-        <div style="margin-left:auto">
-          <button class="btn-danger" onclick="removeSiteConfig('${siteName}')">✕ Eliminar</button>
-        </div>
-      </div>
-      <div class="site-cfg-body">
-        <div class="site-cfg-grid">
-          <div class="field">
-            <label>Target bipeos</label>
-            <input type="number" class="ctrl-input site-target" value="${ov.target??g.target}" min="1" max="30"/>
-            <div class="hint">Global: ${g.target}</div>
-          </div>
-          <div class="field">
-            <label>Tolerancia Inicio (min)</label>
-            <input type="number" class="ctrl-input site-tol-inicio" value="${ov.toleranciaInicio??g.toleranciaInicio}" min="0" max="120"/>
-            <div class="hint">Global: ${g.toleranciaInicio}</div>
-          </div>
-          <div class="field">
-            <label>Tolerancia PB (min)</label>
-            <input type="number" class="ctrl-input site-tol-pb" value="${ov.toleranciaPB??g.toleranciaPB}" min="0" max="120"/>
-            <div class="hint">Global: ${g.toleranciaPB}</div>
-          </div>
-        </div>
-        <label class="turno-toggle" style="font-size:12px;margin-bottom:8px;display:flex">
-          <input type="checkbox" class="site-use-global-turnos" ${usaTurnos?'':'checked'} onchange="toggleSiteTurnos('${siteName}',this)">
-          &nbsp;Usar turnos de la configuración global
-        </label>
-        <div class="site-custom-turnos" id="site-turnos-${siteName}" style="${usaTurnos?'':'display:none'}">
-          ${turnoBlocks}
-        </div>
-        ${!usaTurnos?`<div class="site-cfg-inherited">✓ Turnos heredados de la configuración global (${g.turnos.filter(t=>t.activo).map(t=>t.nombre).join(', ')})</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-  // listeners toggle turno activo por site
-  document.querySelectorAll('.site-turno-chk').forEach(chk=>{
-    chk.addEventListener('change',()=>{
-      const body=chk.closest('[data-site-turno]').querySelector('.turno-block-body');
-      body.style.opacity=chk.checked?'1':'.4';
-      body.style.pointerEvents=chk.checked?'':'none';
-    });
-  });
-}
-
-function toggleSiteTurnos(site,chk){
-  const div=document.getElementById(`site-turnos-${site}`);
-  div.style.display=chk.checked?'none':'block';
-}
-
-function readSiteConfigs(){
-  const sites={};
-  document.querySelectorAll('.site-cfg-block[id^="site-block-"]').forEach(block=>{
-    const site=block.id.replace('site-block-','');
-    const target=parseInt(block.querySelector('.site-target')?.value)||getGlobal().target;
-    const tolI=parseInt(block.querySelector('.site-tol-inicio')?.value)||0;
-    const tolPB=parseInt(block.querySelector('.site-tol-pb')?.value)||0;
-    const useGlobal=block.querySelector('.site-use-global-turnos')?.checked;
-    let turnos=null;
-    if(!useGlobal){
-      const turnoBlocks=block.querySelectorAll('[data-site-turno]');
-      turnos=Array.from(turnoBlocks).map(tb=>{
-        const inputs=tb.querySelectorAll('.site-turno-input');
-        const nombre=tb.closest('.turno-block').querySelector('.turno-block-header span')?.textContent?.trim()||'';
-        const activo=tb.querySelector('.site-turno-chk')?.checked||false;
-        return {nombre,activo,inicioTurno:inputs[0]?.value,finTurno:inputs[1]?.value,inicioBreak:inputs[2]?.value,finBreak:inputs[3]?.value};
-      });
-    }
-    sites[site]={target,toleranciaInicio:tolI,toleranciaPB:tolPB,turnos};
-  });
-  return sites;
-}
-
 // ── CONFIG PREVIEW (en tab Carga) ────────────────────────────────
 function updateConfigPreview(){
-  const g=getGlobal();
+  const site=(document.getElementById('leader-site')?.value||'').toUpperCase().trim();
   const el=document.getElementById('cfg-target-lbl');
-  const el2=document.getElementById('cfg-exc-lbl');
   const el3=document.getElementById('cfg-horarios-lbl');
-  if(el) el.textContent=`Target: ${g.target} bipeos`;
-  if(el2) el2.textContent=`Excluidos: ${(g.excluidas||[]).join(', ')||'ninguno'}`;
+  if(!site){
+    if(el) el.textContent='Ingresá tu site para ver la configuración';
+    if(el3) el3.textContent='';
+    return;
+  }
+  const cfg=(CONFIG.sites||{})[site];
+  if(!cfg){
+    if(el) el.textContent=`⚠ Site ${site} no configurado — pedile al Manager que lo configure`;
+    if(el3) el3.textContent='';
+    return;
+  }
+  const exc=(cfg.excluidas||[]);
+  if(el) el.textContent=`Target: ${cfg.target||'?'} bipeos · Excluidas: ${exc.join(', ')||'ninguna'}`;
   if(el3){
-    const activos=(g.turnos||[]).filter(t=>t.activo);
-    const sitesCount=Object.keys(CONFIG.sites||{}).length;
-    el3.textContent=activos.map(t=>`${TURNO_ICONS[t.nombre]||''}${t.nombre}: ${t.inicioTurno}–${t.finTurno}`).join(' · ')+(sitesCount?` · ${sitesCount} site(s) con config custom`:'');
+    const activos=(cfg.turnos||[]).filter(t=>t.activo);
+    el3.textContent=activos.map(t=>`${TURNO_ICONS[t.nombre]||''}${t.nombre}: ${t.inicioTurno}–${t.finTurno}`).join(' · ')||'Sin turnos configurados';
   }
 }
 
@@ -1815,7 +1565,6 @@ function checkPin(){
     document.getElementById('manager-content').style.display='block';
     document.getElementById('manager-session').textContent='Sesión activa';
     renderSiteTabs();
-    renderExcList();
     renderManagerAnalytics(allEntries);
   } else {
     document.getElementById('pin-error').style.display='block';
@@ -2058,50 +1807,6 @@ function editarNota(entryId,usuario,turno,el){
   patchOperario(entryId,usuario,turno,{nota:nota.trim()||undefined});
 }
 
-// ── RUTAS POR SITE (sin PIN) ──────────────────────────────────────
-function getSiteCarga(){return (document.getElementById('leader-site')?.value||'').toUpperCase().trim();}
-
-function renderRutasSite(){
-  const site=getSiteCarga();
-  if(!site){document.getElementById('mis-rutas-tags').innerHTML='<span style="font-size:11px;color:var(--text-muted)">Ingresá tu site arriba para ver sus rutas.</span>';return;}
-  const g=getGlobal();
-  const siteRutas=(CONFIG.sites[site]?.excluidas)||[];
-  const globalRutas=g.excluidas||[];
-  const tags=[
-    ...globalRutas.map(r=>`<span class="ruta-tag" style="opacity:.5" title="Global">${r} <span style="font-size:9px">(global)</span></span>`),
-    ...siteRutas.filter(r=>!globalRutas.includes(r)).map(r=>`<span class="ruta-tag">${r} <button onclick="removeRutaSite('${r}')">✕</button></span>`)
-  ].join('');
-  document.getElementById('mis-rutas-tags').innerHTML=tags||'<span style="font-size:11px;color:var(--text-muted)">Sin rutas extra para este site.</span>';
-}
-
-function addRutaSite(){
-  const site=getSiteCarga();
-  if(!site){alert('Ingresá tu site primero.');return;}
-  const inp=document.getElementById('mis-rutas-input');
-  const val=inp.value.trim().toLowerCase();
-  if(!val) return;
-  if(!CONFIG.sites[site]) CONFIG.sites[site]={};
-  const rutas=CONFIG.sites[site].excluidas||(CONFIG.sites[site].excluidas=[]);
-  if(!rutas.includes(val)) rutas.push(val);
-  inp.value='';
-  renderRutasSite();
-  fetchBin().then(({entries,config})=>{
-    const merged=Object.assign({},config||{},{global:CONFIG.global,sites:CONFIG.sites});
-    return putBin({entries,config:merged});
-  }).catch(()=>{});
-}
-
-function removeRutaSite(ruta){
-  const site=getSiteCarga();
-  if(!site||!CONFIG.sites[site]) return;
-  CONFIG.sites[site].excluidas=(CONFIG.sites[site].excluidas||[]).filter(r=>r!==ruta);
-  renderRutasSite();
-  fetchBin().then(({entries,config})=>{
-    const merged=Object.assign({},config||{},{global:CONFIG.global,sites:CONFIG.sites});
-    return putBin({entries,config:merged});
-  }).catch(()=>{});
-}
-
 // ── FICHA INDIVIDUAL ─────────────────────────────────────────────
 function openFicha(usuario, site){
   const entries=[...allEntries]
@@ -2131,8 +1836,9 @@ function openFicha(usuario, site){
   const feedbackLines=[];
   if(lastOp&&!lastOp.excluido){
     feedbackLines.push(`Hola! Feedback Fast Start — ${usuario} (${lastEntry.fecha})`);
-    if(lastOp.inicio) feedbackLines.push(`• Inicio de turno: ${lastOp.inicio}${lastOp.inicioAcum!=null?` (${lastOp.inicioAcum}/${getGlobal().target} bipeos)`:''}`);
-    if(lastOp.postBreak) feedbackLines.push(`• Post break: ${lastOp.postBreak}${lastOp.postBreakAcum!=null?` (${lastOp.postBreakAcum}/${getGlobal().target} bipeos)`:''}`);
+    const entryTarget=lastEntry?.target||6;
+    if(lastOp.inicio) feedbackLines.push(`• Inicio de turno: ${lastOp.inicio}${lastOp.inicioAcum!=null?` (${lastOp.inicioAcum}/${entryTarget} bipeos)`:''}`);
+    if(lastOp.postBreak) feedbackLines.push(`• Post break: ${lastOp.postBreak}${lastOp.postBreakAcum!=null?` (${lastOp.postBreakAcum}/${entryTarget} bipeos)`:''}${''}`);
     feedbackLines.push(`• Cumplimiento del día: ${lastOp.pct??'—'}%`);
     if(avgPct!=null) feedbackLines.push(`• Promedio últimas ${active.length} cargas: ${avgPct}%`);
   }
