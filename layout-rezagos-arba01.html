@@ -129,7 +129,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .pos-bulto { background: #fff8e0; color: #8a5000; border: 1px solid rgba(224,120,0,.4); }
 .pos-voluminoso { background: #f5eeff; color: #5a1a8a; border: 1px solid rgba(123,31,162,.4); }
 .pos-id-txt { font-weight: 600; }
-.pos-pal-txt { font-size: .48rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50px; opacity: .85; }
+.pos-pal-txt { font-size: .48rem; overflow: hidden; max-width: 62px; opacity: .85; word-break: break-all; line-height: 1.2; }
 
 /* LEGEND */
 .legend { display: flex; flex-wrap: wrap; gap: 6px; font-size: .62rem; }
@@ -407,6 +407,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="btn btn-ghost btn-full btn-sm" onclick="syncFromSheet()" style="margin-bottom:7px;">↻ Sincronizar ahora</button>
         <div id="sync-msg" style="font-size:.72rem;color:var(--dim);text-align:center;margin-top:6px;"></div>
       </div>
+      <div class="card">
+        <div class="sec-hd" style="color:var(--yellow);font-weight:700;font-size:.8rem;">Configurar Layout</div>
+        <div id="layout-editor"></div>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="addSection()" style="margin-top:6px;">+ Nueva sección</button>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="resetLayout()" style="margin-top:6px;border-color:var(--red);color:var(--red);">↺ Restaurar layout original</button>
+      </div>
       <div class="card" style="border:2px solid #ff6b00;">
         <div class="sec-hd" style="color:#ff6b00;font-weight:700;font-size:.8rem;">🧪 Modo prueba</div>
         <div style="font-size:.75rem;color:var(--dim);margin-bottom:10px;line-height:1.5;">Cuando está activo: no se sincroniza al login ni se envían movimientos a Google Sheets. Los datos solo se guardan en este dispositivo.</div>
@@ -509,42 +515,48 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <script>
 // ═══════════════════════════════════════════════════════════
-// LAYOUT DEFINITION
+// LAYOUT DEFINITION — ahora dinámico, editable desde Admin
 // ═══════════════════════════════════════════════════════════
-const p3 = n => String(n).padStart(3,'0');
-const p2 = n => String(n).padStart(2,'0');
-const rng = n => Array.from({length:n},(_,i)=>i+1);
-
-const LAYOUT = [
+const DEFAULT_LAYOUT = [
   {
-    title: 'Fila superior',
+    id: 'sec-sup', title: 'Fila superior',
     docs: [
-      { id:'DOC5',  name:'DOC 5',  pos: rng(20).map(n=>`DOC-5-${p3(n)}`)  },
-      { id:'DOC6',  name:'DOC 6',  pos: rng(20).map(n=>`DOC-6-${p3(n)}`)  },
-      { id:'DOC7',  name:'DOC 7',  pos: rng(20).map(n=>`DOC-7-${p3(n)}`)  },
-      { id:'DOC8',  name:'DOC 8',  pos: rng(20).map(n=>`DOC-8-${p3(n)}`)  },
+      { id:'DOC5',  name:'DOC 5',         prefix:'DOC-5-',   count:20, pad:3 },
+      { id:'DOC6',  name:'DOC 6',         prefix:'DOC-6-',   count:20, pad:3 },
+      { id:'DOC7',  name:'DOC 7',         prefix:'DOC-7-',   count:20, pad:3 },
+      { id:'DOC8',  name:'DOC 8',         prefix:'DOC-8-',   count:20, pad:3 },
     ]
   },
   {
-    title: 'Fila inferior',
+    id: 'sec-inf', title: 'Fila inferior',
     docs: [
-      { id:'DOC9',  name:'DOC 9',  pos: rng(20).map(n=>`DOC-9-${p3(n)}`)  },
-      { id:'DOC10', name:'DOC 10', pos: rng(20).map(n=>`DOC-10-${p3(n)}`) },
-      { id:'DOC11', name:'DOC 11 BULTOS', pos: rng(20).map(n=>`DOC-11-${p3(n)}`) },
-      { id:'DOC12', name:'DOC 12 BULTOS', pos: rng(20).map(n=>`DOC-12-${p3(n)}`) },
+      { id:'DOC9',  name:'DOC 9',         prefix:'DOC-9-',   count:20, pad:3 },
+      { id:'DOC10', name:'DOC 10',        prefix:'DOC-10-',  count:20, pad:3 },
+      { id:'DOC11', name:'DOC 11 BULTOS', prefix:'DOC-11-',  count:20, pad:3 },
+      { id:'DOC12', name:'DOC 12 BULTOS', prefix:'DOC-12-',  count:20, pad:3 },
     ]
   },
   {
-    title: 'Zonas especiales',
+    id: 'sec-esp', title: 'Zonas especiales',
     docs: [
-      { id:'TRAN',  name:'Calle Transitoria', pos: rng(20).map(n=>`Tran-1-${p3(n)}`) },
-      { id:'DOC53', name:'DOC 53',           pos: rng(20).map(n=>`DOC-93-${p2(n)}`)  },
-      { id:'ROLLPS',name:'ROLL P$',          pos: rng(20).map(n=>`ROLL-PS-${p2(n)}`) },
+      { id:'TRAN',   name:'Calle Transitoria', prefix:'Tran-1-',  count:20, pad:3 },
+      { id:'DOC93',  name:'DOC 93',            prefix:'DOC-93-',  count:20, pad:2 },
+      { id:'ROLLPS', name:'ROLL PS',           prefix:'ROLL-PS-', count:20, pad:2 },
     ]
   }
 ];
 
-const ALL_POS = LAYOUT.flatMap(s => s.docs.flatMap(d => d.pos));
+// Genera los IDs de posición de un DOC
+function getDocPos(doc) {
+  return Array.from({length: doc.count}, (_, i) =>
+    doc.prefix + String(i+1).padStart(doc.pad, '0')
+  );
+}
+
+// Devuelve todas las posiciones del layout actual
+function getAllPos() {
+  return S.layout.flatMap(s => s.docs.flatMap(d => getDocPos(d)));
+}
 
 // ═══════════════════════════════════════════════════════════
 // DEFAULT OPERATORS
@@ -569,6 +581,7 @@ let S = {
   ops: [],
   pos: {},       // { posId: { pallet, dimension, operator, timestamp } | null }
   history: [],   // max 60
+  layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
   dim: 'Pallet',
   testMode: false
 };
@@ -579,7 +592,7 @@ let S = {
 const LS_KEY = 'rz_arba01_v2';
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify({
-    ops: S.ops, pos: S.pos, history: S.history, testMode: S.testMode
+    ops: S.ops, pos: S.pos, history: S.history, layout: S.layout, testMode: S.testMode
   }));
 }
 function load() {
@@ -589,12 +602,15 @@ function load() {
       S.ops      = d.ops      || [...DEFAULT_OPS];
       S.pos      = d.pos      || {};
       S.history  = d.history  || [];
+      S.layout   = d.layout   || JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
       S.testMode = d.testMode || false;
     } else {
-      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.testMode = false;
+      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
+      S.layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT)); S.testMode = false;
     }
   } catch(e) {
-    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.testMode = false;
+    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
+    S.layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT)); S.testMode = false;
   }
 }
 
@@ -766,7 +782,7 @@ function confirmAlm() {
   if (!pal) { setFb('alm-fb','err','⚠ Escaneá el pallet'); document.getElementById('alm-pal').focus(); return; }
   if (!pos) { setFb('alm-fb','err','⚠ Escaneá la posición'); document.getElementById('alm-pos').focus(); return; }
 
-  if (!ALL_POS.includes(pos)) {
+  if (!getAllPos().includes(pos)) {
     if (!confirm(`"${pos}" no está en el layout definido. ¿Registrar igual?`)) {
       document.getElementById('alm-pos').focus(); return;
     }
@@ -856,7 +872,7 @@ function confirmVac() {
 // ═══════════════════════════════════════════════════════════
 function renderLayoutView() {
   const c = document.getElementById('layout-container');
-  c.innerHTML = LAYOUT.map(sec => `
+  c.innerHTML = S.layout.map(sec => `
     <div class="ly-section">
       <div class="ly-sec-title">${sec.title}</div>
       <div class="ly-row">${sec.docs.map(doc => renderDocBlock(doc)).join('')}</div>
@@ -865,10 +881,12 @@ function renderLayoutView() {
 }
 
 function renderDocBlock(doc) {
-  const left  = doc.pos.slice(0,10);
-  const right = doc.pos.slice(10,20);
+  const pos  = getDocPos(doc);
+  const half = Math.ceil(pos.length / 2);
+  const left = pos.slice(0, half);
+  const right = pos.slice(half);
   let cells = '';
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < left.length; i++) {
     cells += renderPosCell(left[i]);
     if (right[i]) cells += renderPosCell(right[i]);
   }
@@ -886,7 +904,7 @@ function renderPosCell(posId) {
   }
   const short = posId
     .replace('DOC-','').replace('Tran-1-','T-').replace('ROLL-PS-','R-').replace('DOC-93-','93-');
-  const palShort = occ ? p.pallet.slice(0,8) : '';
+  const palShort = occ ? p.pallet.slice(0,14) : '';
   return `<div class="pos-cell ${cls}" onclick="showPosModal('${posId}')" title="${posId}${occ?' — '+p.pallet:''}">
     <span class="pos-id-txt">${short}</span>
     ${palShort?`<span class="pos-pal-txt">${palShort}</span>`:''}
@@ -961,7 +979,7 @@ function doSearch() {
     if (p && p.pallet && p.pallet.includes(q)) matches.push({ pid, p });
   });
   // By position ID
-  ALL_POS.forEach(pid => {
+  getAllPos().forEach(pid => {
     if (pid.toUpperCase().includes(q) && !matches.find(m=>m.pid===pid)) {
       matches.push({ pid, p: S.pos[pid] || null });
     }
@@ -990,7 +1008,78 @@ function renderAdminView() {
   document.getElementById('admin-ops-list').innerHTML = S.ops.map((op,i) =>
     `<div class="adm-item"><span>${op}</span><button class="del-btn" onclick="delOp(${i})" title="Eliminar">✕</button></div>`
   ).join('');
+  renderLayoutEditor();
   updateTestModeUI();
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYOUT EDITOR
+// ═══════════════════════════════════════════════════════════
+function renderLayoutEditor() {
+  const el = document.getElementById('layout-editor');
+  if (!el) return;
+  el.innerHTML = S.layout.map((sec, si) => `
+    <div style="background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <input class="inp inp-sm" value="${esc(sec.title)}" style="flex:1;margin-right:6px;font-size:.8rem;"
+          onchange="renameSection(${si}, this.value)">
+        <button class="del-btn" onclick="deleteSection(${si})" title="Eliminar sección">✕</button>
+      </div>
+      <div style="padding-left:6px;">
+        ${sec.docs.map((doc, di) => `
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
+            <input class="inp inp-sm" value="${esc(doc.name)}" style="flex:2;min-width:80px;font-size:.75rem;"
+              onchange="renameDoc(${si},${di},this.value)" placeholder="Nombre">
+            <input class="inp inp-sm" value="${esc(doc.prefix)}" style="flex:2;min-width:70px;font-size:.75rem;"
+              onchange="updateDocPrefix(${si},${di},this.value)" placeholder="Prefijo (ej: DOC-5-)">
+            <input class="inp inp-sm" type="number" value="${doc.count}" min="1" max="99" style="width:52px;font-size:.75rem;"
+              onchange="updateDocCount(${si},${di},this.value)" placeholder="Cant">
+            <select class="inp inp-sm" style="width:60px;font-size:.72rem;" onchange="updateDocPad(${si},${di},this.value)">
+              <option value="2" ${doc.pad===2?'selected':''}>01</option>
+              <option value="3" ${doc.pad===3?'selected':''}>001</option>
+            </select>
+            <button class="del-btn" onclick="deleteDoc(${si},${di})" title="Eliminar">✕</button>
+          </div>`).join('')}
+        <button class="btn btn-ghost btn-sm" onclick="addDoc(${si})" style="margin-top:4px;font-size:.72rem;padding:6px 10px;">+ DOC</button>
+      </div>
+    </div>`).join('');
+}
+
+function renameSection(si, val) { S.layout[si].title = val; save(); }
+function renameDoc(si, di, val) { S.layout[si].docs[di].name = val; save(); renderLayoutView(); }
+function updateDocPrefix(si, di, val) { S.layout[si].docs[di].prefix = val; save(); renderLayoutView(); }
+function updateDocCount(si, di, val) { S.layout[si].docs[di].count = Math.max(1,Math.min(99,parseInt(val)||1)); save(); renderLayoutEditor(); renderLayoutView(); }
+function updateDocPad(si, di, val) { S.layout[si].docs[di].pad = parseInt(val); save(); renderLayoutView(); }
+
+function addDoc(si) {
+  const sec = S.layout[si];
+  const id = 'doc-' + Date.now();
+  sec.docs.push({ id, name: 'Nuevo DOC', prefix: 'DOC-X-', count: 10, pad: 3 });
+  save(); renderLayoutEditor(); renderLayoutView();
+}
+
+function deleteDoc(si, di) {
+  const doc = S.layout[si].docs[di];
+  if (!confirm(`¿Eliminar "${doc.name}"?`)) return;
+  S.layout[si].docs.splice(di, 1);
+  save(); renderLayoutEditor(); renderLayoutView();
+}
+
+function addSection() {
+  S.layout.push({ id: 'sec-' + Date.now(), title: 'Nueva sección', docs: [] });
+  save(); renderLayoutEditor();
+}
+
+function deleteSection(si) {
+  if (!confirm(`¿Eliminar la sección "${S.layout[si].title}" y todos sus DOCs?`)) return;
+  S.layout.splice(si, 1);
+  save(); renderLayoutEditor(); renderLayoutView();
+}
+
+function resetLayout() {
+  if (!confirm('¿Restaurar el layout original? Se perderán los cambios de configuración.')) return;
+  S.layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+  save(); renderLayoutEditor(); renderLayoutView();
 }
 
 function toggleTestMode() {
