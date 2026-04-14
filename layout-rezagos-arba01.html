@@ -686,6 +686,8 @@ function switchTab(tab, el) {
   ['guia','operar','layout','buscar','admin'].forEach(t => {
     document.getElementById('t-' + t).style.display = t === tab ? 'block' : 'none';
   });
+  const content = document.querySelector('.content');
+  if (content) content.scrollTop = 0;
   if (tab === 'layout') renderLayoutView();
   if (tab === 'admin')  renderAdminView();
   if (tab === 'buscar') setTimeout(()=>document.getElementById('search-inp').focus(),100);
