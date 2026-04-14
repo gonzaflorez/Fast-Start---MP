@@ -387,15 +387,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div id="layout-container"></div>
     </div>
 
-    <!-- TAB: BUSCAR -->
-    <div id="t-buscar" style="display:none">
-      <div class="card" style="padding:10px 12px;">
-        <label class="lbl">Pallet o posición</label>
-        <input type="text" class="inp inp-sm" id="search-inp" placeholder="Escaneá o escribí..." autocomplete="off" oninput="doSearch()" style="text-transform:none">
-      </div>
-      <div id="search-res"></div>
-    </div>
-
     <!-- TAB: ADMIN -->
     <div id="t-admin" style="display:none">
       <div class="card">
@@ -434,7 +425,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="tab active" id="tab-guia" onclick="switchTab('guia',this)"><span class="tab-icon">📖</span>Guía</div>
     <div class="tab" id="tab-operar" onclick="switchTab('operar',this)"><span class="tab-icon">🔄</span>Operar</div>
     <div class="tab" id="tab-layout" onclick="switchTab('layout',this)"><span class="tab-icon">🗺️</span>Layout</div>
-    <div class="tab" id="tab-buscar" onclick="switchTab('buscar',this)"><span class="tab-icon">🔍</span>Buscar</div>
     <div class="tab" id="tab-admin" onclick="switchTab('admin',this)"><span class="tab-icon">⚙️</span>Admin</div>
   </div>
 </div>
@@ -683,14 +673,13 @@ function loginAs(name) {
 function switchTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['guia','operar','layout','buscar','admin'].forEach(t => {
+  ['guia','operar','layout','admin'].forEach(t => {
     document.getElementById('t-' + t).style.display = t === tab ? 'block' : 'none';
   });
   const content = document.querySelector('.content');
   if (content) content.scrollTop = 0;
   if (tab === 'layout') renderLayoutView();
   if (tab === 'admin')  renderAdminView();
-  if (tab === 'buscar') setTimeout(()=>document.getElementById('search-inp').focus(),100);
 }
 
 // ═══════════════════════════════════════════════════════════
