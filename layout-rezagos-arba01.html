@@ -400,11 +400,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div id="admin-ops-list"></div>
       </div>
       <div class="card">
-        <div class="sec-hd" style="color:var(--yellow);font-weight:700;font-size:.8rem;">Integración Apps Script</div>
-        <label class="lbl">URL del Web App desplegado</label>
-        <input type="text" class="inp inp-sm" id="as-url-inp" placeholder="https://script.google.com/macros/s/..." autocomplete="off" style="margin-bottom:8px;text-transform:none;font-size:.78rem;">
-        <button class="btn btn-blue btn-full btn-sm" onclick="saveAsUrl()" style="margin-bottom:8px;">Guardar URL</button>
-        <button class="btn btn-ghost btn-full btn-sm" onclick="syncFromSheet()">↻ Sincronizar con Google Sheets</button>
+        <div class="sec-hd" style="color:var(--yellow);font-weight:700;font-size:.8rem;">Sincronización con Google Sheets</div>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="syncFromSheet()" style="margin-bottom:7px;">↻ Sincronizar ahora</button>
         <div id="sync-msg" style="font-size:.72rem;color:var(--dim);text-align:center;margin-top:6px;"></div>
       </div>
       <div class="card">
@@ -564,7 +561,6 @@ let S = {
   ops: [],
   pos: {},       // { posId: { pallet, dimension, operator, timestamp } | null }
   history: [],   // max 60
-  asUrl: null,
   dim: 'Pallet'
 };
 
@@ -574,7 +570,7 @@ let S = {
 const LS_KEY = 'rz_arba01_v2';
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify({
-    ops: S.ops, pos: S.pos, history: S.history, asUrl: S.asUrl
+    ops: S.ops, pos: S.pos, history: S.history
   }));
 }
 function load() {
@@ -584,12 +580,11 @@ function load() {
       S.ops     = d.ops     || [...DEFAULT_OPS];
       S.pos     = d.pos     || {};
       S.history = d.history || [];
-      S.asUrl   = d.asUrl   || null;
     } else {
-      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.asUrl = null;
+      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
     }
   } catch(e) {
-    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.asUrl = null;
+    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
   }
 }
 
@@ -647,6 +642,7 @@ function loginAs(name) {
   show('main');
   switchTab('guia', document.getElementById('tab-guia'));
   refreshMain();
+  syncFromSheet();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -982,8 +978,6 @@ function renderAdminView() {
   document.getElementById('admin-ops-list').innerHTML = S.ops.map((op,i) =>
     `<div class="adm-item"><span>${op}</span><button class="del-btn" onclick="delOp(${i})" title="Eliminar">✕</button></div>`
   ).join('');
-  const ui = document.getElementById('as-url-inp');
-  if (ui && S.asUrl) ui.value = S.asUrl;
 }
 
 function addOperator() {
@@ -1000,43 +994,45 @@ function delOp(i) {
   S.ops.splice(i,1); save(); renderAdminView(); renderLoginList();
 }
 
-function saveAsUrl() {
-  const u = document.getElementById('as-url-inp').value.trim();
-  S.asUrl = u || null; save();
-  setSyncMsg(u ? '✓ URL guardada correctamente' : 'URL eliminada');
+// ═══════════════════════════════════════════════════════════
+// APPS SCRIPT — google.script.run (solo funciona desde la URL del deploy)
+// ═══════════════════════════════════════════════════════════
+function hasGS() {
+  return typeof google !== 'undefined' && google.script;
 }
 
-// ═══════════════════════════════════════════════════════════
-// APPS SCRIPT
-// ═══════════════════════════════════════════════════════════
 function postToAs(data) {
-  if (!S.asUrl) return;
-  fetch(S.asUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(data)
-  }).then(r => r.json()).then(r => {
-    if (r.success) { setSyncDot('ok'); } else setSyncDot('err');
-  }).catch(() => setSyncDot('err'));
+  if (!hasGS()) return;
+  google.script.run
+    .withSuccessHandler(function(r) { if(r && r.success) setSyncDot('ok'); else setSyncDot('err'); })
+    .withFailureHandler(function() { setSyncDot('err'); })
+    .registerMovement(data);
 }
 
 function syncFromSheet() {
-  if (!S.asUrl) { alert('Configurá primero la URL del Apps Script.'); return; }
+  if (!hasGS()) {
+    setSyncMsg('Abrí la app desde la URL del Apps Script para sincronizar');
+    return;
+  }
   setSyncMsg('Sincronizando...');
-  fetch(S.asUrl + '?action=getLayout')
-    .then(r => r.json())
-    .then(data => {
+  google.script.run
+    .withSuccessHandler(function(data) {
       if (data.success) {
-        Object.entries(data.data).forEach(([posId, val]) => {
+        Object.entries(data.data).forEach(function(entry) {
+          const posId = entry[0], val = entry[1];
           S.pos[posId] = val.pallet
             ? { pallet: val.pallet, dimension: val.dimension||'', operator: val.operator||'', timestamp: val.timestamp||'' }
             : { pallet: '', dimension: '', operator: val.operator||'', timestamp: val.timestamp||'' };
         });
         save(); refreshMain(); setSyncDot('ok');
         setSyncMsg('✓ Sincronizado: ' + fmtTs(new Date()));
-      } else setSyncMsg('✗ Error: ' + (data.error||'desconocido'));
+      } else {
+        setSyncDot('err');
+        setSyncMsg('✗ Error: ' + (data.error||'desconocido'));
+      }
     })
-    .catch(() => { setSyncDot('err'); setSyncMsg('✗ Error de conexión'); });
+    .withFailureHandler(function() { setSyncDot('err'); setSyncMsg('✗ Error de conexion'); })
+    .getLayoutState();
 }
 
 function setSyncDot(s) {
