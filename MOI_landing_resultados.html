@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI LATAM — Resultados del Proyecto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #fffdf0;
+      --surface:  #ffffff;
+      --surface2: #fff8cc;
+      --border:   #e8d800;
+      --border2:  #e8e0c0;
+      --text:     #1a1a2e;
+      --muted:    #6b6660;
+      --blue:     #2d3277;
+      --yellow:   #ffe600;
+      --ok:       #00a650;
+      --red:      #c0392b;
+      --warn:     #e07800;
+      --font:     'Plus Jakarta Sans', sans-serif;
+      --mono:     'IBM Plex Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #fff8c0, #fffdf0, #fffce8);
+      position: relative;
+      overflow: hidden;
+      padding: 56px 56px 44px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 65% 70% at 85% 40%, rgba(255,230,0,.30), transparent);
+    }
+    .hero-inner {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 28px;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 20px; height: 3px;
+      background: var(--yellow);
+      border-radius: 1px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: var(--text);
+    }
+    .hero h1 .accent { color: var(--blue); }
+    .hero-sub {
+      font-size: 15px;
+      color: var(--muted);
+      margin-top: 10px;
+      max-width: 520px;
+      line-height: 1.7;
+    }
+    .divider-line {
+      width: 40px; height: 4px;
+      background: var(--yellow);
+      border-radius: 2px;
+      margin: 14px 0;
+    }
+
+    /* Stage tracker */
+    .stage-track {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .stage-item {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #f0ede0;
+      color: var(--muted);
+      border: 1px solid var(--border2);
+    }
+    .stage-item.done {
+      background: rgba(0,166,80,.1);
+      color: var(--ok);
+      border-color: rgba(0,166,80,.3);
+    }
+    .stage-item.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    /* ── KPI ROW ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 16px;
+      padding: 0 56px;
+      margin-top: -24px;
+      position: relative;
+      z-index: 2;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 20px 20px 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .kpi-card .k-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+    .kpi-card .k-value {
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--blue);
+    }
+    .kpi-card .k-value.yellow { color: #b08a00; }
+    .kpi-card .k-value.green  { color: var(--ok); }
+    .kpi-card .k-value.warn   { color: var(--warn); }
+    .kpi-card .k-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ── SECTIONS ── */
+    .section { padding: 48px 56px; }
+    .section + .section { padding-top: 0; }
+
+    .sec-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--blue);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sec-title::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--yellow), transparent);
+    }
+
+    hr.sep {
+      border: none;
+      border-top: 1px solid var(--border2);
+      margin: 0 56px;
+    }
+
+    /* ── PROBLEMA / SOLUCIÓN ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .card h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 16px;
+    }
+    .card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .card ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .dot-red    { background: var(--red); }
+    .dot-green  { background: var(--ok); }
+    .dot-blue   { background: var(--blue); }
+    .dot-yellow { background: #b08a00; }
+
+    /* ── HERRAMIENTAS ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) { .tools-grid { grid-template-columns: 1fr; } }
+
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .tool-card.calc::before { background: linear-gradient(90deg, var(--blue), var(--yellow)); }
+    .tool-card.dash::before { background: linear-gradient(90deg, var(--ok), var(--blue)); }
+
+    .tool-icon { font-size: 30px; margin-bottom: 12px; }
+    .tool-name {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .tool-version {
+      font-size: 11px;
+      background: rgba(45,50,119,.08);
+      color: var(--blue);
+      border: 1px solid rgba(45,50,119,.18);
+      padding: 2px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 14px;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+    .tool-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 18px;
+    }
+    .feature-list { display: flex; flex-direction: column; gap: 8px; }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .feature-item .ficon {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      background: #f5f0d8;
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .tool-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .tool-link:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .tool-link.calc-link {
+      background: var(--blue);
+      color: #fff;
+    }
+    .tool-link.dash-link {
+      background: var(--ok);
+      color: #fff;
+    }
+    .tool-link svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── LATAM ── */
+    .latam-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 768px) { .latam-grid { grid-template-columns: 1fr 1fr; } }
+
+    .country-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .country-card.lead {
+      border: 2px solid var(--yellow);
+      background: linear-gradient(135deg, #fffce8, #fffdf0);
+    }
+    .lead-badge {
+      font-size: 10px;
+      background: var(--yellow);
+      color: var(--text);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-weight: 800;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .country-flag { font-size: 34px; margin-bottom: 10px; }
+    .country-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .country-site {
+      font-size: 11px;
+      color: var(--blue);
+      font-weight: 700;
+      font-family: var(--mono);
+      margin-bottom: 12px;
+    }
+    .country-stats { display: flex; flex-direction: column; gap: 5px; }
+    .c-stat { display: flex; justify-content: space-between; font-size: 12px; }
+    .c-stat .ck { color: var(--muted); }
+    .c-stat .cv { color: var(--text); font-weight: 700; }
+
+    /* ── CHARTS ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.9fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .chart-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 16px;
+    }
+
+    /* ── TABLA USUARIOS ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .users-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+    }
+    .users-table th {
+      background: #fff8d0;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      border-bottom: 2px solid var(--yellow);
+    }
+    .users-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0e8c0;
+      color: var(--text);
+    }
+    .users-table tr:last-child td { border-bottom: none; }
+    .users-table tr:hover td { background: #fffce8; }
+
+    .medal { font-size: 16px; }
+    .user-tag {
+      background: rgba(45,50,119,.08);
+      border: 1px solid rgba(45,50,119,.18);
+      color: var(--blue);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+    .site-tag {
+      background: rgba(0,166,80,.08);
+      border: 1px solid rgba(0,166,80,.2);
+      color: var(--ok);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+    .bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .bar-bg {
+      flex: 1;
+      height: 6px;
+      background: #ede8cc;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--blue), #5a63cc);
+    }
+    .bar-pct {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+      width: 36px;
+      text-align: right;
+    }
+
+    /* ── NEXT STEPS ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .step-num {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 900;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 6px rgba(45,50,119,.1);
+    }
+    .step-text h4 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .step-text p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── IMPACTO ── */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .impact-card {
+      border-radius: 14px;
+      padding: 22px;
+      border: 1px solid;
+    }
+    .impact-card.yellow {
+      background: #fffde0;
+      border-color: rgba(255,230,0,.6);
+    }
+    .impact-card.blue {
+      background: #eef4ff;
+      border-color: rgba(45,50,119,.2);
+    }
+    .impact-card.green {
+      background: #edfff5;
+      border-color: rgba(0,166,80,.25);
+    }
+    .impact-card.grey {
+      background: #f5f5f5;
+      border-color: #ddd;
+    }
+    .impact-icon { font-size: 26px; margin-bottom: 10px; }
+    .impact-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 6px;
+    }
+    .impact-card.yellow .impact-title { color: var(--warn); }
+    .impact-card.blue   .impact-title { color: var(--blue); }
+    .impact-card.green  .impact-title { color: var(--ok); }
+    .impact-card.grey   .impact-title { color: var(--muted); }
+    .impact-val {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .impact-card.yellow .impact-val { color: var(--text); }
+    .impact-card.blue   .impact-val { color: var(--blue); }
+    .impact-card.green  .impact-val { color: var(--ok); }
+    .impact-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--surface);
+      border-top: 2px solid var(--yellow);
+      padding: 24px 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .footer-left {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .footer-left strong { color: var(--blue); }
+    .footer-right {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow">MOI · Logística Inversa LATAM</div>
+      <h1>Control y Optimización de<br><span class="accent">Mano de Obra Indirecta</span></h1>
+      <div class="divider-line"></div>
+      <p class="hero-sub">Herramientas estandarizadas para planificar y monitorear el personal no sistemático en operaciones de Logística Inversa — Argentina, Chile, Brasil y Colombia.</p>
+    </div>
+    <div class="stage-track">
+      <div class="stage-item done">0.IDEA</div>
+      <div class="stage-item done">1.PLAN</div>
+      <div class="stage-item done">2.DIAG</div>
+      <div class="stage-item done">3.DISEÑO</div>
+      <div class="stage-item active">4.IMPLEMENT</div>
+      <div class="stage-item">5.SUSTENT.</div>
+      <div class="stage-item">6.FINALIZADO</div>
+    </div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="k-label">Registros de uso</div>
+    <div class="k-value">534</div>
+    <div class="k-sub">Ene – Mar 2026</div>
+  </div>
+  <div class="kpi-card">
+    <div class="k-label">Países activos</div>
+    <div class="k-value yellow">4</div>
+    <div class="k-sub">ARG · CHI · BRA · COL</div>
+  </div>
+  <div class="kpi-card">
+    <div class="k-label">Usuarios activos</div>
+    <div class="k-value green">10+</div>
+    <div class="k-sub">Operadores registrados</div>
+  </div>
+  <div class="kpi-card">
+    <div class="k-label">Sites en uso</div>
+    <div class="k-value warn">5</div>
+    <div class="k-sub">Centros logísticos</div>
+  </div>
+  <div class="kpi-card">
+    <div class="k-label">Versión actual</div>
+    <div class="k-value" style="font-size:22px;">V12.24</div>
+    <div class="k-sub">Calculadora staffing</div>
+  </div>
+  <div class="kpi-card">
+    <div class="k-label">Días con actividad</div>
+    <div class="k-value green">75+</div>
+    <div class="k-sub">Días registrados</div>
+  </div>
+</div>
+
+<div style="height:48px;"></div>
+<hr class="sep">
+
+<!-- PROBLEMA Y SOLUCIÓN -->
+<div class="section">
+  <div class="sec-title">Diagnóstico del problema</div>
+  <div class="two-col">
+    <div class="card">
+      <h3>Dolor / Oportunidad</h3>
+      <ul>
+        <li><span class="dot dot-red"></span>Sin visibilidad sobre cuántas personas se necesitan realmente para tareas no sistemáticas (no registradas en WMS)</li>
+        <li><span class="dot dot-red"></span>Planificación basada en criterios subjetivos, sin respaldo de tiempos reales</li>
+        <li><span class="dot dot-red"></span>Cada operador calculaba la dotación a su manera — sin estándar LATAM</li>
+        <li><span class="dot dot-red"></span>Cero trazabilidad de quién usa qué herramienta y con qué frecuencia</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Nos propusimos</h3>
+      <ul>
+        <li><span class="dot dot-green"></span>Estandarizar el cálculo de dotación de MOI con tiempos reales de muestreo</li>
+        <li><span class="dot dot-green"></span>Construir una herramienta accesible, sin IT, deployable en segundos</li>
+        <li><span class="dot dot-green"></span>Generar visibilidad de adopción con un dashboard de monitoreo</li>
+        <li><span class="dot dot-green"></span>Escalar la solución a toda la región LATAM</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- HERRAMIENTAS -->
+<div class="section">
+  <div class="sec-title">Qué construimos</div>
+  <div class="tools-grid">
+
+    <div class="tool-card calc">
+      <div class="tool-icon">🧮</div>
+      <div class="tool-name">Calculadora Staffing MOI</div>
+      <div class="tool-version">V12.24 · No Sistemático</div>
+      <div class="tool-desc">Herramienta interactiva para calcular runners requeridos por turno en base a actividades reales, tiempos muestreados y volumetría operativa.</div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="ficon">⏱️</div>Asistente de muestreo cronométrico (10 muestras por actividad)</div>
+        <div class="feature-item"><div class="ficon">📦</div>Drivers: Pallets, Jaulas, Totes — capacidades editables</div>
+        <div class="feature-item"><div class="ficon">💰</div>Cálculo de costo de turno y productividad con semáforo</div>
+        <div class="feature-item"><div class="ficon">💾</div>Sistema de presets: guardar y cargar configuraciones por proceso</div>
+        <div class="feature-item"><div class="ficon">📊</div>Visualización de flujo animada + gráfico de distribución</div>
+        <div class="feature-item"><div class="ficon">🔐</div>Login con control de acceso y tracking automático de uso</div>
+      </div>
+      <a href="https://calculadora-moi.tiiny.site/" target="_blank" class="tool-link calc-link">
+        Abrir calculadora
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+
+    <div class="tool-card dash">
+      <div class="tool-icon">📡</div>
+      <div class="tool-name">Dashboard de Uso — MOI</div>
+      <div class="tool-version">Live · Google Sheets + Auto-refresh</div>
+      <div class="tool-desc">Panel de monitoreo en tiempo real que centraliza todos los eventos de uso de la calculadora: quién la usa, desde qué site, con qué frecuencia.</div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="ficon">🌎</div>Cobertura LATAM: ARG, CHI, BRA, COL en un solo panel</div>
+        <div class="feature-item"><div class="ficon">📈</div>6 gráficos: evolución mensual, por site, top usuarios, por acción</div>
+        <div class="feature-item"><div class="ficon">🏅</div>Ranking de operadores con medallas y % de participación</div>
+        <div class="feature-item"><div class="ficon">🔎</div>Filtros dinámicos: por site, usuario y mes</div>
+        <div class="feature-item"><div class="ficon">🔄</div>Auto-refresh cada 5 minutos desde Google Sheets</div>
+        <div class="feature-item"><div class="ficon">📴</div>Modo offline con datos embebidos (fallback local)</div>
+      </div>
+      <a href="https://stunning-llama-e45bee.netlify.app/" target="_blank" class="tool-link dash-link">
+        Ver dashboard de uso
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+<hr class="sep">
+
+<!-- REFERENTES -->
+<div class="section">
+  <div class="sec-title">Equipo referente</div>
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:16px;">
+
+    <div class="card" style="border: 2px solid var(--yellow); background: linear-gradient(135deg, #fffce8, #fffdf0); text-align:center; padding:28px 20px; box-shadow: 0 4px 20px rgba(255,230,0,.2);">
+      <div style="font-size:28px; margin-bottom:10px;">🏗️</div>
+      <div style="display:inline-block; background:var(--yellow); color:var(--blue); font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.14em; padding:3px 10px; border-radius:20px; margin-bottom:10px;">Creador del proyecto</div>
+      <div style="font-size:16px; font-weight:900; color:var(--blue);">Gonzalo Florez</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">Logística Inversa · ARG</div>
+    </div>
+
+    <div class="card" style="border-top: 4px solid var(--blue); text-align:center; padding:28px 20px;">
+      <div style="font-size:28px; margin-bottom:10px;">📍</div>
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:6px;">Referente Argentina</div>
+      <div style="font-size:16px; font-weight:900; color:var(--blue);">Gonzalo Florez</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">Arba01 · Arba02</div>
+    </div>
+
+    <div class="card" style="border-top: 4px solid var(--blue); text-align:center; padding:28px 20px;">
+      <div style="font-size:28px; margin-bottom:10px;">📍</div>
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:6px;">Referente Chile</div>
+      <div style="font-size:16px; font-weight:900; color:var(--blue);">Matías Bravo</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">CLRM03</div>
+    </div>
+
+    <div class="card" style="border-top: 4px solid var(--blue); text-align:center; padding:28px 20px;">
+      <div style="font-size:28px; margin-bottom:10px;">📍</div>
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:6px;">Referente Colombia</div>
+      <div style="font-size:16px; font-weight:900; color:var(--blue);">Julián Arévalo</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">COCU02</div>
+    </div>
+
+    <div class="card" style="border-top: 4px solid var(--blue); text-align:center; padding:28px 20px;">
+      <div style="font-size:28px; margin-bottom:10px;">📍</div>
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:6px;">Referente Brasil</div>
+      <div style="font-size:16px; font-weight:900; color:var(--blue);">João Fonseca</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">BRSP02</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- CHARTS -->
+<div class="section">
+  <div class="sec-title">Resultados de uso — Ene / Mar 2026</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-label">Registros por mes</div>
+      <canvas id="chartMes" height="110"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">Distribución por acción</div>
+      <canvas id="chartAccion" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">Actividad por site</div>
+      <canvas id="chartSite" height="180"></canvas>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- TABLA USUARIOS -->
+<div class="section">
+  <div class="sec-title">Top usuarios activos</div>
+  <div class="table-wrap">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Usuario</th>
+          <th>Site</th>
+          <th>País</th>
+          <th>Logins</th>
+          <th>Cálculos</th>
+          <th>Participación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="medal">🥇</span></td>
+          <td><span class="user-tag">pagonzalez</span></td>
+          <td><span class="site-tag">Arba01</span></td>
+          <td>ARG</td>
+          <td>22</td>
+          <td>41</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div><span class="bar-pct">100%</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="medal">🥈</span></td>
+          <td><span class="user-tag">atbravo</span></td>
+          <td><span class="site-tag">CLRM03</span></td>
+          <td>CHI</td>
+          <td>18</td>
+          <td>35</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:82%"></div></div><span class="bar-pct">82%</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="medal">🥉</span></td>
+          <td><span class="user-tag">mariamartins</span></td>
+          <td><span class="site-tag">BRSP02</span></td>
+          <td>BRA</td>
+          <td>15</td>
+          <td>29</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:68%"></div></div><span class="bar-pct">68%</span></div></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><span class="user-tag">ialtuve</span></td>
+          <td><span class="site-tag">CLRM03</span></td>
+          <td>CHI</td>
+          <td>12</td>
+          <td>21</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:49%"></div></div><span class="bar-pct">49%</span></div></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><span class="user-tag">jarevalorema</span></td>
+          <td><span class="site-tag">COCU02</span></td>
+          <td>COL</td>
+          <td>10</td>
+          <td>18</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:41%"></div></div><span class="bar-pct">41%</span></div></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><span class="user-tag">nocastro</span></td>
+          <td><span class="site-tag">Arba01</span></td>
+          <td>ARG</td>
+          <td>8</td>
+          <td>14</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:31%"></div></div><span class="bar-pct">31%</span></div></td>
+        </tr>
+        <tr>
+          <td>7+</td>
+          <td><span class="user-tag">otros (4)</span></td>
+          <td><span class="site-tag">Multi</span></td>
+          <td>LAT</td>
+          <td>—</td>
+          <td>—</td>
+          <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div><span class="bar-pct">20%</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- IMPACTO -->
+<div class="section">
+  <div class="sec-title">Impacto y valor generado</div>
+  <div class="impact-grid">
+    <div class="impact-card yellow">
+      <div class="impact-icon">⚙️</div>
+      <div class="impact-title">Estandarización</div>
+      <div class="impact-val">4 países</div>
+      <div class="impact-sub">Un mismo método de cálculo aplicado en toda la región LATAM</div>
+    </div>
+    <div class="impact-card blue">
+      <div class="impact-icon">📐</div>
+      <div class="impact-title">Trazabilidad</div>
+      <div class="impact-val">700+ eventos</div>
+      <div class="impact-sub">Primer sistema de tracking de uso de herramientas en el área</div>
+    </div>
+    <div class="impact-card green">
+      <div class="impact-icon">🚀</div>
+      <div class="impact-title">Autonomía</div>
+      <div class="impact-val">$0 IT</div>
+      <div class="impact-sub">Desarrollado y deployado sin soporte de tecnología</div>
+    </div>
+  </div>
+</div>
+
+<!-- NEXT STEPS -->
+<div class="section">
+  <div class="sec-title">Next Steps</div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Estandarización de presets LATAM</h4>
+        <p>Generar presets base por tipo de proceso (Triage, Receiving, Sorting) para todos los países.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Onboarding de nuevos sites</h4>
+        <p>Incorporar sites de México y Uruguay al ecosistema con tracking desde el día 1.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Benchmark de productividad</h4>
+        <p>Cruzar datos de uso con productividad real para validar mejora en dotación planificada vs ejecutada.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Sustentabilidad — traspaso operativo</h4>
+        <p>Documentar y entrenar referentes locales en cada país para uso autónomo.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    <strong>MOI LATAM</strong> · Control y Optimización de Mano de Obra Indirecta<br>
+    Logística Inversa — Fulfillment Argentina · <strong>Gonzalo Florez</strong>
+  </div>
+  <div class="footer-right">Ene–Mar 2026 · BD_Staffing_MOI · Abril 2026</div>
+</div>
+
+<script>
+  const TICK_COLOR = '#6b6660';
+  const GRID_COLOR = 'rgba(0,0,0,0.06)';
+  const TOOLTIP = {
+    backgroundColor: '#ffffff',
+    borderColor: '#e8e0c0',
+    borderWidth: 1,
+    titleColor: '#1a1a2e',
+    bodyColor: '#6b6660',
+    padding: 10,
+    cornerRadius: 8,
+  };
+
+  // Barras por mes
+  new Chart(document.getElementById('chartMes'), {
+    type: 'bar',
+    data: {
+      labels: ['Enero 2026', 'Febrero 2026', 'Marzo 2026'],
+      datasets: [{
+        label: 'Registros',
+        data: [178, 241, 295],
+        backgroundColor: ['#2d3277', '#b08a00', '#00a650'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: TOOLTIP },
+      scales: {
+        x: { ticks: { color: TICK_COLOR, font: { family: "'Plus Jakarta Sans'" } }, grid: { color: GRID_COLOR } },
+        y: { ticks: { color: TICK_COLOR, font: { family: "'Plus Jakarta Sans'" } }, grid: { color: GRID_COLOR } }
+      }
+    }
+  });
+
+  // Doughnut por acción
+  new Chart(document.getElementById('chartAccion'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Cálculo', 'Login', 'Guardar', 'Carga Archivo'],
+      datasets: [{
+        data: [42, 30, 18, 10],
+        backgroundColor: ['#b08a00', '#2d3277', '#e07800', '#00a650'],
+        borderWidth: 2,
+        borderColor: '#ffffff',
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: TICK_COLOR, font: { size: 11, family: "'Plus Jakarta Sans'" }, padding: 12 }
+        },
+        tooltip: TOOLTIP
+      }
+    }
+  });
+
+  // Barras horizontales por site
+  new Chart(document.getElementById('chartSite'), {
+    type: 'bar',
+    data: {
+      labels: ['Arba01', 'CLRM03', 'BRSP02', 'COCU02', 'Arba02'],
+      datasets: [{
+        label: 'Registros',
+        data: [310, 165, 102, 88, 49],
+        backgroundColor: '#2d3277',
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: TOOLTIP },
+      scales: {
+        x: { ticks: { color: TICK_COLOR, font: { family: "'Plus Jakarta Sans'" } }, grid: { color: GRID_COLOR } },
+        y: { ticks: { color: TICK_COLOR, font: { family: "'Plus Jakarta Sans'" } }, grid: { display: false } }
+      }
+    }
+  });
+</script>
+</body>
+</html>
