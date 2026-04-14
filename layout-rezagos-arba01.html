@@ -370,15 +370,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
     <!-- TAB: LAYOUT -->
     <div id="t-layout" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="sec-hd" style="margin:0">Toque una posición para ver detalle</div>
-        <button class="btn btn-ghost btn-sm" onclick="renderLayoutView()">↺</button>
+      <!-- BUSCADOR COMPACTO -->
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+        <input type="text" id="layout-search" class="inp inp-sm" placeholder="🔍 Buscar pallet o posición..."
+          autocomplete="off" oninput="applyLayoutFilters()" style="flex:1;font-size:.8rem;text-transform:none;">
+        <button id="ly-clear-btn" class="btn btn-ghost btn-sm" onclick="clearLayoutFilters()" style="display:none;padding:10px 12px;">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderLayoutView()" style="padding:10px 12px;">↺</button>
       </div>
+      <!-- LEYENDA FILTRABLE -->
       <div class="legend" style="margin-bottom:12px;">
-        <div class="leg-item pos-libre">● Libre</div>
-        <div class="leg-item pos-pallet">● Pallet</div>
-        <div class="leg-item pos-bulto">● Bulto</div>
-        <div class="leg-item pos-voluminoso">● Voluminoso</div>
+        <div class="leg-item pos-libre"   id="leg-libre"       onclick="toggleFilter('libre')"       style="cursor:pointer;transition:all .12s;">● Libre</div>
+        <div class="leg-item pos-pallet"  id="leg-pallet"      onclick="toggleFilter('pallet')"      style="cursor:pointer;transition:all .12s;">● Pallet</div>
+        <div class="leg-item pos-bulto"   id="leg-bulto"       onclick="toggleFilter('bulto')"       style="cursor:pointer;transition:all .12s;">● Bulto</div>
+        <div class="leg-item pos-voluminoso" id="leg-voluminoso" onclick="toggleFilter('voluminoso')" style="cursor:pointer;transition:all .12s;">● Voluminoso</div>
       </div>
       <div id="layout-container"></div>
     </div>
@@ -878,6 +882,7 @@ function renderLayoutView() {
       <div class="ly-row">${sec.docs.map(doc => renderDocBlock(doc)).join('')}</div>
     </div>`
   ).join('');
+  applyLayoutFilters();
 }
 
 function renderDocBlock(doc) {
@@ -905,7 +910,7 @@ function renderPosCell(posId) {
   const short = posId
     .replace('DOC-','').replace('Tran-1-','T-').replace('ROLL-PS-','R-').replace('DOC-93-','93-');
   const palShort = occ ? p.pallet.slice(0,14) : '';
-  return `<div class="pos-cell ${cls}" onclick="showPosModal('${posId}')" title="${posId}${occ?' — '+p.pallet:''}">
+  return `<div class="pos-cell ${cls}" data-pos="${posId}" data-type="${occ?(p.dimension==='Bulto'?'bulto':p.dimension==='Voluminoso'?'voluminoso':'pallet'):'libre'}" onclick="showPosModal('${posId}')" title="${posId}${occ?' — '+p.pallet:''}">
     <span class="pos-id-txt">${short}</span>
     ${palShort?`<span class="pos-pal-txt">${palShort}</span>`:''}
   </div>`;
@@ -1010,6 +1015,67 @@ function renderAdminView() {
   ).join('');
   renderLayoutEditor();
   updateTestModeUI();
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYOUT FILTERS + SEARCH
+// ═══════════════════════════════════════════════════════════
+const layoutFilters = new Set();
+
+function toggleFilter(type) {
+  if (layoutFilters.has(type)) layoutFilters.delete(type);
+  else layoutFilters.add(type);
+  updateLegendUI();
+  applyLayoutFilters();
+}
+
+function updateLegendUI() {
+  ['libre','pallet','bulto','voluminoso'].forEach(type => {
+    const el = document.getElementById('leg-' + type);
+    if (!el) return;
+    if (layoutFilters.has(type)) {
+      el.style.outline = '2px solid var(--dark-blue)';
+      el.style.fontWeight = '800';
+      el.style.transform = 'scale(1.06)';
+    } else {
+      el.style.outline = layoutFilters.size > 0 ? '1px solid transparent' : '';
+      el.style.fontWeight = '';
+      el.style.transform = '';
+    }
+  });
+}
+
+function applyLayoutFilters() {
+  const q = ((document.getElementById('layout-search') || {}).value || '').trim().toUpperCase();
+  const hasFilter = layoutFilters.size > 0;
+  const hasSearch = q.length >= 1;
+  const clearBtn = document.getElementById('ly-clear-btn');
+  if (clearBtn) clearBtn.style.display = (hasFilter || hasSearch) ? 'block' : 'none';
+
+  document.querySelectorAll('.pos-cell[data-pos]').forEach(cell => {
+    const posId = cell.dataset.pos;
+    const type  = cell.dataset.type;
+    const p     = S.pos[posId];
+    const palTxt = (p && p.pallet) ? p.pallet.toUpperCase() : '';
+
+    let visible = true;
+    if (hasFilter && !layoutFilters.has(type)) visible = false;
+    if (hasSearch) {
+      const matchPos = posId.toUpperCase().includes(q);
+      const matchPal = palTxt.includes(q);
+      if (!matchPos && !matchPal) visible = false;
+    }
+    cell.style.opacity = visible ? '1' : '0.15';
+    cell.style.pointerEvents = visible ? '' : 'none';
+  });
+}
+
+function clearLayoutFilters() {
+  layoutFilters.clear();
+  const inp = document.getElementById('layout-search');
+  if (inp) inp.value = '';
+  updateLegendUI();
+  applyLayoutFilters();
 }
 
 // ═══════════════════════════════════════════════════════════
