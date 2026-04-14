@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Layout Rezagos — ARBA01</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --yellow: #ffe600;
+  --blue: #3483fa;
+  --dark-blue: #2d3277;
+  --bg: #f5f4f0;
+  --card: #ffffff;
+  --card2: #fff8d0;
+  --border: #e8d800;
+  --text: #1a1a2e;
+  --dim: #6b6660;
+  --green: #00a650;
+  --red: #c0392b;
+  --orange: #e07800;
+  --purple: #7b1fa2;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* SCREENS */
+.screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeIn .18s ease; }
+.screen.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+/* HEADER */
+.header { background: var(--card); border-bottom: 2px solid var(--yellow); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.hd-title { font-size: .95rem; font-weight: 800; color: var(--dark-blue); letter-spacing: .5px; }
+.hd-sub { font-size: .65rem; color: var(--dim); margin-top: 1px; }
+.op-badge { background: var(--dark-blue); border: 1px solid var(--blue); border-radius: 20px; padding: 4px 12px; font-size: .7rem; color: var(--blue); cursor: pointer; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* SCROLL CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 14px; padding-bottom: 72px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 13px 22px; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .12s; text-transform: uppercase; letter-spacing: .4px; }
+.btn:active { transform: scale(.97); }
+.btn-yellow { background: var(--yellow); color: #000; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-ghost { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+.btn-full { width: 100%; }
+.btn-sm { padding: 9px 16px; font-size: .8rem; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+
+/* INPUTS */
+.lbl { font-size: .7rem; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; }
+.inp { width: 100%; background: var(--card2); border: 2px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1.25rem; padding: 13px 14px; outline: none; transition: border-color .15s; font-family: 'Courier New', monospace; letter-spacing: 1px; }
+.inp:focus { border-color: var(--yellow); }
+.inp.ok { border-color: var(--green); background: #edfff5; }
+.inp.err { border-color: var(--red); background: #fff3f0; }
+.inp-sm { font-size: .95rem; padding: 10px 12px; text-transform: none; letter-spacing: 0; }
+
+/* FEEDBACK */
+.fb { border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; font-size: .88rem; font-weight: 600; text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.fb-ok { background: #edfff5; color: #00843e; border: 1px solid rgba(0,166,80,.35); }
+.fb-err { background: #fff3f0; color: #c0392b; border: 1px solid rgba(192,57,43,.35); }
+.fb-info { background: #eef4ff; color: #2d3277; border: 1px solid rgba(52,131,250,.35); }
+.fb-hidden { background: transparent; border-color: transparent; color: transparent; }
+
+/* STEPS */
+.steps { display: flex; gap: 6px; margin-bottom: 18px; }
+.step { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background .2s; }
+.step.on { background: var(--yellow); }
+.step.done { background: var(--green); }
+
+/* LOGIN */
+#screen-login { justify-content: center; align-items: center; padding: 24px 20px; }
+.login-wrap { width: 100%; max-width: 400px; }
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+.login-logo h1 { font-size: 1.6rem; font-weight: 800; color: var(--dark-blue); }
+.login-logo p { font-size: .78rem; color: var(--dim); margin-top: 3px; }
+.op-list { display: flex; flex-direction: column; gap: 7px; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
+.op-item { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; cursor: pointer; font-size: .88rem; transition: all .12s; }
+.op-item:hover, .op-item:active { border-color: var(--dark-blue); background: #eef4ff; color: var(--dark-blue); }
+
+/* ACTION CARDS */
+.act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.act-card { background: var(--card2); border: 2px solid var(--border); border-radius: 12px; padding: 22px 12px; text-align: center; cursor: pointer; transition: all .15s; }
+.act-card:active { transform: scale(.96); }
+.act-card.alm { border-color: var(--blue); }
+.act-card.alm:hover { background: #eef4ff; }
+.act-card.vac { border-color: var(--red); }
+.act-card.vac:hover { background: #fff3f0; }
+.act-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+.act-lbl { font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
+.act-sub { font-size: .65rem; color: var(--dim); margin-top: 4px; }
+
+/* COUNTERS */
+.cnt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cnt-chip { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px; text-align: center; }
+.cnt-val { font-size: 1.5rem; font-weight: 800; color: var(--dark-blue); line-height: 1; }
+.cnt-lbl { font-size: .62rem; color: var(--dim); text-transform: uppercase; margin-top: 3px; }
+.cnt-total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* HISTORY */
+.h-item { border-left: 3px solid var(--border); border-radius: 4px; padding: 8px 12px; margin-bottom: 6px; background: var(--card2); font-size: .8rem; }
+.h-item.alm { border-color: var(--blue); }
+.h-item.vac { border-color: var(--red); }
+.h-main { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.h-meta { color: var(--dim); font-size: .68rem; margin-top: 3px; }
+
+/* TABS */
+.tabs { display: flex; background: var(--card); border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
+.tab { flex: 1; padding: 10px 4px 8px; text-align: center; cursor: pointer; font-size: .6rem; color: var(--dim); text-transform: uppercase; letter-spacing: .3px; border-top: 2px solid transparent; transition: all .12s; }
+.tab.active { color: var(--dark-blue); border-top-color: var(--dark-blue); }
+.tab-icon { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+
+/* LAYOUT VIEW */
+.ly-section { margin-bottom: 14px; }
+.ly-sec-title { font-size: .7rem; font-weight: 700; color: var(--dark-blue); text-transform: uppercase; letter-spacing: .8px; padding: 4px 8px; background: var(--card2); border-radius: 4px; border-left: 3px solid var(--yellow); margin-bottom: 8px; }
+.ly-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.doc-blk { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 7px; min-width: 110px; flex: 1; }
+.doc-ttl { font-size: .62rem; font-weight: 700; color: var(--blue); text-align: center; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+.pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.pos-cell { border-radius: 3px; padding: 3px 2px; font-size: .53rem; text-align: center; cursor: pointer; transition: all .1s; min-height: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+.pos-cell:hover { opacity: .8; transform: scale(1.05); }
+.pos-cell:active { transform: scale(.95); }
+.pos-libre { background: #edfff5; color: #00843e; border: 1px solid rgba(0,166,80,.4); }
+.pos-pallet { background: #fff3f0; color: #c0392b; border: 1px solid rgba(192,57,43,.4); }
+.pos-bulto { background: #fff8e0; color: #8a5000; border: 1px solid rgba(224,120,0,.4); }
+.pos-voluminoso { background: #f5eeff; color: #5a1a8a; border: 1px solid rgba(123,31,162,.4); }
+.pos-id-txt { font-weight: 600; }
+.pos-pal-txt { font-size: .48rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50px; opacity: .85; }
+
+/* LEGEND */
+.legend { display: flex; flex-wrap: wrap; gap: 6px; font-size: .62rem; }
+.leg-item { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 3px; }
+
+/* SEARCH */
+.sr-card { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: border-color .1s; }
+.sr-card:hover { border-color: var(--yellow); }
+.sr-pos-tag { display: inline-block; background: var(--blue); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: .72rem; font-weight: 700; margin-bottom: 5px; }
+.sr-pal { font-size: 1.05rem; font-weight: 700; color: var(--dark-blue); }
+.sr-meta { font-size: .72rem; color: var(--dim); margin-top: 3px; }
+
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.overlay.open { display: flex; }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; width: 100%; max-width: 380px; }
+.modal-ttl { font-size: 1rem; font-weight: 700; color: var(--dark-blue); margin-bottom: 14px; text-align: center; }
+.modal-pos { font-size: 1.1rem; font-weight: 700; color: var(--dark-blue); }
+.status-badge { display: inline-block; padding: 4px 14px; border-radius: 16px; font-size: .78rem; font-weight: 700; margin-bottom: 10px; }
+.status-libre { background: #edfff5; color: #00843e; }
+.status-ocu { background: #fff3f0; color: #c0392b; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: .78rem; margin-bottom: 12px; }
+.detail-lbl { color: var(--dim); font-size: .65rem; text-transform: uppercase; margin-bottom: 2px; }
+.detail-val { font-weight: 700; }
+
+/* ADMIN */
+.adm-item { display: flex; align-items: center; justify-content: space-between; background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; font-size: .83rem; }
+.del-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: .95rem; padding: 2px 8px; border-radius: 4px; }
+.del-btn:hover { background: #fff3f0; }
+
+/* DIM BUTTONS */
+.dim-btn { padding: 10px 8px; border-radius: 6px; text-align: center; cursor: pointer; font-size: .82rem; font-weight: 700; border: 2px solid var(--border); background: var(--card2); color: var(--text); transition: all .12s; }
+.dim-btn.sel-pallet { background: var(--blue); border-color: var(--blue); color: #fff; }
+.dim-btn.sel-bulto { background: var(--orange); border-color: var(--orange); color: #fff; }
+.dim-btn.sel-voluminoso { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+/* VACIAR PREVIEW */
+.vac-preview-inner { display: flex; justify-content: space-between; align-items: center; }
+.vac-pal { font-size: 1.1rem; font-weight: 700; color: var(--dark-blue); }
+.vac-meta { font-size: .75rem; color: var(--dim); margin-top: 3px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ROW FLEX */
+.row-flex { display: flex; gap: 8px; }
+.flex1 { flex: 1; }
+.flex2 { flex: 2; }
+
+/* SECTION DIVIDER */
+.sec-hd { font-size: .68rem; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+
+/* SYNC INDICATOR */
+.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.sync-ok { background: var(--green); }
+.sync-err { background: var(--red); }
+.sync-off { background: var(--dim); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <span class="login-logo-icon">📦</span>
+      <h1>Layout Rezagos</h1>
+      <p>ARBA01 &mdash; Mercado Libre Logística Inversa</p>
+    </div>
+    <div class="card">
+      <div class="sec-hd" style="margin-bottom: 8px;">¿Quién está operando?</div>
+      <input type="text" id="login-search" class="inp inp-sm"
+        placeholder="Buscá tu nombre..." autocomplete="off" spellcheck="false"
+        oninput="filterLoginList()" style="margin-bottom:10px;text-transform:none;">
+      <div class="op-list" id="login-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ MAIN -->
+<div id="s-main" class="screen">
+  <div class="header">
+    <div>
+      <div class="hd-title">ARBA01</div>
+      <div class="hd-sub" id="hd-sync-txt"><span class="sync-dot sync-off" id="sync-dot"></span>Layout Rezagos</div>
+    </div>
+    <div class="op-badge" id="main-op-badge" onclick="doLogout()">👤 —</div>
+  </div>
+
+  <div class="content">
+    <!-- TAB: GUIA -->
+    <div id="t-guia">
+      <!-- ENCABEZADO -->
+      <div class="card" style="background:var(--dark-blue);border-color:var(--dark-blue);margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:2rem;">📦</span>
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:#fff;letter-spacing:.3px;">Layout Rezagos — ARBA01</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px;">Herramienta de gestión de posiciones · Logística Inversa · Mercado Libre</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARA QUE SIRVE -->
+      <div class="card" style="border-left:4px solid var(--yellow);">
+        <div class="sec-hd" style="color:var(--dark-blue);font-weight:800;font-size:.75rem;margin-bottom:8px;">¿Para qué sirve esta herramienta?</div>
+        <div style="font-size:.83rem;color:var(--dim);line-height:1.7;">
+          Permite <strong style="color:var(--text)">registrar y visualizar en tiempo real</strong> qué pallet está en cada posición del layout de rezagos no sistémicos de ARBA01.<br>
+          Reemplaza el Google Form y actualiza automáticamente la base de datos de Google Sheets.
+        </div>
+      </div>
+
+      <!-- COMO ALMACENAR -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="background:#eef4ff;border:2px solid var(--blue);border-radius:8px;padding:6px 10px;font-size:1.1rem;">📥</div>
+          <div style="font-size:.85rem;font-weight:800;color:var(--dark-blue);">Cómo ALMACENAR un pallet</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--dark-blue);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div style="font-size:.8rem;color:var(--text);">Tocá el botón <strong>ALMACENAR</strong> en la pestaña Operar</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--dark-blue);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div style="font-size:.8rem;color:var(--text);">Escaneá el <strong>código del pallet</strong> (el campo se llena solo y avanza automáticamente)</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--dark-blue);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div style="font-size:.8rem;color:var(--text);">Escaneá la <strong>posición de destino</strong> (ej: DOC-5-001)</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+            <div style="font-size:.8rem;color:var(--text);">Seleccioná la <strong>dimensión</strong> (Pallet / Bulto / Voluminoso) y tocá <strong>CONFIRMAR</strong></div>
+          </div>
+        </div>
+        <div style="margin-top:8px;padding:8px 10px;background:#eef4ff;border-radius:6px;font-size:.75rem;color:var(--dark-blue);">
+          💡 El scanner hace Enter automático — no necesitás tocar la pantalla entre escaneos.
+        </div>
+      </div>
+
+      <!-- COMO VACIAR -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="background:#fff3f0;border:2px solid var(--red);border-radius:8px;padding:6px 10px;font-size:1.1rem;">📤</div>
+          <div style="font-size:.85rem;font-weight:800;color:var(--dark-blue);">Cómo VACIAR una posición</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--dark-blue);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div style="font-size:.8rem;color:var(--text);">Tocá el botón <strong>VACIAR</strong> en la pestaña Operar</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--dark-blue);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div style="font-size:.8rem;color:var(--text);">Escaneá la <strong>posición a vaciar</strong> — se muestra el pallet actual en esa posición</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg);border-radius:6px;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div style="font-size:.8rem;color:var(--text);">Confirmá tocando <strong>VACIAR POSICIÓN</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYOUT Y BUSCAR -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div class="card" style="margin-bottom:0;">
+          <div style="font-size:.8rem;font-weight:800;color:var(--dark-blue);margin-bottom:8px;">🗺️ Layout</div>
+          <div style="font-size:.75rem;color:var(--dim);line-height:1.6;">
+            Vista visual de todas las posiciones de ARBA01.<br><br>
+            <span style="display:inline-block;background:#edfff5;color:#00843e;padding:1px 6px;border-radius:3px;font-size:.68rem;font-weight:700;">● Verde</span> = libre<br>
+            <span style="display:inline-block;background:#fff3f0;color:#c0392b;padding:1px 6px;border-radius:3px;font-size:.68rem;font-weight:700;">● Rojo</span> = ocupado<br><br>
+            Tocá cualquier posición para ver el detalle o realizar una acción.
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0;">
+          <div style="font-size:.8rem;font-weight:800;color:var(--dark-blue);margin-bottom:8px;">🔍 Buscar</div>
+          <div style="font-size:.75rem;color:var(--dim);line-height:1.6;">
+            Localizá cualquier pallet o posición.<br><br>
+            Podés buscar por:<br>
+            · Código de pallet (ej: <strong>RZ-1096615</strong>)<br>
+            · ID de posición (ej: <strong>DOC-5</strong>)<br><br>
+            El resultado muestra ubicación, estado y quién lo registró.
+          </div>
+        </div>
+      </div>
+
+      <!-- POSICIONES -->
+      <div class="card" style="border-left:4px solid var(--border);">
+        <div class="sec-hd" style="color:var(--dark-blue);font-weight:800;font-size:.75rem;margin-bottom:8px;">Nomenclatura de posiciones — ARBA01</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:.72rem;">
+          <span style="background:var(--card2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--text);">DOC-5-001 a DOC-8-020</span>
+          <span style="background:var(--card2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--text);">DOC-9-001 a DOC-12-020</span>
+          <span style="background:var(--card2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--text);">Tran-1-001 a Tran-1-020</span>
+          <span style="background:var(--card2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--text);">DOC-93-01 a DOC-93-20</span>
+          <span style="background:var(--card2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--text);">ROLL-PS-01 a ROLL-PS-20</span>
+        </div>
+      </div>
+
+      <!-- BOTON IR A OPERAR -->
+      <button class="btn btn-full" onclick="switchTab('operar',document.getElementById('tab-operar'))"
+        style="background:var(--yellow);color:var(--dark-blue);font-weight:900;font-size:1rem;letter-spacing:.5px;border-radius:10px;padding:16px;">
+        Ir a Operar →
+      </button>
+    </div>
+
+    <!-- TAB: OPERAR -->
+    <div id="t-operar" style="display:none;">
+      <div class="act-grid">
+        <div class="act-card alm" onclick="goAlmacenar()">
+          <span class="act-icon">📥</span>
+          <div class="act-lbl" style="color:var(--blue)">Almacenar</div>
+          <div class="act-sub">Ingresar pallet</div>
+        </div>
+        <div class="act-card vac" onclick="goVaciar()">
+          <span class="act-icon">📤</span>
+          <div class="act-lbl" style="color:var(--red)">Vaciar</div>
+          <div class="act-sub">Retirar pallet</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-hd">Ocupación actual — ARBA01</div>
+        <div class="cnt-grid" id="cnt-grid"></div>
+        <div class="cnt-total-row">
+          <span style="font-size:.75rem;color:var(--dim)">TOTAL PALLETS</span>
+          <span id="cnt-total" style="font-size:1.4rem;font-weight:800;color:var(--dark-blue)">0</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-hd">Últimos movimientos</div>
+        <div id="recent-hist"></div>
+      </div>
+    </div>
+
+    <!-- TAB: LAYOUT -->
+    <div id="t-layout" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="sec-hd" style="margin:0">Toque una posición para ver detalle</div>
+        <button class="btn btn-ghost btn-sm" onclick="renderLayoutView()">↺</button>
+      </div>
+      <div class="legend" style="margin-bottom:12px;">
+        <div class="leg-item pos-libre">● Libre</div>
+        <div class="leg-item pos-pallet">● Pallet</div>
+        <div class="leg-item pos-bulto">● Bulto</div>
+        <div class="leg-item pos-voluminoso">● Voluminoso</div>
+      </div>
+      <div id="layout-container"></div>
+    </div>
+
+    <!-- TAB: BUSCAR -->
+    <div id="t-buscar" style="display:none">
+      <div class="card" style="padding:10px 12px;">
+        <label class="lbl">Pallet o posición</label>
+        <input type="text" class="inp inp-sm" id="search-inp" placeholder="Escaneá o escribí..." autocomplete="off" oninput="doSearch()" style="text-transform:none">
+      </div>
+      <div id="search-res"></div>
+    </div>
+
+    <!-- TAB: ADMIN -->
+    <div id="t-admin" style="display:none">
+      <div class="card">
+        <div class="sec-hd" style="color:var(--yellow);font-weight:700;font-size:.8rem;">Responsables</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <input type="text" class="inp inp-sm" id="new-op-inp" placeholder="Nombre completo..." style="flex:1;text-transform:none">
+          <button class="btn btn-blue btn-sm" onclick="addOperator()">+ Agregar</button>
+        </div>
+        <div id="admin-ops-list"></div>
+      </div>
+      <div class="card">
+        <div class="sec-hd" style="color:var(--yellow);font-weight:700;font-size:.8rem;">Integración Apps Script</div>
+        <label class="lbl">URL del Web App desplegado</label>
+        <input type="text" class="inp inp-sm" id="as-url-inp" placeholder="https://script.google.com/macros/s/..." autocomplete="off" style="margin-bottom:8px;text-transform:none;font-size:.78rem;">
+        <button class="btn btn-blue btn-full btn-sm" onclick="saveAsUrl()" style="margin-bottom:8px;">Guardar URL</button>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="syncFromSheet()">↻ Sincronizar con Google Sheets</button>
+        <div id="sync-msg" style="font-size:.72rem;color:var(--dim);text-align:center;margin-top:6px;"></div>
+      </div>
+      <div class="card">
+        <div class="sec-hd" style="color:#ff6b6b;font-weight:700;font-size:.78rem;">⚠ Datos locales</div>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="exportJSON()" style="margin-bottom:7px;">📥 Exportar JSON</button>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="resetLocalData()" style="border-color:var(--red);color:var(--red);">🗑 Limpiar datos locales</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-guia" onclick="switchTab('guia',this)"><span class="tab-icon">📖</span>Guía</div>
+    <div class="tab" id="tab-operar" onclick="switchTab('operar',this)"><span class="tab-icon">🔄</span>Operar</div>
+    <div class="tab" id="tab-layout" onclick="switchTab('layout',this)"><span class="tab-icon">🗺️</span>Layout</div>
+    <div class="tab" id="tab-buscar" onclick="switchTab('buscar',this)"><span class="tab-icon">🔍</span>Buscar</div>
+    <div class="tab" id="tab-admin" onclick="switchTab('admin',this)"><span class="tab-icon">⚙️</span>Admin</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ ALMACENAR -->
+<div id="s-alm" class="screen">
+  <div class="header">
+    <div><div class="hd-title" style="color:var(--dark-blue)">📥 ALMACENAR</div><div class="hd-sub">Ingresando pallet al layout</div></div>
+    <div class="op-badge" id="alm-op-badge">👤</div>
+  </div>
+  <div class="content" style="max-width:500px;margin:0 auto;width:100%;">
+    <div class="steps">
+      <div class="step on" id="alm-s1"></div>
+      <div class="step" id="alm-s2"></div>
+      <div class="step" id="alm-s3"></div>
+    </div>
+    <div class="fb fb-hidden" id="alm-fb"></div>
+    <div class="card">
+      <label class="lbl">1. Código del pallet *</label>
+      <input type="text" class="inp" id="alm-pal" placeholder="Escaneá el pallet..."
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        onkeydown="almKey(event,'pal')" style="margin-bottom:16px;">
+      <label class="lbl">2. Posición de destino *</label>
+      <input type="text" class="inp" id="alm-pos" placeholder="Escaneá la posición..."
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        onkeydown="almKey(event,'pos')">
+    </div>
+    <div class="card">
+      <label class="lbl" style="margin-bottom:10px;">3. Dimensión</label>
+      <div style="display:flex;gap:8px;">
+        <div class="dim-btn sel-pallet" id="db-pallet" onclick="selDim('Pallet')" style="flex:1;">📦 Pallet</div>
+        <div class="dim-btn" id="db-bulto" onclick="selDim('Bulto')" style="flex:1;">📦 Bulto</div>
+        <div class="dim-btn" id="db-voluminoso" onclick="selDim('Voluminoso')" style="flex:1;">🛋️ Voluminoso</div>
+      </div>
+    </div>
+    <div class="row-flex">
+      <button class="btn btn-ghost flex1" onclick="backToMain()">← Volver</button>
+      <button class="btn btn-blue flex2" onclick="confirmAlm()">CONFIRMAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ VACIAR -->
+<div id="s-vac" class="screen">
+  <div class="header">
+    <div><div class="hd-title" style="color:var(--red)">📤 VACIAR</div><div class="hd-sub">Retirando pallet del layout</div></div>
+    <div class="op-badge" id="vac-op-badge">👤</div>
+  </div>
+  <div class="content" style="max-width:500px;margin:0 auto;width:100%;">
+    <div class="fb fb-hidden" id="vac-fb"></div>
+    <div class="card">
+      <label class="lbl">Posición a vaciar *</label>
+      <input type="text" class="inp" id="vac-pos" placeholder="Escaneá la posición..."
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        onkeydown="vacKey(event)" oninput="updateVacPreview()">
+    </div>
+    <div class="card" id="vac-preview" style="display:none;">
+      <div class="sec-hd" style="margin-bottom:8px;">Contenido actual</div>
+      <div id="vac-preview-inner"></div>
+    </div>
+    <div class="row-flex">
+      <button class="btn btn-ghost flex1" onclick="backToMain()">← Volver</button>
+      <button class="btn btn-red flex2" onclick="confirmVac()">VACIAR POSICIÓN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ MODAL DETALLE -->
+<div class="overlay" id="pos-overlay">
+  <div class="modal">
+    <div class="modal-ttl" id="modal-pos-id">DOC-5-001</div>
+    <div style="text-align:center;margin-bottom:12px;">
+      <div class="status-badge" id="modal-status">LIBRE</div>
+    </div>
+    <div id="modal-body"></div>
+    <div class="row-flex" style="margin-top:14px;">
+      <button class="btn btn-ghost flex1" onclick="closeModal()">Cerrar</button>
+      <button class="btn btn-blue flex2" id="modal-action-btn" style="display:none;">Acción</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// LAYOUT DEFINITION
+// ═══════════════════════════════════════════════════════════
+const p3 = n => String(n).padStart(3,'0');
+const p2 = n => String(n).padStart(2,'0');
+const rng = n => Array.from({length:n},(_,i)=>i+1);
+
+const LAYOUT = [
+  {
+    title: 'Fila superior',
+    docs: [
+      { id:'DOC5',  name:'DOC 5',  pos: rng(20).map(n=>`DOC-5-${p3(n)}`)  },
+      { id:'DOC6',  name:'DOC 6',  pos: rng(20).map(n=>`DOC-6-${p3(n)}`)  },
+      { id:'DOC7',  name:'DOC 7',  pos: rng(20).map(n=>`DOC-7-${p3(n)}`)  },
+      { id:'DOC8',  name:'DOC 8',  pos: rng(20).map(n=>`DOC-8-${p3(n)}`)  },
+    ]
+  },
+  {
+    title: 'Fila inferior',
+    docs: [
+      { id:'DOC9',  name:'DOC 9',  pos: rng(20).map(n=>`DOC-9-${p3(n)}`)  },
+      { id:'DOC10', name:'DOC 10', pos: rng(20).map(n=>`DOC-10-${p3(n)}`) },
+      { id:'DOC11', name:'DOC 11 BULTOS', pos: rng(20).map(n=>`DOC-11-${p3(n)}`) },
+      { id:'DOC12', name:'DOC 12 BULTOS', pos: rng(20).map(n=>`DOC-12-${p3(n)}`) },
+    ]
+  },
+  {
+    title: 'Zonas especiales',
+    docs: [
+      { id:'TRAN',  name:'Calle Transitoria', pos: rng(20).map(n=>`Tran-1-${p3(n)}`) },
+      { id:'DOC53', name:'DOC 53',           pos: rng(20).map(n=>`DOC-93-${p2(n)}`)  },
+      { id:'ROLLPS',name:'ROLL P$',          pos: rng(20).map(n=>`ROLL-PS-${p2(n)}`) },
+    ]
+  }
+];
+
+const ALL_POS = LAYOUT.flatMap(s => s.docs.flatMap(d => d.pos));
+
+// ═══════════════════════════════════════════════════════════
+// DEFAULT OPERATORS
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_OPS = [
+  "Florencia Ayelen Arroyo","Jonathan Javier Angel Gomez",
+  "Camila Belen Velazquez Aguero","Brenda Gomez","Leonel Rodriguez",
+  "Nicolas Barciela","Daniel Bernshtein","Sebastian Andres Ringa",
+  "Franco Ariel Sanchez","Facundo Tur","Karen Ferreira",
+  "Daiana Silvina Coronel Delmas","Melany Martinez",
+  "Camila Elizabeth Mangone","Agustin Alonso",
+  "Celeste Nairana Gonzalez Rios","Debora Mojica",
+  "Patricio Martinez","Irina Belen Ruiz","Maira Gallo",
+  "Samuel Ortega","Luciana Acosta","Debora Rodriguez"
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let S = {
+  op: null,
+  ops: [],
+  pos: {},       // { posId: { pallet, dimension, operator, timestamp } | null }
+  history: [],   // max 60
+  asUrl: null,
+  dim: 'Pallet'
+};
+
+// ═══════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+const LS_KEY = 'rz_arba01_v2';
+function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify({
+    ops: S.ops, pos: S.pos, history: S.history, asUrl: S.asUrl
+  }));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (d) {
+      S.ops     = d.ops     || [...DEFAULT_OPS];
+      S.pos     = d.pos     || {};
+      S.history = d.history || [];
+      S.asUrl   = d.asUrl   || null;
+    } else {
+      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.asUrl = null;
+    }
+  } catch(e) {
+    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.asUrl = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+load();
+renderLoginList();
+setTimeout(() => { const si = document.getElementById('login-search'); if (si) si.focus(); }, 300);
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+}
+
+function backToMain() { show('main'); refreshMain(); }
+
+function doLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  S.op = null;
+  show('login');
+  const si = document.getElementById('login-search');
+  if (si) si.value = '';
+  renderLoginList();
+  setTimeout(() => { if (si) si.focus(); }, 200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════
+function renderLoginList() {
+  const q = (document.getElementById('login-search') || {}).value || '';
+  filterLoginList(q);
+}
+
+function filterLoginList() {
+  const q = document.getElementById('login-search').value.trim().toLowerCase();
+  const el = document.getElementById('login-list');
+  const filtered = q ? S.ops.filter(op => op.toLowerCase().includes(q)) : S.ops;
+  if (!filtered.length) {
+    el.innerHTML = '<div style="color:var(--dim);font-size:.82rem;text-align:center;padding:12px;">Sin resultados</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(op =>
+    `<div class="op-item" onclick="loginAs('${esc(op)}')">${op}</div>`
+  ).join('');
+}
+
+function loginAs(name) {
+  S.op = name;
+  document.getElementById('main-op-badge').textContent = '👤 ' + name.split(' ')[0];
+  show('main');
+  switchTab('guia', document.getElementById('tab-guia'));
+  refreshMain();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['guia','operar','layout','buscar','admin'].forEach(t => {
+    document.getElementById('t-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'layout') renderLayoutView();
+  if (tab === 'admin')  renderAdminView();
+  if (tab === 'buscar') setTimeout(()=>document.getElementById('search-inp').focus(),100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN REFRESH
+// ═══════════════════════════════════════════════════════════
+function refreshMain() { renderCounters(); renderHistory(); }
+
+function renderCounters() {
+  const counts = {};
+  let total = 0;
+  Object.values(S.pos).forEach(p => {
+    if (p && p.pallet) {
+      total++;
+      const k = prefix(p.pallet);
+      counts[k] = (counts[k] || 0) + 1;
+    }
+  });
+  const order = ['RZ','VD','HOG','MOD','BA','TEC'];
+  const keys = [...new Set([...order,...Object.keys(counts)])].filter(k=>counts[k]);
+  document.getElementById('cnt-grid').innerHTML = keys.slice(0,9).map(k =>
+    `<div class="cnt-chip"><div class="cnt-val">${counts[k]}</div><div class="cnt-lbl">${k}</div></div>`
+  ).join('');
+  document.getElementById('cnt-total').textContent = total;
+}
+
+function renderHistory() {
+  const el = document.getElementById('recent-hist');
+  const items = [...S.history].reverse().slice(0,10);
+  if (!items.length) {
+    el.innerHTML = '<div style="color:var(--dim);font-size:.8rem;text-align:center;padding:10px;">Sin movimientos registrados</div>';
+    return;
+  }
+  el.innerHTML = items.map(h => {
+    const icon = h.type === 'alm' ? '📥' : '📤';
+    const col  = h.type === 'alm' ? 'var(--blue)' : 'var(--red)';
+    return `<div class="h-item ${h.type}">
+      <div class="h-main">${icon}
+        <span style="color:${col}">${h.pallet||'—'}</span>
+        <span style="color:var(--dim)">→</span>
+        <span>${h.position}</span>
+      </div>
+      <div class="h-meta">${firstName(h.operator)} &middot; ${h.ts}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ALMACENAR
+// ═══════════════════════════════════════════════════════════
+function goAlmacenar() {
+  document.getElementById('alm-op-badge').textContent = '👤 ' + firstName(S.op);
+  document.getElementById('alm-pal').value = '';
+  document.getElementById('alm-pos').value = '';
+  setFb('alm-fb','');
+  almStep(1);
+  selDim('Pallet');
+  show('alm');
+  setTimeout(()=>document.getElementById('alm-pal').focus(), 300);
+}
+
+function almStep(n) {
+  ['alm-s1','alm-s2','alm-s3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step' + (i+1 < n ? ' done' : i+1 === n ? ' on' : '');
+  });
+}
+
+function almKey(e, field) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  if (field === 'pal') {
+    const v = document.getElementById('alm-pal').value.trim();
+    if (v) { almStep(2); document.getElementById('alm-pos').focus(); }
+    else setFb('alm-fb','err','⚠ Ingresá el código del pallet');
+  } else {
+    const v = document.getElementById('alm-pos').value.trim();
+    if (v) { almStep(3); confirmAlm(); }
+    else setFb('alm-fb','err','⚠ Ingresá la posición de destino');
+  }
+}
+
+function selDim(d) {
+  S.dim = d;
+  ['Pallet','Bulto','Voluminoso'].forEach(x => {
+    const el = document.getElementById('db-' + x.toLowerCase());
+    el.className = 'dim-btn' + (x === d ? ` sel-${x.toLowerCase()}` : '');
+  });
+}
+
+function confirmAlm() {
+  const pal = (document.getElementById('alm-pal').value.trim()).toUpperCase();
+  const pos = (document.getElementById('alm-pos').value.trim()).toUpperCase();
+  const dim = S.dim;
+
+  if (!pal) { setFb('alm-fb','err','⚠ Escaneá el pallet'); document.getElementById('alm-pal').focus(); return; }
+  if (!pos) { setFb('alm-fb','err','⚠ Escaneá la posición'); document.getElementById('alm-pos').focus(); return; }
+
+  if (!ALL_POS.includes(pos)) {
+    if (!confirm(`"${pos}" no está en el layout definido. ¿Registrar igual?`)) {
+      document.getElementById('alm-pos').focus(); return;
+    }
+  }
+
+  const current = S.pos[pos];
+  if (current && current.pallet) {
+    if (!confirm(`"${pos}" ya tiene "${current.pallet}". ¿Reemplazar?`)) {
+      document.getElementById('alm-pos').focus(); return;
+    }
+  }
+
+  const ts = fmtTs(new Date());
+  S.pos[pos] = { pallet: pal, dimension: dim, operator: S.op, timestamp: ts };
+  pushHistory({ type:'alm', pallet: pal, position: pos, dimension: dim, operator: S.op, ts });
+  save();
+  postToAs({ action:'almacenar', pallet: pal, position: pos, dimension: dim, operator: S.op, timestamp: ts });
+
+  setFb('alm-fb','ok',`✓ ${pal} → ${pos}`);
+  document.getElementById('alm-pal').classList.add('ok');
+  document.getElementById('alm-pos').classList.add('ok');
+
+  setTimeout(() => {
+    backToMain();
+    switchTab('layout', document.getElementById('tab-layout'));
+  }, 1300);
+}
+
+// ═══════════════════════════════════════════════════════════
+// VACIAR
+// ═══════════════════════════════════════════════════════════
+function goVaciar() {
+  document.getElementById('vac-op-badge').textContent = '👤 ' + firstName(S.op);
+  document.getElementById('vac-pos').value = '';
+  document.getElementById('vac-preview').style.display = 'none';
+  setFb('vac-fb','');
+  show('vac');
+  setTimeout(()=>document.getElementById('vac-pos').focus(), 300);
+}
+
+function vacKey(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const pos = document.getElementById('vac-pos').value.trim().toUpperCase();
+  if (pos) { document.getElementById('vac-pos').value = pos; updateVacPreview(); }
+}
+
+function updateVacPreview() {
+  const pos = document.getElementById('vac-pos').value.trim().toUpperCase();
+  if (!pos) { document.getElementById('vac-preview').style.display = 'none'; return; }
+  const cur = S.pos[pos];
+  const prv = document.getElementById('vac-preview');
+  const inn = document.getElementById('vac-preview-inner');
+  if (cur && cur.pallet) {
+    inn.innerHTML = `<div class="vac-preview-inner">
+      <div><div class="vac-pal">${cur.pallet}</div>
+        <div class="vac-meta">${cur.dimension||'—'} &middot; ${firstName(cur.operator)} &middot; ${cur.timestamp||'—'}</div>
+      </div><span style="font-size:1.6rem;">📤</span></div>`;
+  } else {
+    inn.innerHTML = `<div style="color:var(--dim);font-size:.85rem;">Esta posición no tiene pallet registrado.</div>`;
+  }
+  prv.style.display = 'block';
+}
+
+function confirmVac() {
+  const pos = document.getElementById('vac-pos').value.trim().toUpperCase();
+  if (!pos) { setFb('vac-fb','err','⚠ Escaneá la posición a vaciar'); document.getElementById('vac-pos').focus(); return; }
+
+  const prev = S.pos[pos];
+  const ts = fmtTs(new Date());
+  S.pos[pos] = { pallet: '', dimension: '', operator: S.op, timestamp: ts };
+  pushHistory({ type:'vac', pallet: prev?.pallet||'', position: pos, dimension:'', operator: S.op, ts });
+  save();
+  postToAs({ action:'vaciar', pallet:'', position: pos, dimension:'', operator: S.op, timestamp: ts });
+
+  setFb('vac-fb','ok',`✓ Posición ${pos} vaciada`);
+  document.getElementById('vac-pos').classList.add('ok');
+
+  setTimeout(() => {
+    backToMain();
+    switchTab('layout', document.getElementById('tab-layout'));
+  }, 1300);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYOUT VIEW
+// ═══════════════════════════════════════════════════════════
+function renderLayoutView() {
+  const c = document.getElementById('layout-container');
+  c.innerHTML = LAYOUT.map(sec => `
+    <div class="ly-section">
+      <div class="ly-sec-title">${sec.title}</div>
+      <div class="ly-row">${sec.docs.map(doc => renderDocBlock(doc)).join('')}</div>
+    </div>`
+  ).join('');
+}
+
+function renderDocBlock(doc) {
+  const left  = doc.pos.slice(0,10);
+  const right = doc.pos.slice(10,20);
+  let cells = '';
+  for (let i = 0; i < 10; i++) {
+    cells += renderPosCell(left[i]);
+    if (right[i]) cells += renderPosCell(right[i]);
+  }
+  return `<div class="doc-blk"><div class="doc-ttl">${doc.name}</div><div class="pos-grid">${cells}</div></div>`;
+}
+
+function renderPosCell(posId) {
+  const p = S.pos[posId];
+  const occ = p && p.pallet;
+  let cls = 'pos-libre';
+  if (occ) {
+    if (p.dimension === 'Bulto') cls = 'pos-bulto';
+    else if (p.dimension === 'Voluminoso') cls = 'pos-voluminoso';
+    else cls = 'pos-pallet';
+  }
+  const short = posId
+    .replace('DOC-','').replace('Tran-1-','T-').replace('ROLL-PS-','R-').replace('DOC-93-','93-');
+  const palShort = occ ? p.pallet.slice(0,8) : '';
+  return `<div class="pos-cell ${cls}" onclick="showPosModal('${posId}')" title="${posId}${occ?' — '+p.pallet:''}">
+    <span class="pos-id-txt">${short}</span>
+    ${palShort?`<span class="pos-pal-txt">${palShort}</span>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// POSITION MODAL
+// ═══════════════════════════════════════════════════════════
+function showPosModal(posId) {
+  const p = S.pos[posId];
+  const occ = p && p.pallet;
+  document.getElementById('modal-pos-id').textContent = posId;
+  const st = document.getElementById('modal-status');
+  st.textContent = occ ? 'OCUPADO' : 'LIBRE';
+  st.className = 'status-badge ' + (occ ? 'status-ocu' : 'status-libre');
+  const body = document.getElementById('modal-body');
+  if (occ) {
+    body.innerHTML = `
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:1.2rem;font-weight:800;color:var(--yellow);margin-bottom:4px;">${p.pallet}</div>
+      </div>
+      <div class="detail-grid">
+        <div><div class="detail-lbl">Dimensión</div><div class="detail-val">${p.dimension||'—'}</div></div>
+        <div><div class="detail-lbl">Operador</div><div class="detail-val">${firstName(p.operator)}</div></div>
+        <div style="grid-column:1/-1"><div class="detail-lbl">Registrado</div><div class="detail-val">${p.timestamp||'—'}</div></div>
+      </div>`;
+    const ab = document.getElementById('modal-action-btn');
+    ab.style.display='block'; ab.textContent='📤 Vaciar posición'; ab.className='btn btn-red flex2';
+    ab.onclick = () => { vaciarDesdeModal(posId); };
+  } else {
+    body.innerHTML = `<div style="color:var(--dim);font-size:.85rem;text-align:center;padding:8px 0;">Sin pallet asignado</div>`;
+    const ab = document.getElementById('modal-action-btn');
+    ab.style.display='block'; ab.textContent='📥 Almacenar aquí'; ab.className='btn btn-blue flex2';
+    ab.onclick = () => { closeModal(); quickAlm(posId); };
+  }
+  document.getElementById('pos-overlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('pos-overlay').classList.remove('open'); }
+document.getElementById('pos-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+function quickVac(posId) { document.getElementById('vac-pos').value = posId; updateVacPreview(); goVaciar(); setTimeout(()=>{document.getElementById('vac-pos').value=posId;updateVacPreview();},100); }
+
+function vaciarDesdeModal(posId) {
+  const p = S.pos[posId];
+  const palLabel = (p && p.pallet) ? p.pallet : 'esta posición';
+  if (!confirm(`¿Vaciar ${posId}?\nContenido: ${palLabel}`)) return;
+  const ts = fmtTs(new Date());
+  const prev = S.pos[posId];
+  S.pos[posId] = { pallet: '', dimension: '', operator: S.op, timestamp: ts };
+  pushHistory({ type:'vac', pallet: prev && prev.pallet ? prev.pallet : '', position: posId, dimension: '', operator: S.op, ts });
+  save();
+  postToAs({ action:'vaciar', pallet:'', position: posId, dimension:'', operator: S.op, timestamp: ts });
+  closeModal();
+  renderLayoutView();
+  refreshMain();
+}
+function quickAlm(posId) { goAlmacenar(); setTimeout(()=>{document.getElementById('alm-pos').value=posId;almStep(2);document.getElementById('alm-pal').focus();},300); }
+
+// ═══════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════
+function doSearch() {
+  const q = document.getElementById('search-inp').value.trim().toUpperCase();
+  const res = document.getElementById('search-res');
+  if (q.length < 2) { res.innerHTML = ''; return; }
+
+  const matches = [];
+  // By pallet
+  Object.entries(S.pos).forEach(([pid, p]) => {
+    if (p && p.pallet && p.pallet.includes(q)) matches.push({ pid, p });
+  });
+  // By position ID
+  ALL_POS.forEach(pid => {
+    if (pid.toUpperCase().includes(q) && !matches.find(m=>m.pid===pid)) {
+      matches.push({ pid, p: S.pos[pid] || null });
+    }
+  });
+
+  if (!matches.length) {
+    res.innerHTML = `<div style="color:var(--dim);font-size:.85rem;text-align:center;padding:14px;">Sin resultados para "${q}"</div>`;
+    return;
+  }
+  res.innerHTML = matches.slice(0,20).map(({pid,p}) => {
+    const occ = p && p.pallet;
+    return `<div class="sr-card" onclick="showPosModal('${pid}')">
+      <div class="sr-pos-tag">${pid}</div>
+      ${occ
+        ? `<div class="sr-pal">${p.pallet}</div><div class="sr-meta">${p.dimension||'—'} &middot; ${firstName(p.operator)} &middot; ${p.timestamp||'—'}</div>`
+        : `<div style="color:var(--green);font-size:.85rem;margin-top:3px;">● Libre</div>`
+      }
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════════
+function renderAdminView() {
+  document.getElementById('admin-ops-list').innerHTML = S.ops.map((op,i) =>
+    `<div class="adm-item"><span>${op}</span><button class="del-btn" onclick="delOp(${i})" title="Eliminar">✕</button></div>`
+  ).join('');
+  const ui = document.getElementById('as-url-inp');
+  if (ui && S.asUrl) ui.value = S.asUrl;
+}
+
+function addOperator() {
+  const inp = document.getElementById('new-op-inp');
+  const n = inp.value.trim();
+  if (!n) return;
+  if (S.ops.includes(n)) { alert('Ese responsable ya existe.'); return; }
+  S.ops.push(n); save(); inp.value = '';
+  renderAdminView(); renderLoginList();
+}
+
+function delOp(i) {
+  if (!confirm(`¿Eliminar a "${S.ops[i]}"?`)) return;
+  S.ops.splice(i,1); save(); renderAdminView(); renderLoginList();
+}
+
+function saveAsUrl() {
+  const u = document.getElementById('as-url-inp').value.trim();
+  S.asUrl = u || null; save();
+  setSyncMsg(u ? '✓ URL guardada correctamente' : 'URL eliminada');
+}
+
+// ═══════════════════════════════════════════════════════════
+// APPS SCRIPT
+// ═══════════════════════════════════════════════════════════
+function postToAs(data) {
+  if (!S.asUrl) return;
+  fetch(S.asUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).then(r => r.json()).then(r => {
+    if (r.success) { setSyncDot('ok'); } else setSyncDot('err');
+  }).catch(() => setSyncDot('err'));
+}
+
+function syncFromSheet() {
+  if (!S.asUrl) { alert('Configurá primero la URL del Apps Script.'); return; }
+  setSyncMsg('Sincronizando...');
+  fetch(S.asUrl + '?action=getLayout')
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        Object.entries(data.data).forEach(([posId, val]) => {
+          S.pos[posId] = val.pallet
+            ? { pallet: val.pallet, dimension: val.dimension||'', operator: val.operator||'', timestamp: val.timestamp||'' }
+            : { pallet: '', dimension: '', operator: val.operator||'', timestamp: val.timestamp||'' };
+        });
+        save(); refreshMain(); setSyncDot('ok');
+        setSyncMsg('✓ Sincronizado: ' + fmtTs(new Date()));
+      } else setSyncMsg('✗ Error: ' + (data.error||'desconocido'));
+    })
+    .catch(() => { setSyncDot('err'); setSyncMsg('✗ Error de conexión'); });
+}
+
+function setSyncDot(s) {
+  const d = document.getElementById('sync-dot');
+  d.className = 'sync-dot sync-' + s;
+}
+function setSyncMsg(m) {
+  const el = document.getElementById('sync-msg');
+  if (el) el.textContent = m;
+}
+
+// ═══════════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════════
+function pushHistory(item) {
+  S.history.push(item);
+  if (S.history.length > 60) S.history.shift();
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / RESET
+// ═══════════════════════════════════════════════════════════
+function exportJSON() {
+  const blob = new Blob([JSON.stringify({ exportDate: fmtTs(new Date()), positions: S.pos, history: S.history }, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `arba01-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function resetLocalData() {
+  if (!confirm('¿Borrar todos los datos locales? No se puede deshacer.')) return;
+  S.pos = {}; S.history = []; save(); refreshMain(); alert('Datos locales borrados.');
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function fmtTs(d) {
+  return d.toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+}
+function firstName(s) { return (s||'—').split(' ')[0]; }
+function prefix(pal) {
+  const m = (pal||'').match(/^([A-Za-z]+)/);
+  return m ? m[1].toUpperCase() : pal.slice(0,3).toUpperCase();
+}
+function esc(s) { return s.replace(/'/g,"\\'"); }
+
+function setFb(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!type) { el.className='fb fb-hidden'; el.textContent=''; return; }
+  const cls = { ok:'fb-ok', err:'fb-err', info:'fb-info' }[type] || '';
+  el.className = 'fb ' + cls;
+  el.textContent = msg || '';
+  if (type === 'ok' || type === 'err') {
+    setTimeout(() => { el.className='fb fb-hidden'; el.textContent=''; }, 3000);
+  }
+}
+</script>
+</body>
+</html>
