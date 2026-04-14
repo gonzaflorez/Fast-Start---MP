@@ -218,7 +218,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="hd-title">ARBA01</div>
       <div class="hd-sub" id="hd-sync-txt"><span class="sync-dot sync-off" id="sync-dot"></span>Layout Rezagos</div>
     </div>
-    <div class="op-badge" id="main-op-badge" onclick="doLogout()">👤 —</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div id="test-badge" style="display:none;background:#ff6b00;color:#fff;font-size:.6rem;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.5px;">PRUEBA</div>
+      <div class="op-badge" id="main-op-badge" onclick="doLogout()">👤 —</div>
+    </div>
   </div>
 
   <div class="content">
@@ -404,6 +407,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="btn btn-ghost btn-full btn-sm" onclick="syncFromSheet()" style="margin-bottom:7px;">↻ Sincronizar ahora</button>
         <div id="sync-msg" style="font-size:.72rem;color:var(--dim);text-align:center;margin-top:6px;"></div>
       </div>
+      <div class="card" style="border:2px solid #ff6b00;">
+        <div class="sec-hd" style="color:#ff6b00;font-weight:700;font-size:.8rem;">🧪 Modo prueba</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:10px;line-height:1.5;">Cuando está activo: no se sincroniza al login ni se envían movimientos a Google Sheets. Los datos solo se guardan en este dispositivo.</div>
+        <button id="test-mode-btn" class="btn btn-full btn-sm" onclick="toggleTestMode()" style="border:2px solid #ff6b00;"></button>
+      </div>
       <div class="card">
         <div class="sec-hd" style="color:#ff6b6b;font-weight:700;font-size:.78rem;">⚠ Datos locales</div>
         <button class="btn btn-ghost btn-full btn-sm" onclick="exportJSON()" style="margin-bottom:7px;">📥 Exportar JSON</button>
@@ -561,7 +569,8 @@ let S = {
   ops: [],
   pos: {},       // { posId: { pallet, dimension, operator, timestamp } | null }
   history: [],   // max 60
-  dim: 'Pallet'
+  dim: 'Pallet',
+  testMode: false
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -570,21 +579,22 @@ let S = {
 const LS_KEY = 'rz_arba01_v2';
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify({
-    ops: S.ops, pos: S.pos, history: S.history
+    ops: S.ops, pos: S.pos, history: S.history, testMode: S.testMode
   }));
 }
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
     if (d) {
-      S.ops     = d.ops     || [...DEFAULT_OPS];
-      S.pos     = d.pos     || {};
-      S.history = d.history || [];
+      S.ops      = d.ops      || [...DEFAULT_OPS];
+      S.pos      = d.pos      || {};
+      S.history  = d.history  || [];
+      S.testMode = d.testMode || false;
     } else {
-      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
+      S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.testMode = false;
     }
   } catch(e) {
-    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = [];
+    S.ops = [...DEFAULT_OPS]; S.pos = {}; S.history = []; S.testMode = false;
   }
 }
 
@@ -593,6 +603,7 @@ function load() {
 // ═══════════════════════════════════════════════════════════
 load();
 renderLoginList();
+updateTestModeUI();
 setTimeout(() => { const si = document.getElementById('login-search'); if (si) si.focus(); }, 300);
 
 // ═══════════════════════════════════════════════════════════
@@ -642,7 +653,8 @@ function loginAs(name) {
   show('main');
   switchTab('guia', document.getElementById('tab-guia'));
   refreshMain();
-  syncFromSheet();
+  updateTestModeUI();
+  if (!S.testMode) syncFromSheet();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -978,6 +990,30 @@ function renderAdminView() {
   document.getElementById('admin-ops-list').innerHTML = S.ops.map((op,i) =>
     `<div class="adm-item"><span>${op}</span><button class="del-btn" onclick="delOp(${i})" title="Eliminar">✕</button></div>`
   ).join('');
+  updateTestModeUI();
+}
+
+function toggleTestMode() {
+  S.testMode = !S.testMode;
+  save();
+  updateTestModeUI();
+}
+
+function updateTestModeUI() {
+  const btn = document.getElementById('test-mode-btn');
+  const badge = document.getElementById('test-badge');
+  if (!btn) return;
+  if (S.testMode) {
+    btn.textContent = '🟠 Modo prueba ACTIVO — tocar para desactivar';
+    btn.style.background = '#ff6b00';
+    btn.style.color = '#fff';
+    if (badge) badge.style.display = 'block';
+  } else {
+    btn.textContent = '⚪ Activar modo prueba';
+    btn.style.background = 'var(--card2)';
+    btn.style.color = 'var(--text)';
+    if (badge) badge.style.display = 'none';
+  }
 }
 
 function addOperator() {
@@ -1002,7 +1038,7 @@ function hasGS() {
 }
 
 function postToAs(data) {
-  if (!hasGS()) return;
+  if (!hasGS() || S.testMode) return;
   google.script.run
     .withSuccessHandler(function(r) { if(r && r.success) setSyncDot('ok'); else setSyncDot('err'); })
     .withFailureHandler(function() { setSyncDot('err'); })
@@ -1010,6 +1046,7 @@ function postToAs(data) {
 }
 
 function syncFromSheet() {
+  if (S.testMode) { setSyncMsg('Modo prueba activo — sync desactivado'); return; }
   if (!hasGS()) {
     setSyncMsg('Abrí la app desde la URL del Apps Script para sincronizar');
     return;
