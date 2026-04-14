@@ -1093,18 +1093,33 @@ function renderLayoutEditor() {
       </div>
       <div style="padding-left:6px;">
         ${sec.docs.map((doc, di) => `
-          <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
-            <input class="inp inp-sm" value="${esc(doc.name)}" style="flex:2;min-width:80px;font-size:.75rem;"
-              onchange="renameDoc(${si},${di},this.value)" placeholder="Nombre">
-            <input class="inp inp-sm" value="${esc(doc.prefix)}" style="flex:2;min-width:70px;font-size:.75rem;"
-              onchange="updateDocPrefix(${si},${di},this.value)" placeholder="Prefijo (ej: DOC-5-)">
-            <input class="inp inp-sm" type="number" value="${doc.count}" min="1" max="99" style="width:52px;font-size:.75rem;"
-              onchange="updateDocCount(${si},${di},this.value)" placeholder="Cant">
-            <select class="inp inp-sm" style="width:60px;font-size:.72rem;" onchange="updateDocPad(${si},${di},this.value)">
-              <option value="2" ${doc.pad===2?'selected':''}>01</option>
-              <option value="3" ${doc.pad===3?'selected':''}>001</option>
-            </select>
-            <button class="del-btn" onclick="deleteDoc(${si},${di})" title="Eliminar">✕</button>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;">
+            <div style="display:flex;gap:6px;align-items:flex-end;">
+              <div style="flex:2;">
+                <div style="font-size:.58rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px;">Nombre</div>
+                <input class="inp inp-sm" value="${esc(doc.name)}" style="font-size:.8rem;width:100%;"
+                  onchange="renameDoc(${si},${di},this.value)" placeholder="Ej: DOC 5">
+              </div>
+              <div style="flex:2;">
+                <div style="font-size:.58rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px;">Prefijo posición</div>
+                <input class="inp inp-sm" value="${esc(doc.prefix)}" style="font-size:.8rem;width:100%;"
+                  onchange="updateDocPrefix(${si},${di},this.value)" placeholder="Ej: DOC-5-">
+              </div>
+              <div style="width:76px;">
+                <div style="font-size:.58rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px;">Cantidad</div>
+                <input class="inp inp-sm" type="number" value="${doc.count}" min="1" max="99"
+                  style="font-size:.8rem;width:100%;text-align:center;"
+                  onchange="updateDocCount(${si},${di},this.value)">
+              </div>
+              <div style="width:90px;">
+                <div style="font-size:.58rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px;">Formato</div>
+                <select class="inp inp-sm" style="font-size:.8rem;width:100%;" onchange="updateDocPad(${si},${di},this.value)">
+                  <option value="2" ${doc.pad===2?'selected':''}>01 / 02…</option>
+                  <option value="3" ${doc.pad===3?'selected':''}>001 / 002…</option>
+                </select>
+              </div>
+              <button class="del-btn" onclick="deleteDoc(${si},${di})" title="Eliminar" style="margin-bottom:2px;">✕</button>
+            </div>
           </div>`).join('')}
         <button class="btn btn-ghost btn-sm" onclick="addDoc(${si})" style="margin-top:4px;font-size:.72rem;padding:6px 10px;">+ DOC</button>
       </div>
